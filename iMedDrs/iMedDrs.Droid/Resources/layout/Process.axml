@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_margin="5dp"
+    android:orientation="vertical">
+    <Spinner
+        android:id="@+id/questionnaire"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_marginTop="10dp" />
+    <CheckBox
+        android:text="Hands Free Mode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/handsfree"
+        android:layout_marginTop="20dp" />
+    <Button
+        android:id="@+id/start"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Start Questionnaire"
+        android:layout_marginTop="20dp" />
+    <Button
+        android:id="@+id/view"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="View Report"
+        android:layout_marginTop="25dp" />
+    <Button
+        android:id="@+id/update"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Personal Information"
+        android:layout_marginTop="25dp" />
+    <Button
+        android:id="@+id/maintain"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Record Questionnaires"
+        android:layout_marginTop="25dp" />
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="25dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Log Out" />
+</LinearLayout>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:layout_margin="5dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+    <TextView
+        android:id="@+id/instructions"
+        android:textSize="12sp"
+        android:singleLine="false"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:height="180dp"
+        android:gravity="center_vertical"
+        android:text="TextView" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:id="@+id/listen"
+            android:layout_width="1dp"
+            android:layout_height="30dp"
+            android:src="@drawable/voice"
+            android:scaleType="center"
+            android:background="#fff3f3f3"
+            android:layout_weight="0.15" />
+        <TextView
+            android:id="@+id/qname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:height="30dp"
+            android:gravity="center"
+            android:layout_weight="0.7" />
+        <ImageButton
+            android:id="@+id/speak"
+            android:layout_width="1dp"
+            android:layout_height="30dp"
+            android:src="@drawable/speak"
+            android:scaleType="center"
+            android:background="#fff3f3f3"
+            android:layout_weight="0.15" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/question"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+		android:textColor="#ffffffff"
+        android:background="#ffff0000"
+        android:padding="5dp"
+        android:height="80dp" />
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:orientation="vertical"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:minWidth="25px"
+        android:minHeight="25px">
+        <EditText
+            android:id="@+id/response1"
+            android:inputType="number"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:imeOptions="actionDone"
+            android:singleLine="true" />
+        <EditText
+            android:id="@+id/response2"
+            android:inputType="textNoSuggestions"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:singleLine="true" />
+        <RadioGroup
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="invisible"
+            android:id="@+id/response3" />
+        <Spinner
+            android:id="@+id/response4"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/previous"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Previous"
+            android:layout_weight="0.5" />
+        <Button
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Next"
+            android:layout_weight="0.5" />
+    </LinearLayout>
+    <Button
+        android:id="@+id/returns"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_marginTop="20dp"
+        android:text="Stop Questionnaire" />
+</LinearLayout>
