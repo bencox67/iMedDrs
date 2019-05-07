@@ -53,9 +53,9 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow you to talk</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.3</string>
+	<string>2.6</string>
 	<key>CFBundleVersion</key>
-	<string>2.3</string>
+	<string>2.6</string>
 	<key>XSAppIconAssets</key>
 	<string>Resources/Images.xcassets/AppIcons.appiconset</string>
 </dict>

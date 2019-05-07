@@ -142,7 +142,6 @@ namespace iMedDrs.Droid
             voice.PutExtra(RecognizerIntent.ExtraSpeechInputPossiblyCompleteSilenceLengthMillis, 3000);
             voice.PutExtra(RecognizerIntent.ExtraSpeechInputMinimumLengthMillis, 15000);
             voice.PutExtra(RecognizerIntent.ExtraMaxResults, 1);
-            //voice.PutExtra(RecognizerIntent.ExtraLanguage, Java.Util.Locale.Default);
 
             // Clear response objects
             response1.Visibility = ViewStates.Gone;

@@ -35,8 +35,10 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView();
-            progressView.Title = "Processing... Please Wait...";
+            progressView = new UIAlertView
+            {
+                Title = "Processing... Please Wait..."
+            };
             selectedLbl = new UILabel();
             languages = new List<string>();
             NSNotificationCenter.DefaultCenter.AddObserver(UIKeyboard.WillHideNotification, OnKeyboardNotification);
@@ -46,26 +48,18 @@ namespace iMedDrs.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            if (UIScreen.MainScreen.Bounds.Width == 320)
+            datePicker = new UIDatePicker
             {
-                SetWidth(line5Txt, 320.0f);
-                SetWidth(useridTxt, 210.0f);
-                SetWidth(nameTxt, 210.0f);
-                SetWidth(languageTxt, 210.0f);
-                SetWidth(emailTxt, 210.0f);
-                SetWidth(password1Txt, 210.0f);
-                SetWidth(password2Txt, 210.0f);
-                SetWidth(updateBtn, 300.0f);
-                SetWidth(returnBtn, 300.0f);
-            }
-            datePicker = new UIDatePicker();
-            datePicker.BackgroundColor = UIColor.White;
-            datePicker.Mode = UIDatePickerMode.Date;
-            UIToolbar toolbar1 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f));
-            toolbar1.Items = new UIBarButtonItem[]{
+                BackgroundColor = UIColor.White,
+                Mode = UIDatePickerMode.Date
+            };
+            UIToolbar toolbar1 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f))
+            {
+                Items = new UIBarButtonItem[]{
                 new UIBarButtonItem(UIBarButtonSystemItem.Cancel, delegate { birthdateTxt.ResignFirstResponder(); }),
                 new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
                 new UIBarButtonItem(UIBarButtonSystemItem.Done, BirthDate)
+            }
             };
             birthdateTxt.InputView = datePicker;
             birthdateTxt.InputAccessoryView = toolbar1;
@@ -89,15 +83,19 @@ namespace iMedDrs.iOS
             }
             selectedLbl.Text = language;
             languageTxt.Text = language;
-            pickerView = new UIPickerView();
-            pickerView.BackgroundColor = UIColor.White;
-            pickerView.Model = new PickerModel(languages, selectedLbl);
-            UIToolbar toolbar2 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f));
-            toolbar2.Items = new UIBarButtonItem[]{
+            pickerView = new UIPickerView
+            {
+                BackgroundColor = UIColor.White,
+                Model = new PickerModel(languages, selectedLbl)
+            };
+            UIToolbar toolbar2 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f))
+            {
+                Items = new UIBarButtonItem[]{
                     new UIBarButtonItem(UIBarButtonSystemItem.Cancel, delegate { languageTxt.ResignFirstResponder(); }),
                     new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
                     new UIBarButtonItem(UIBarButtonSystemItem.Done, Language)
-                };
+                }
+            };
             languageTxt.InputView = pickerView;
             languageTxt.InputAccessoryView = toolbar2;
             emailTxt.Text = email;
@@ -254,11 +252,13 @@ namespace iMedDrs.iOS
 
             public override UIView GetView(UIPickerView pickerView, nint row, nint component, UIView view)
             {
-                UILabel lbl = new UILabel(new RectangleF(0, 0, 130f, 40f));
-                lbl.TextColor = UIColor.Black;
-                lbl.Font = UIFont.SystemFontOfSize(17f);
-                lbl.TextAlignment = UITextAlignment.Center;
-                lbl.Text = list[(int)row];
+                UILabel lbl = new UILabel(new RectangleF(0, 0, 130f, 40f))
+                {
+                    TextColor = UIColor.Black,
+                    Font = UIFont.SystemFontOfSize(17f),
+                    TextAlignment = UITextAlignment.Center,
+                    Text = list[(int)row]
+                };
                 return lbl;
             }
 

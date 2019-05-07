@@ -24,7 +24,7 @@ namespace iMedDrs.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UILabel namelbl { get; set; }
+        UIKit.UILabel nameLbl { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -44,11 +44,11 @@ namespace iMedDrs.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UILabel questionLbl { get; set; }
+        UIKit.UILabel recoLbl { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UILabel recoLbl { get; set; }
+        UIKit.UIPickerView responsePkr { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -106,9 +106,9 @@ namespace iMedDrs.iOS
                 line6Txt = null;
             }
 
-            if (namelbl != null) {
-                namelbl.Dispose ();
-                namelbl = null;
+            if (nameLbl != null) {
+                nameLbl.Dispose ();
+                nameLbl = null;
             }
 
             if (namequestLbl != null) {
@@ -131,14 +131,14 @@ namespace iMedDrs.iOS
                 questionBtn = null;
             }
 
-            if (questionLbl != null) {
-                questionLbl.Dispose ();
-                questionLbl = null;
-            }
-
             if (recoLbl != null) {
                 recoLbl.Dispose ();
                 recoLbl = null;
+            }
+
+            if (responsePkr != null) {
+                responsePkr.Dispose ();
+                responsePkr = null;
             }
 
             if (responseSmc != null) {

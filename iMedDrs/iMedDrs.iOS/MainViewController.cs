@@ -42,15 +42,6 @@ namespace iMedDrs.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            if (UIScreen.MainScreen.Bounds.Width == 320)
-            {
-                SetWidth(line1Txt, 320.0f);
-                SetWidth(mainLbl, 300.0f);
-                SetWidth(main1Lbl, 300.0f);
-                SetWidth(main2Lbl, 300.0f);
-                SetWidth(loginBtn, 300.0f);
-                SetWidth(startBtn, 300.0f);
-            }
             versionLbl.Text = "Version " + NSBundle.MainBundle.InfoDictionary["CFBundleShortVersionString"].ToString();
             baseurl = "https://imeddrs.com/beacon/api";
             datapath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);

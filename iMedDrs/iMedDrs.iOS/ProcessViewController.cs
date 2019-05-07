@@ -54,8 +54,10 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView();
-            progressView.Title = "Processing... Please Wait...";
+            progressView = new UIAlertView
+            {
+                Title = "Processing... Please Wait..."
+            };
             selectedLbl = new UILabel();
             languages = new List<string>();
             ps = new PServer();
@@ -64,16 +66,6 @@ namespace iMedDrs.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            if (UIScreen.MainScreen.Bounds.Width == 320)
-            {
-                SetWidth(line4Txt, 320.0f);
-                SetWidth(startBtn, 300.0f);
-                SetWidth(viewBtn, 300.0f);
-                SetWidth(updateBtn, 300.0f);
-                SetWidth(returnBtn, 300.0f);
-                SetWidth(maintainBtn, 300.0f);
-                SetWidth(logoutBtn, 300.0f);
-            }
             report = false;
             usernameLbl.Text = username;
             selectedLbl.Text = questionnaires[0];
@@ -307,11 +299,13 @@ namespace iMedDrs.iOS
 
             public override UIView GetView(UIPickerView pickerView, nint row, nint component, UIView view)
             {
-                UILabel lbl = new UILabel(new RectangleF(0, 0, 300f, 40f));
-                lbl.TextColor = UIColor.Black;
-                lbl.Font = UIFont.SystemFontOfSize(17f);
-                lbl.TextAlignment = UITextAlignment.Center;
-                lbl.Text = list[(int)row];
+                UILabel lbl = new UILabel(new RectangleF(0, 0, 300f, 40f))
+                {
+                    TextColor = UIColor.Black,
+                    Font = UIFont.SystemFontOfSize(17f),
+                    TextAlignment = UITextAlignment.Center,
+                    Text = list[(int)row]
+                };
                 return lbl;
             }
 

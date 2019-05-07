@@ -25,22 +25,15 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView();
-            progressView.Title = "Processing... Please Wait...";
+            progressView = new UIAlertView
+            {
+                Title = "Processing... Please Wait..."
+            };
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            if (UIScreen.MainScreen.Bounds.Width == 320)
-            {
-                SetFrame(line8Txt, 0.0f, 320.0f, 0.0f, 0.0f);
-                SetFrame(instructionsLbl, 0.0f, 300.0f, 0.0f, 0.0f);
-                SetFrame(locationsTxt, 0.0f, 300.0f, 0.0f, 0.0f);
-                SetFrame(myemailBtn, 0.0f, 300.0f, 0.0f, 0.0f);
-                SetFrame(sendBtn, 0.0f, 300.0f, 0.0f, 0.0f);
-                SetFrame(returnBtn, 0.0f, 300.0f, 0.0f, 0.0f);
-            }
             locationsTxt.Layer.BorderColor = UIColor.LightGray.CGColor;
             locationsTxt.Layer.BorderWidth = 0.5f;
             locationsTxt.Layer.CornerRadius = 5.0f;

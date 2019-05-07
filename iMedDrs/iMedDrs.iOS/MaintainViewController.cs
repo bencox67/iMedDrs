@@ -43,8 +43,10 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView();
-            progressView.Title = "Processing... Please Wait...";
+            progressView = new UIAlertView
+            {
+                Title = "Processing... Please Wait..."
+            };
             scriptLbl = new UILabel();
             scripts = new List<string>();
             ps = new PServer();
@@ -60,43 +62,42 @@ namespace iMedDrs.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            if (UIScreen.MainScreen.Bounds.Width == 320)
+            questionnaireLbl = new UILabel
             {
-                SetFrame(line9Txt, 0.0f, 320.0f, 0.0f, 0.0f);
-                SetFrame(questionnaireTxt, 0.0f, 160.0f, 0.0f, 0.0f);
-                SetFrame(languageTxt, 0.0f, 0.0f, 222.0f, 0.0f);
-                SetFrame(selectBtn, 0.0f, 300.0f, 0.0f, 0.0f);
-                SetFrame(nameTxt, 0.0f, 255.0f, 0.0f, 0.0f);
-                SetFrame(questionTxt, 0.0f, 300.0f, 0.0f, 0.0f);
-                SetFrame(recordBtn, 0.0f, 145.0f, 0.0f, 0.0f);
-                SetFrame(playBtn, 0.0f, 145.0f, 165.0f, 0.0f);
-                SetFrame(updatevoiceBtn, 0.0f, 300.0f, 0.0f, 415.0f);
-                SetFrame(returnBtn, 0.0f, 300.0f, 0.0f, 450.0f);
-            }
-            questionnaireLbl = new UILabel();
-            questionnaireLbl.Text = "0";
-            questionnaireView = new UIPickerView();
-            questionnaireView.BackgroundColor = UIColor.White;
-            questionnaireView.Model = new PickerModel(questionnaires, questionnaireLbl);
-            UIToolbar toolbar1 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f));
-            toolbar1.Items = new UIBarButtonItem[]{
+                Text = "0"
+            };
+            questionnaireView = new UIPickerView
+            {
+                BackgroundColor = UIColor.White,
+                Model = new PickerModel(questionnaires, questionnaireLbl)
+            };
+            UIToolbar toolbar1 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f))
+            {
+                Items = new UIBarButtonItem[]{
                     new UIBarButtonItem(UIBarButtonSystemItem.Cancel, delegate { questionnaireTxt.ResignFirstResponder(); }),
                     new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
                     new UIBarButtonItem(UIBarButtonSystemItem.Done, Questionnaire)
-                };
+                }
+            };
             questionnaireTxt.InputView = questionnaireView;
             questionnaireTxt.InputAccessoryView = toolbar1;
-            languageLbl = new UILabel();
-            languageLbl.Text = "0";
-            languageView = new UIPickerView();
-            languageView.BackgroundColor = UIColor.White;
-            languageView.Model = new PickerModel(languages, languageLbl);
-            UIToolbar toolbar2 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f));
-            toolbar2.Items = new UIBarButtonItem[]{
+            languageLbl = new UILabel
+            {
+                Text = "0"
+            };
+            languageView = new UIPickerView
+            {
+                BackgroundColor = UIColor.White,
+                Model = new PickerModel(languages, languageLbl)
+            };
+            UIToolbar toolbar2 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f))
+            {
+                Items = new UIBarButtonItem[]{
                     new UIBarButtonItem(UIBarButtonSystemItem.Cancel, delegate { languageTxt.ResignFirstResponder(); }),
                     new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
                     new UIBarButtonItem(UIBarButtonSystemItem.Done, Language)
-                };
+                }
+            };
             languageTxt.InputView = languageView;
             languageTxt.InputAccessoryView = toolbar2;
             questionnaireTxt.Text = questionnaires[0];
@@ -377,11 +378,13 @@ namespace iMedDrs.iOS
 
             public override UIView GetView(UIPickerView pickerView, nint row, nint component, UIView view)
             {
-                UILabel lbl = new UILabel(new RectangleF(0, 0, 300f, 20f));
-                lbl.TextColor = UIColor.Black;
-                lbl.Font = UIFont.SystemFontOfSize(14f);
-                lbl.TextAlignment = UITextAlignment.Center;
-                lbl.Text = list[(int)row];
+                UILabel lbl = new UILabel(new RectangleF(0, 0, 300f, 20f))
+                {
+                    TextColor = UIColor.Black,
+                    Font = UIFont.SystemFontOfSize(14f),
+                    TextAlignment = UITextAlignment.Center,
+                    Text = list[(int)row]
+                };
                 return lbl;
             }
 

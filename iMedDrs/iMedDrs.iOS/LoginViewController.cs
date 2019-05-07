@@ -35,22 +35,15 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView();
-            progressView.Title = "Processing... Please Wait...";
+            progressView = new UIAlertView
+            {
+                Title = "Processing... Please Wait..."
+            };
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            if (UIScreen.MainScreen.Bounds.Width == 320)
-            {
-                SetWidth(line2Txt, 320.0f);
-                SetWidth(useridTxt, 300.0f);
-                SetWidth(passwordTxt, 300.0f);
-                SetWidth(loginBtn, 300.0f);
-                SetWidth(registerBtn, 300.0f);
-                SetWidth(returnBtn, 300.0f);
-            }
             useridTxt.ShouldReturn += TextFieldShouldReturn;
             passwordTxt.ShouldReturn += TextFieldShouldReturn;
             var tap = new UITapGestureRecognizer { CancelsTouchesInView = false };

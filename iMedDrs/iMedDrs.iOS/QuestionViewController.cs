@@ -1,5 +1,6 @@
 ﻿using Foundation;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using AVFoundation;
@@ -33,6 +34,8 @@ namespace iMedDrs.iOS
         public int level { get; set; }
         public string email { get; set; }
         public bool handsfree { get; set; }
+        public List<string> presponses { get; set; }
+        public UILabel selectedLbl;
         private bool recook = false;
         private bool report = false;
         private string path;
@@ -53,11 +56,15 @@ namespace iMedDrs.iOS
         public QuestionViewController (IntPtr handle) : base (handle)
         {
             ps = new PServer();
+            presponses = new List<string>();
             path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/";
+            selectedLbl = new UILabel();
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView();
-            progressView.Title = "Processing... Please Wait...";
+            progressView = new UIAlertView
+            {
+                Title = "Processing... Please Wait..."
+            };
             stopView = new UIAlertView();
             stopView.AddButton("No");
             stopView.AddButton("Yes");
@@ -71,18 +78,6 @@ namespace iMedDrs.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            if (UIScreen.MainScreen.Bounds.Width == 320)
-            {
-                SetWidth(line6Txt, 320.0f, 0.0f);
-                SetWidth(instructionsLbl, 300.0f, 0.0f);
-                SetWidth(speakBtn, 46.0f, 270.0f);
-                SetWidth(questionLbl, 320.0f, 0.0f);
-                SetWidth(questionBtn, 300.0f, 0.0f);
-                SetWidth(responseTxt, 300.0f, 0.0f);
-                SetWidth(previousBtn, 145.0f, 0.0f);
-                SetWidth(nextBtn, 145.0f, 165.0f);
-                SetWidth(returnBtn, 300.0f, 0.0f);
-            }
             responseTxt.ShouldReturn += TextFieldShouldReturn;
             var tap = new UITapGestureRecognizer { CancelsTouchesInView = false };
             tap.AddTarget(() => View.EndEditing(true));
@@ -137,7 +132,7 @@ namespace iMedDrs.iOS
         {
             if (recook)
             {
-                namelbl.Text = "Speak now...";
+                nameLbl.Text = "Speak now...";
                 Recognize();
             }
         }
@@ -206,7 +201,7 @@ namespace iMedDrs.iOS
                             {
                                 InvokeOnMainThread(() =>
                                 {
-                                    namelbl.Text = "Speak now...";
+                                    nameLbl.Text = "Speak now...";
                                 });
                                 Recognize();
                             }
@@ -285,7 +280,10 @@ namespace iMedDrs.iOS
                                 {
                                     if (response[i].ToLower() == recresp.ToLower())
                                     {
-                                        responseSmc.SelectedSegment = i;
+                                        if (response.Length < 4)
+                                            responseSmc.SelectedSegment = i;
+                                        else
+                                            responsePkr.Select(i, 0, false);
                                         recresp = "next";
                                     }
                                 }
@@ -307,13 +305,13 @@ namespace iMedDrs.iOS
                 }
                 audioEngine.Stop();
                 recognitionRequest.EndAudio();
-                namelbl.Text = name;
+                nameLbl.Text = name;
             });
         }
 
         private void StopVoiceReco()
         {
-            namelbl.Text = name;
+            nameLbl.Text = name;
             if (player != null)
             {
                 player.Dispose();
@@ -419,7 +417,7 @@ namespace iMedDrs.iOS
         private void SetQuestion()
         {
             instructionsLbl.Text = instructions.Replace("~", "\r\n");
-            namelbl.Text = name;
+            nameLbl.Text = name;
             questionBtn.SetTitle(text, UIControlState.Normal);
             if (name == "End")
                 report = true;
@@ -429,6 +427,7 @@ namespace iMedDrs.iOS
         {
             responseTxt.Hidden = true;
             responseSmc.Hidden = true;
+            responsePkr.Hidden = true;
             if (name != "End")
             {
                 if (response.Length == 1)
@@ -442,17 +441,30 @@ namespace iMedDrs.iOS
                 }
                 else
                 {
-                    responseSmc.RemoveAllSegments();
-                    responseSmc.Frame = new CoreGraphics.CGRect(responseSmc.Frame.X, responseSmc.Frame.Y, 150f * response.Length, responseSmc.Frame.Height);
-                    for (int i = 0; i < response.Length; i++)
+                    if (response.Length < 4)
                     {
-                        responseSmc.InsertSegment(response[i], i, true);
-                        responseSmc.SetEnabled(true, i);
-                        responseSmc.SetWidth(100f, i);
-                        if (eresponse[i] == answer)
-                            responseSmc.SelectedSegment = i;
+                        responseSmc.RemoveAllSegments();
+                        responseSmc.Frame = new CoreGraphics.CGRect(responseSmc.Frame.X, responseSmc.Frame.Y, 150f * response.Length, responseSmc.Frame.Height);
+                        for (int i = 0; i < response.Length; i++)
+                        {
+                            responseSmc.InsertSegment(response[i], i, true);
+                            responseSmc.SetEnabled(true, i);
+                            responseSmc.SetWidth(100f, i);
+                            if (eresponse[i] == answer)
+                                responseSmc.SelectedSegment = i;
+                        }
+                        responseSmc.Hidden = false;
                     }
-                    responseSmc.Hidden = false;
+                    else
+                    {
+                        presponses.Clear();
+                        for (int i = 0; i < response.Length; i++)
+                            presponses.Add(response[i]);
+                        selectedLbl.Text = presponses[0];
+                        PickerModel model = new PickerModel(presponses, selectedLbl);
+                        responsePkr.Model = model;
+                        responsePkr.Hidden = false;
+                    }
                 }
             }
             if (handsfree)
@@ -477,8 +489,15 @@ namespace iMedDrs.iOS
                 }
                 else
                 {
-                    if (responseSmc.SelectedSegment > -1)
-                        result = eresponse[responseSmc.SelectedSegment];
+                    if (response.Length < 4)
+                    {
+                        if (responseSmc.SelectedSegment > -1)
+                            result = eresponse[responseSmc.SelectedSegment];
+                    }
+                    else
+                    {
+                        result = selectedLbl.Text;
+                    }
                 }
             }
             if (result == "")
@@ -570,6 +589,55 @@ namespace iMedDrs.iOS
         {
             scrollView.ContentInset = UIEdgeInsets.Zero;
             scrollView.ScrollIndicatorInsets = UIEdgeInsets.Zero;
+        }
+
+        public class PickerModel : UIPickerViewModel
+        {
+            List<string> list;
+            UILabel label;
+
+            public PickerModel(List<string> list, UILabel label)
+            {
+                this.list = list;
+                this.label = label;
+            }
+
+            public override nint GetComponentCount(UIPickerView pickerView)
+            {
+                return 1;
+            }
+
+            public override nint GetRowsInComponent(UIPickerView pickerView, nint component)
+            {
+                return list.Count;
+            }
+
+            public override string GetTitle(UIPickerView pickerView, nint row, nint component)
+            {
+                return list[(int)row];
+            }
+
+            public override nfloat GetRowHeight(UIPickerView pickerView, nint component)
+            {
+                return (nfloat)20;
+            }
+
+            public override UIView GetView(UIPickerView pickerView, nint row, nint component, UIView view)
+            {
+                UILabel lbl = new UILabel(new RectangleF(0, 0, 300f, 40f))
+                {
+                    TextColor = UIColor.Black,
+                    Font = UIFont.SystemFontOfSize(17f),
+                    TextAlignment = UITextAlignment.Center,
+                    Text = list[(int)row]
+                };
+                return lbl;
+            }
+
+            public override void Selected(UIPickerView pickerView, nint row, nint component)
+            {
+                label.Text = list[(int)row];
+            }
         }
     }
 }
