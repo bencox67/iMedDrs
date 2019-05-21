@@ -85,20 +85,39 @@ namespace iMedDrs.iOS
             questionBtn.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
             voiceBtn.Hidden = handsfree;
             speakBtn.Hidden = handsfree;
-            SFSpeechRecognizer.RequestAuthorization((SFSpeechRecognizerAuthorizationStatus status) =>
+            if (SFSpeechRecognizer.AuthorizationStatus == SFSpeechRecognizerAuthorizationStatus.NotDetermined)
             {
-                if (status == SFSpeechRecognizerAuthorizationStatus.Authorized)
+                SFSpeechRecognizer.RequestAuthorization((SFSpeechRecognizerAuthorizationStatus status) =>
+                {
+                    if (status == SFSpeechRecognizerAuthorizationStatus.Authorized)
+                    {
+                        var node = audioEngine.InputNode;
+                        var recordingFormat = node.GetBusOutputFormat(0);
+                        node.InstallTapOnBus(0, 1024, recordingFormat, (AVAudioPcmBuffer buffer, AVAudioTime when) =>
+                        {
+                            recognitionRequest.Append(buffer);
+                        });
+                        recook = true;
+                    }
+                    else
+                        speakBtn.Hidden = true;
+                });
+            }
+            else
+            {
+                if (SFSpeechRecognizer.AuthorizationStatus == SFSpeechRecognizerAuthorizationStatus.Authorized)
                 {
                     var node = audioEngine.InputNode;
                     var recordingFormat = node.GetBusOutputFormat(0);
-                    node.InstallTapOnBus(0, 1024, recordingFormat, (AVAudioPcmBuffer buffer, AVAudioTime when) => {
+                    node.InstallTapOnBus(0, 1024, recordingFormat, (AVAudioPcmBuffer buffer, AVAudioTime when) =>
+                    {
                         recognitionRequest.Append(buffer);
                     });
                     recook = true;
                 }
                 else
                     speakBtn.Hidden = true;
-            });
+            }
             ms = new MServer(baseurl);
         }
 
@@ -457,12 +476,17 @@ namespace iMedDrs.iOS
                     }
                     else
                     {
+                        int row = 0;
                         presponses.Clear();
                         for (int i = 0; i < response.Length; i++)
+                        {
                             presponses.Add(response[i]);
-                        selectedLbl.Text = presponses[0];
-                        PickerModel model = new PickerModel(presponses, selectedLbl);
-                        responsePkr.Model = model;
+                            if (eresponse[i] == answer)
+                                row = i;
+                        }
+                        selectedLbl.Text = presponses[row];
+                        responsePkr.Model = new PickerModel(presponses, selectedLbl);
+                        responsePkr.Select(row, 0, false);
                         responsePkr.Hidden = false;
                     }
                 }

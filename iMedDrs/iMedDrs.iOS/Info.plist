@@ -49,14 +49,14 @@
 		<true/>
 	</dict>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Allow you to talk</string>
+	<string>Allow you to answer questions</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Allow you to talk</string>
-	<key>CFBundleShortVersionString</key>
-	<string>2.6</string>
-	<key>CFBundleVersion</key>
-	<string>2.6</string>
+	<string>Allow you to answer questions</string>
 	<key>XSAppIconAssets</key>
 	<string>Resources/Images.xcassets/AppIcons.appiconset</string>
+	<key>CFBundleShortVersionString</key>
+	<string>3.0</string>
+	<key>CFBundleVersion</key>
+	<string>3.0</string>
 </dict>
 </plist>
