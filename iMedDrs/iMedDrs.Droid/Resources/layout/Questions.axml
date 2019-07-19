@@ -54,7 +54,7 @@
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="fill_parent"
-        android:layout_height="50dp"
+        android:layout_height="90dp"
         android:orientation="vertical"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
@@ -62,7 +62,7 @@
         android:minHeight="25px">
         <EditText
             android:id="@+id/response1"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:visibility="invisible"
@@ -86,7 +86,14 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:visibility="invisible" />
-    </LinearLayout>
+		<DatePicker
+			android:layout_width="fill_parent"
+			android:layout_height="90dp"
+            android:visibility="invisible"
+			android:id="@+id/response5"
+			android:calendarViewShown="false"
+			android:datePickerMode="spinner" />
+	</LinearLayout>
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">

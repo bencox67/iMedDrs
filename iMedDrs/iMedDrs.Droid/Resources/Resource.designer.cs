@@ -69,20 +69,20 @@ namespace iMedDrs.Droid
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f050028
-			public const int birthdate = 2131034152;
-			
 			// aapt resource value: 0x7f050029
-			public const int calendar = 2131034153;
+			public const int birthdate = 2131034153;
 			
-			// aapt resource value: 0x7f05002c
-			public const int email = 2131034156;
+			// aapt resource value: 0x7f05002a
+			public const int calendar = 2131034154;
 			
-			// aapt resource value: 0x7f050026
-			public const int female = 2131034150;
+			// aapt resource value: 0x7f05002d
+			public const int email = 2131034157;
 			
-			// aapt resource value: 0x7f050024
-			public const int gender = 2131034148;
+			// aapt resource value: 0x7f050027
+			public const int female = 2131034151;
+			
+			// aapt resource value: 0x7f050025
+			public const int gender = 2131034149;
 			
 			// aapt resource value: 0x7f050015
 			public const int handsfree = 2131034133;
@@ -93,8 +93,8 @@ namespace iMedDrs.Droid
 			// aapt resource value: 0x7f05000c
 			public const int language = 2131034124;
 			
-			// aapt resource value: 0x7f050031
-			public const int linearLayout1 = 2131034161;
+			// aapt resource value: 0x7f050032
+			public const int linearLayout1 = 2131034162;
 			
 			// aapt resource value: 0x7f05001f
 			public const int linearLayout2 = 2131034143;
@@ -102,11 +102,11 @@ namespace iMedDrs.Droid
 			// aapt resource value: 0x7f05001c
 			public const int listen = 2131034140;
 			
-			// aapt resource value: 0x7f050035
-			public const int locations = 2131034165;
+			// aapt resource value: 0x7f050036
+			public const int locations = 2131034166;
 			
-			// aapt resource value: 0x7f050034
-			public const int locs = 2131034164;
+			// aapt resource value: 0x7f050035
+			public const int locs = 2131034165;
 			
 			// aapt resource value: 0x7f050006
 			public const int login = 2131034118;
@@ -117,11 +117,11 @@ namespace iMedDrs.Droid
 			// aapt resource value: 0x7f050018
 			public const int maintain = 2131034136;
 			
-			// aapt resource value: 0x7f050025
-			public const int male = 2131034149;
+			// aapt resource value: 0x7f050026
+			public const int male = 2131034150;
 			
-			// aapt resource value: 0x7f050036
-			public const int myemail = 2131034166;
+			// aapt resource value: 0x7f050037
+			public const int myemail = 2131034167;
 			
 			// aapt resource value: 0x7f05000e
 			public const int name = 2131034126;
@@ -132,11 +132,11 @@ namespace iMedDrs.Droid
 			// aapt resource value: 0x7f050004
 			public const int password = 2131034116;
 			
-			// aapt resource value: 0x7f05002e
-			public const int password1 = 2131034158;
+			// aapt resource value: 0x7f05002f
+			public const int password1 = 2131034159;
 			
-			// aapt resource value: 0x7f050030
-			public const int password2 = 2131034160;
+			// aapt resource value: 0x7f050031
+			public const int password2 = 2131034161;
 			
 			// aapt resource value: 0x7f050011
 			public const int play = 2131034129;
@@ -165,8 +165,8 @@ namespace iMedDrs.Droid
 			// aapt resource value: 0x7f050005
 			public const int rememberme = 2131034117;
 			
-			// aapt resource value: 0x7f050032
-			public const int report = 2131034162;
+			// aapt resource value: 0x7f050033
+			public const int report = 2131034163;
 			
 			// aapt resource value: 0x7f050020
 			public const int response1 = 2131034144;
@@ -180,14 +180,17 @@ namespace iMedDrs.Droid
 			// aapt resource value: 0x7f050023
 			public const int response4 = 2131034147;
 			
+			// aapt resource value: 0x7f050024
+			public const int response5 = 2131034148;
+			
 			// aapt resource value: 0x7f050008
 			public const int returns = 2131034120;
 			
 			// aapt resource value: 0x7f05000d
 			public const int script = 2131034125;
 			
-			// aapt resource value: 0x7f050033
-			public const int send = 2131034163;
+			// aapt resource value: 0x7f050034
+			public const int send = 2131034164;
 			
 			// aapt resource value: 0x7f05001e
 			public const int speak = 2131034142;
@@ -207,20 +210,20 @@ namespace iMedDrs.Droid
 			// aapt resource value: 0x7f050009
 			public const int textView3 = 2131034121;
 			
-			// aapt resource value: 0x7f050027
-			public const int textView4 = 2131034151;
-			
-			// aapt resource value: 0x7f05002a
-			public const int textView5 = 2131034154;
-			
-			// aapt resource value: 0x7f05002d
-			public const int textView6 = 2131034157;
-			
-			// aapt resource value: 0x7f05002f
-			public const int textView7 = 2131034159;
+			// aapt resource value: 0x7f050028
+			public const int textView4 = 2131034152;
 			
 			// aapt resource value: 0x7f05002b
-			public const int textView8 = 2131034155;
+			public const int textView5 = 2131034155;
+			
+			// aapt resource value: 0x7f05002e
+			public const int textView6 = 2131034158;
+			
+			// aapt resource value: 0x7f050030
+			public const int textView7 = 2131034160;
+			
+			// aapt resource value: 0x7f05002c
+			public const int textView8 = 2131034156;
 			
 			// aapt resource value: 0x7f050017
 			public const int update = 2131034135;

@@ -14,6 +14,7 @@ using Android.Widget;
 
 namespace iMedDrs.Droid
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
     [Activity(Name = "com.imeddrs.imeddrs.QuestionsActivity", Label = "iMedDrs - Questionnaire", Icon = "@drawable/Icon", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, Theme = "@android:style/Theme.Holo.Light")]
     public class QuestionsActivity : Activity, IRecognitionListener
     {
@@ -52,6 +53,7 @@ namespace iMedDrs.Droid
         EditText response2;
         RadioGroup response3;
         Spinner response4;
+        DatePicker response5;
         RadioButton[] rb;
         ImageButton speak;
         ImageButton listen;
@@ -111,6 +113,7 @@ namespace iMedDrs.Droid
             response2 = FindViewById<EditText>(Resource.Id.response2);
             response3 = FindViewById<RadioGroup>(Resource.Id.response3);
             response4 = FindViewById<Spinner>(Resource.Id.response4);
+            response5 = FindViewById<DatePicker>(Resource.Id.response5);
             speak = FindViewById<ImageButton>(Resource.Id.speak);
             listen = FindViewById<ImageButton>(Resource.Id.listen);
             next = FindViewById<Button>(Resource.Id.next);
@@ -456,19 +459,36 @@ namespace iMedDrs.Droid
             response2.Visibility = ViewStates.Gone;
             response3.Visibility = ViewStates.Gone;
             response4.Visibility = ViewStates.Gone;
+            response5.Visibility = ViewStates.Gone;
             if (name != "End")
             {
                 if (response.Length == 1)
                 {
-                    if (type == "number")
+                    switch (type)
                     {
-                        response1.Text = answer;
-                        response1.Visibility = ViewStates.Visible;
-                    }
-                    else
-                    {
-                        response2.Text = answer;
-                        response2.Visibility = ViewStates.Visible;
+                        case "date":
+                            if (answer != "")
+                                response5.DateTime = Convert.ToDateTime(answer);
+                            else
+                                response5.DateTime = DateTime.Now;
+                            response5.Visibility = ViewStates.Visible;
+                            break;
+                        case "decimal":
+                        case "number":
+                            response1.Text = answer;
+                            if (name == "Age")
+                            {
+                                if (response1.Text.StartsWith("0."))
+                                    response1.Text = response1.Text.Substring(1);
+                                if (response1.Text.EndsWith(".00"))
+                                    response1.Text = response1.Text.Substring(0, response1.Text.Length - 3);
+                            }
+                            response1.Visibility = ViewStates.Visible;
+                            break;
+                        default:
+                            response2.Text = answer;
+                            response2.Visibility = ViewStates.Visible;
+                            break;
                     }
                 }
                 else
@@ -511,14 +531,26 @@ namespace iMedDrs.Droid
             {
                 if (response.Length == 1)
                 {
-                    if (type == "number")
+                    switch (type)
                     {
-                        if (name == "age" && (Convert.ToInt32(response1.Text) < 1 || Convert.ToInt32(response1.Text) > 150))
-                            response1.Text = "";
-                        result = response1.Text;
+                        case "date":
+                            try { result = response5.DateTime.ToString("MMddyyyy"); }
+                            catch { }
+                            break;
+                        case "decimal":
+                            try { decimal d = Convert.ToDecimal(response1.Text); }
+                            catch { response1.Text = ""; }
+                            result = response1.Text;
+                            break;
+                        case "number":
+                            try { int i = Convert.ToInt32(response1.Text); }
+                            catch { response1.Text = ""; }
+                            result = response1.Text;
+                            break;
+                        default:
+                            result = response2.Text;
+                            break;
                     }
-                    else
-                        result = response2.Text;
                 }
                 else
                 {
@@ -592,19 +624,36 @@ namespace iMedDrs.Droid
                 {
                     if (response.Length == 1)
                     {
-                        if (type == "number")
+                        switch (type)
                         {
-                            try
-                            {
-                                response1.Text = Convert.ToInt32(resp).ToString();
+                            case "date":
+                                try
+                                {
+                                    response5.DateTime = Convert.ToDateTime(resp);
+                                    resp = "next";
+                                }
+                                catch { }
+                                break;
+                            case "decimal":
+                                try
+                                {
+                                    response1.Text = Convert.ToDecimal(resp).ToString();
+                                    resp = "next";
+                                }
+                                catch { response1.Text = ""; }
+                                break;
+                            case "number":
+                                try
+                                {
+                                    response1.Text = Convert.ToInt32(resp).ToString();
+                                    resp = "next";
+                                }
+                                catch { response1.Text = ""; }
+                                break;
+                            default:
+                                response2.Text = resp;
                                 resp = "next";
-                            }
-                            catch { response1.Text = ""; }
-                        }
-                        else
-                        {
-                            response2.Text = resp;
-                            resp = "next";
+                                break;
                         }
                     }
                     else

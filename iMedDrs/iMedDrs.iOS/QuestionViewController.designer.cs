@@ -48,6 +48,10 @@ namespace iMedDrs.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIDatePicker responseDpr { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIPickerView responsePkr { get; set; }
 
         [Outlet]
@@ -134,6 +138,11 @@ namespace iMedDrs.iOS
             if (recoLbl != null) {
                 recoLbl.Dispose ();
                 recoLbl = null;
+            }
+
+            if (responseDpr != null) {
+                responseDpr.Dispose ();
+                responseDpr = null;
             }
 
             if (responsePkr != null) {

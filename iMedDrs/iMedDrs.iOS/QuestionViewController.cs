@@ -447,16 +447,38 @@ namespace iMedDrs.iOS
             responseTxt.Hidden = true;
             responseSmc.Hidden = true;
             responsePkr.Hidden = true;
+            responseDpr.Hidden = true;
             if (name != "End")
             {
                 if (response.Length == 1)
                 {
-                    responseTxt.Text = answer;
-                    responseTxt.Hidden = false;
-                    if (type == "number")
-                        responseTxt.KeyboardType = UIKeyboardType.NumbersAndPunctuation;
+                    if (type == "date")
+                    {
+                        if (answer != "")
+                        {
+                            try { responseDpr.SetDate((NSDate)Convert.ToDateTime(answer), false); }
+                            catch { responseDpr.SetDate((NSDate)DateTime.Now, false); }
+                        }
+                        else
+                            responseDpr.SetDate((NSDate)DateTime.Now, false);
+                        responseDpr.Hidden = false;
+                    }
                     else
-                        responseTxt.KeyboardType = UIKeyboardType.Default;
+                    {
+                        responseTxt.Text = answer;
+                        if (name == "Age")
+                        {
+                            if (responseTxt.Text.StartsWith("0."))
+                                responseTxt.Text = responseTxt.Text.Substring(1);
+                            if (responseTxt.Text.EndsWith(".00"))
+                                responseTxt.Text = responseTxt.Text.Substring(0, responseTxt.Text.Length - 3);
+                        }
+                        responseTxt.Hidden = false;
+                        if (type == "number" || type == "decimal")
+                            responseTxt.KeyboardType = UIKeyboardType.NumbersAndPunctuation;
+                        else
+                            responseTxt.KeyboardType = UIKeyboardType.Default;
+                    }
                 }
                 else
                 {
@@ -502,14 +524,30 @@ namespace iMedDrs.iOS
             {
                 if (response.Length == 1)
                 {
-                    if (type == "number")
+                    switch (type)
                     {
-                        if (name == "age" && (Convert.ToInt32(responseTxt.Text) < 1 || Convert.ToInt32(responseTxt.Text) > 150))
-                            responseTxt.Text = "";
-                        result = responseTxt.Text;
+                        case "date":
+                            try
+                            {
+                                DateTime dt = (DateTime)responseDpr.Date;
+                                result = dt.ToString("MMddyyyy");
+                            }
+                            catch { }
+                            break;
+                        case "decimal":
+                            try { decimal d = Convert.ToDecimal(responseTxt.Text); }
+                            catch { responseTxt.Text = ""; }
+                            result = responseTxt.Text;
+                            break;
+                        case "number":
+                            try { int i = Convert.ToInt32(responseTxt.Text); }
+                            catch { responseTxt.Text = ""; }
+                            result = responseTxt.Text;
+                            break;
+                        default:
+                            result = responseTxt.Text;
+                            break;
                     }
-                    else
-                        result = responseTxt.Text;
                 }
                 else
                 {

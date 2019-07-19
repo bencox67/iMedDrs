@@ -203,6 +203,7 @@ namespace iMedDrs.Droid
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
     public class DatePickerFragment : DialogFragment, DatePickerDialog.IOnDateSetListener
     {
         // TAG can be any string of your choice.

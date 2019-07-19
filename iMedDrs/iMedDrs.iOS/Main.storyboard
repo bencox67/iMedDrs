@@ -694,6 +694,22 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" minuteInterval="1" id="99576" translatesAutoresizingMaskIntoConstraints="NO" hidden="YES">
+                                                <rect key="frame" x="0.0" y="348" width="375" height="80"/>
+                                                <date key="date" timeIntervalSinceReferenceDate="332704801.65417802">
+                                                    <!--2011-07-18 18:00:01 +0000-->
+                                                </date>
+                                                <constraints>
+                                                    <constraint id="99579" firstAttribute="height" constant="80"/>
+                                                </constraints>
+                                                <date key="minimumDate" timeIntervalSinceReferenceDate="-978267600">
+                                                    <!--Thu, 01 Jan 1970 11:00:00 GMT-->
+                                                </date>
+                                                <date key="maximumDate" timeIntervalSinceReferenceDate="1167562800">
+                                                    <!--Thu, 31 Dec 2037 11:00:00 GMT-->
+                                                </date>
+                                                <locale key="locale" localeIdentifier="en_US"/>
+                                            </datePicker>
                                         </subviews>
                                         <constraints>
                                             <constraint id="50923" firstItem="50588" firstAttribute="leading" secondItem="50587" secondAttribute="leading" constant="10"/>
@@ -728,6 +744,9 @@
                                             <constraint id="85326" firstItem="50595" firstAttribute="top" secondItem="50587" secondAttribute="top" constant="252"/>
                                             <constraint id="85328" firstItem="50588" firstAttribute="top" secondItem="50587" secondAttribute="top" constant="10"/>
                                             <constraint id="89045" firstItem="50605" firstAttribute="leading" secondItem="50587" secondAttribute="leading" constant="10"/>
+                                            <constraint id="99577" firstItem="99576" firstAttribute="top" secondItem="50587" secondAttribute="top" constant="348"/>
+                                            <constraint id="99578" firstItem="99576" firstAttribute="trailing" secondItem="50587" secondAttribute="trailing"/>
+                                            <constraint id="99580" firstItem="99576" firstAttribute="leading" secondItem="50587" secondAttribute="leading"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -768,6 +787,7 @@
                         <outlet property="recoLbl" destination="50608" id="name-outlet-50608"/>
                         <outlet property="questionBtn" destination="50595" id="name-outlet-50595"/>
                         <outlet property="responseSmc" destination="50596" id="name-outlet-50596"/>
+                        <outlet property="responseDpr" destination="99576" id="name-outlet-99576"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="223" userLabel="First Responder" sceneMemberID="firstResponder"/>

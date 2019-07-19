@@ -18,7 +18,7 @@ namespace iMedDrs
 
     public class MServer
     {
-        private string baseurl;
+        private readonly string baseurl;
         private DataList data;
 
         public MServer(string baseurl)
