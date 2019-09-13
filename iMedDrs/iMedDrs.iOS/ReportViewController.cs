@@ -20,8 +20,7 @@ namespace iMedDrs.iOS
         public int level { get; set; }
         private string[] message;
         private string[] result;
-        private UIAlertView alertView;
-        private UIAlertView progressView;
+        private readonly UIAlertView alertView;
         private MServer ms;
 
         [Action("UnwindToReportViewController:")]
@@ -33,10 +32,6 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView
-            {
-                Title = "Processing... Please Wait..."
-            };
         }
 
         public override void ViewDidLoad()
@@ -120,17 +115,6 @@ namespace iMedDrs.iOS
                 alertView.Title = title;
                 alertView.Show();
             }
-        }
-
-        private void SetFrame(UIView view, float height, float width, float posx, float posy)
-        {
-            CoreGraphics.CGRect frame = view.Frame;
-            if (height > 0) frame.Height = height;
-            if (width > 0) frame.Width = width;
-            if (height > 0) frame.Height = height;
-            if (posx > 0) frame.X = posx;
-            if (posy > 0) frame.Y = posy;
-            view.Frame = frame;
         }
     }
 }

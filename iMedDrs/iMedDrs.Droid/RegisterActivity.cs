@@ -3,12 +3,14 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Support.V4.App;
+using Android.Support.V7.App;
 using Android.Widget;
 
 namespace iMedDrs.Droid
 {
-    [Activity(Name = "com.imeddrs.imeddrs.RegisterActivity", Label = "iMedDrs - Register", Icon = "@drawable/Icon", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, Theme = "@android:style/Theme.Holo.Light")]
-    public class RegisterActivity : Activity
+    [Activity(Name = "com.imeddrs.imeddrs.RegisterActivity", Label = "iMedDrs - Register", Icon = "@drawable/Icon", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, Theme = "@style/Theme.AppCompat.Light.NoActionBar")]
+    public class RegisterActivity : AppCompatActivity
     {
         string baseurl;
         string gender;
@@ -27,9 +29,9 @@ namespace iMedDrs.Droid
         ImageButton calendar;
         Button register;
         Button returns;
-        AlertDialog retrn;
-        AlertDialog alert;
-        AlertDialog progress;
+        Android.App.AlertDialog retrn;
+        Android.App.AlertDialog alert;
+        Android.App.AlertDialog progress;
         MServer ms;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -62,17 +64,17 @@ namespace iMedDrs.Droid
             returns.Click += Returns_Click;
 
             // Alert dialog for messages
-            AlertDialog.Builder alertbuilder1 = new AlertDialog.Builder(this);
+            Android.App.AlertDialog.Builder alertbuilder1 = new Android.App.AlertDialog.Builder(this);
             alertbuilder1.SetPositiveButton("Ok", (EventHandler<DialogClickEventArgs>)null);
             alert = alertbuilder1.Create();
 
             // Alert dialog to return to login
-            AlertDialog.Builder alertbuilder2 = new AlertDialog.Builder(this);
+            Android.App.AlertDialog.Builder alertbuilder2 = new Android.App.AlertDialog.Builder(this);
             alertbuilder2.SetPositiveButton("Ok", OkAction);
             retrn = alertbuilder2.Create();
 
             // Progress dialog for messaging
-            AlertDialog.Builder alertbuilder3 = new AlertDialog.Builder(this);
+            Android.App.AlertDialog.Builder alertbuilder3 = new Android.App.AlertDialog.Builder(this);
             alertbuilder3.SetView(LayoutInflater.Inflate(Resource.Layout.Progress, null));
             progress = alertbuilder3.Create();
             progress.SetCancelable(false);
@@ -120,7 +122,7 @@ namespace iMedDrs.Droid
             {
                 birthdate.Text = time.ToString("MM/dd/yyyy");
             });
-            frag.Show(FragmentManager, DatePickerFragment.TAG);
+            frag.Show(SupportFragmentManager, DatePickerFragment.TAG);
         }
 
         private async void Register_Click(object sender, EventArgs e)
@@ -204,7 +206,7 @@ namespace iMedDrs.Droid
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
-    public class DatePickerFragment : DialogFragment, DatePickerDialog.IOnDateSetListener
+    public class DatePickerFragment : Android.Support.V4.App.DialogFragment, DatePickerDialog.IOnDateSetListener
     {
         // TAG can be any string of your choice.
         public static readonly string TAG = "X:" + typeof(DatePickerFragment).Name.ToUpper();

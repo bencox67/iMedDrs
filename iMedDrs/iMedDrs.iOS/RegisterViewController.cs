@@ -12,11 +12,10 @@ namespace iMedDrs.iOS
     {
         public string baseurl { get; set; }
         public UILabel selectedLbl;
-        private List<string> languages;
+        private readonly List<string> languages;
         private string[] message;
         private string[] result;
-        private UIAlertView alertView;
-        private UIAlertView progressView;
+        private readonly UIAlertView alertView;
         private UIDatePicker datePicker;
         private UIPickerView pickerView;
         private MServer ms;
@@ -25,10 +24,6 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView
-            {
-                Title = "Processing... Please Wait..."
-            };
             selectedLbl = new UILabel();
             languages = new List<string>();
             NSNotificationCenter.DefaultCenter.AddObserver(UIKeyboard.WillHideNotification, OnKeyboardNotification);
@@ -191,17 +186,10 @@ namespace iMedDrs.iOS
             }
         }
 
-        private void SetWidth(UIView view, float width)
-        {
-            CoreGraphics.CGRect frame = view.Frame;
-            frame.Width = width;
-            view.Frame = frame;
-        }
-
         private class PickerModel : UIPickerViewModel
         {
-            List<string> list;
-            UILabel label;
+            readonly List<string> list;
+            readonly UILabel label;
 
             public PickerModel(List<string> list, UILabel label)
             {

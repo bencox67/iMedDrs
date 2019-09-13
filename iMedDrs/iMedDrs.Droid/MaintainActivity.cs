@@ -14,7 +14,6 @@ namespace iMedDrs.Droid
     public class MaintainActivity : Activity
     {
         string baseurl;
-        string userid;
         string datapath;
         int level;
         int scriptnum;
@@ -40,7 +39,6 @@ namespace iMedDrs.Droid
         AlertDialog alert;
         AlertDialog progress;
         MServer ms;
-        PServer ps;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -48,7 +46,6 @@ namespace iMedDrs.Droid
 
             // Get intent variables
             baseurl = Intent.GetStringExtra("baseurl");
-            userid = Intent.GetStringExtra("userid");
             questionnaires = Intent.GetStringExtra("questionnaires").Split(',');
             level = Intent.GetIntExtra("level", 0);
             languages = Intent.GetStringExtra("languages").Split(',');
@@ -111,7 +108,6 @@ namespace iMedDrs.Droid
 
             // Initialize messaging
             ms = new MServer(baseurl);
-            ps = new PServer();
         }
 
         private void Returns_Click(object sender, EventArgs e)

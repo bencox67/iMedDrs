@@ -19,7 +19,7 @@ namespace iMedDrs
     public class MServer
     {
         private readonly string baseurl;
-        private DataList data;
+        private readonly DataList data;
 
         public MServer(string baseurl)
         {
@@ -34,7 +34,6 @@ namespace iMedDrs
         public string[] ProcessMessage(string[] message, string method)
         {
             ResultsList result = new ResultsList();
-            string rdata = "";
             string error = "No response from server";
             string url = baseurl;
             string json = "";
@@ -64,7 +63,7 @@ namespace iMedDrs
                 }
                 WebResponse response = request.GetResponse();
                 StreamReader reader = new StreamReader(response.GetResponseStream());
-                rdata = reader.ReadToEnd();
+                string rdata = reader.ReadToEnd();
                 result = JsonConvert.DeserializeObject<ResultsList>(rdata);
             }
             catch (Exception ex) { error = ex.Message; }

@@ -36,6 +36,10 @@ namespace iMedDrs.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton resetpwdBtn { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIButton returnBtn { get; set; }
 
         [Outlet]
@@ -45,6 +49,10 @@ namespace iMedDrs.iOS
         [Action ("LoginBtn_TouchUpInside:")]
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void LoginBtn_TouchUpInside (UIKit.UIButton sender);
+
+        [Action ("ResetpwdBtn_TouchUpInside:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void ResetpwdBtn_TouchUpInside (UIKit.UIButton sender);
 
         void ReleaseDesignerOutlets ()
         {
@@ -71,6 +79,11 @@ namespace iMedDrs.iOS
             if (rememberSwh != null) {
                 rememberSwh.Dispose ();
                 rememberSwh = null;
+            }
+
+            if (resetpwdBtn != null) {
+                resetpwdBtn.Dispose ();
+                resetpwdBtn = null;
             }
 
             if (returnBtn != null) {

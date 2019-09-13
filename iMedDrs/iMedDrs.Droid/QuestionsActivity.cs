@@ -66,7 +66,6 @@ namespace iMedDrs.Droid
         AlertDialog progress;
         MServer ms;
         PServer ps;
-        InputMethodManager imm;
         MediaPlayer player;
         SpeechRecognizer speech;
         Intent voice;
@@ -119,7 +118,6 @@ namespace iMedDrs.Droid
             next = FindViewById<Button>(Resource.Id.next);
             previous = FindViewById<Button>(Resource.Id.previous);
             returns = FindViewById<Button>(Resource.Id.returns);
-            imm = (InputMethodManager)GetSystemService(Context.InputMethodService);
             player = new MediaPlayer();
             var attribs = new AudioAttributes.Builder().SetFlags(AudioFlags.None).SetLegacyStreamType(Android.Media.Stream.Music).Build();
             player.SetAudioAttributes(attribs);

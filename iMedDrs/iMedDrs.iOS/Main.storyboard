@@ -442,7 +442,7 @@
                                     <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 </variation>
                                 <connections>
-                                    <segue destination="150" kind="unwind" unwindAction="UnwindToMainViewController:" id="391"/>
+                                    <segue id="108499" destination="150" kind="unwind" unwindAction="UnwindToMainViewController:"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Remember Me:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="634">
@@ -460,6 +460,17 @@
                                     <constraint firstAttribute="width" constant="49" id="25201"/>
                                 </constraints>
                             </switch>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="100717" translatesAutoresizingMaskIntoConstraints="NO">
+                                <rect key="frame" x="237" y="750" width="115" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Reset Password?"/>
+                                <connections>
+                                    <action selector="ResetpwdBtn_TouchUpInside:" destination="147" id="100721" eventType="touchUpInside"/>
+                                </connections>
+                                <constraints>
+                                    <constraint id="101821" firstAttribute="height" constant="30"/>
+                                </constraints>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -489,6 +500,9 @@
                             <constraint firstAttribute="leadingMargin" secondItem="190" secondAttribute="leading" constant="6" id="25208"/>
                             <constraint firstItem="190" firstAttribute="trailing" secondItem="148" secondAttribute="trailingMargin" constant="6" id="25209"/>
                             <constraint firstAttribute="leadingMargin" secondItem="170" secondAttribute="leading" constant="6" id="26791"/>
+                            <constraint id="100718" firstItem="100717" firstAttribute="top" secondItem="148" secondAttribute="top" constant="750"/>
+                            <constraint id="100719" firstItem="100717" firstAttribute="leading" secondItem="148" secondAttribute="leadingMargin" constant="221"/>
+                            <constraint id="100720" firstAttribute="trailingMargin" secondItem="100717" secondAttribute="trailing" constant="7"/>
                         </constraints>
                     </view>
                     <connections>
@@ -500,6 +514,7 @@
                         <outlet property="returnBtn" destination="190" id="name-outlet-190"/>
                         <outlet property="useridTxt" destination="167" id="name-outlet-167"/>
                         <segue destination="25" kind="presentation" identifier="ProcessSegue" animates="NO" id="216"/>
+                        <outlet property="resetpwdBtn" destination="100717" id="name-outlet-100717"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="149" userLabel="First Responder" sceneMemberID="firstResponder"/>

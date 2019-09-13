@@ -22,8 +22,7 @@ namespace iMedDrs.iOS
         private List<string> questionnaires;
         private string[] message;
         private string[] result;
-        private UIAlertView alertView;
-        private UIAlertView progressView;
+        private readonly UIAlertView alertView;
         private MServer ms;
         private PServer ps;
 
@@ -36,7 +35,6 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView { Title = "Processing... Please Wait..." };
         }
 
         public override void ViewDidLoad()
@@ -140,13 +138,6 @@ namespace iMedDrs.iOS
                 alertView.Title = title;
                 alertView.Show();
             }
-        }
-
-        private void SetWidth(UIView view, float width)
-        {
-            CoreGraphics.CGRect frame = view.Frame;
-            frame.Width = width;
-            view.Frame = frame;
         }
     }
 }

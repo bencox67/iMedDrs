@@ -59,4 +59,12 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_marginTop="25dp"
         android:text="Return to Start" />
+    <TextView
+        android:id="@+id/reset"
+        android:text="Reset Password"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:gravity="right" />
 </LinearLayout>

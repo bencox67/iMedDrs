@@ -38,20 +38,19 @@ namespace iMedDrs.iOS
         public UILabel selectedLbl;
         private bool recook = false;
         private bool report = false;
-        private string path;
+        private readonly string path;
         private string[] message;
         private string[] result;
-        private UIAlertView alertView;
-        private UIAlertView progressView;
-        private UIAlertView stopView;
+        private readonly UIAlertView alertView;
+        private readonly UIAlertView stopView;
         private AVPlayer player;
         private SFSpeechAudioBufferRecognitionRequest recognitionRequest;
         private SFSpeechRecognitionTask recognitionTask;
-        private AVAudioEngine audioEngine;
+        private readonly AVAudioEngine audioEngine;
         private AVAudioSession audioSession;
-        private SFSpeechRecognizer speechRecognizer;
+        private readonly SFSpeechRecognizer speechRecognizer;
         private MServer ms;
-        private PServer ps;
+        private readonly PServer ps;
 
         public QuestionViewController (IntPtr handle) : base (handle)
         {
@@ -61,10 +60,6 @@ namespace iMedDrs.iOS
             selectedLbl = new UILabel();
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView
-            {
-                Title = "Processing... Please Wait..."
-            };
             stopView = new UIAlertView();
             stopView.AddButton("No");
             stopView.AddButton("Yes");
@@ -582,21 +577,12 @@ namespace iMedDrs.iOS
             NSError error = audioSession.SetCategory(AVAudioSessionCategory.PlayAndRecord, AVAudioSessionCategoryOptions.DefaultToSpeaker);
             if (error == null)
             {
-                if (audioSession.SetMode(AVAudioSession.ModeVideoChat, out error))
+                if (audioSession.SetMode(AVAudioSession.ModeVideoChat, out _))
                 {
-                    if (audioSession.OverrideOutputAudioPort(AVAudioSessionPortOverride.Speaker, out error))
-                        error = audioSession.SetActive(true);
+                    if (audioSession.OverrideOutputAudioPort(AVAudioSessionPortOverride.Speaker, out _))
+                        audioSession.SetActive(true);
                 }
             }
-        }
-
-        private void SetWidth(UIView view, float width, float posx)
-        {
-            CoreGraphics.CGRect frame = view.Frame;
-            frame.Width = width;
-            if (posx > 0)
-                frame.X = posx;
-            view.Frame = frame;
         }
 
         private void OnKeyboardNotification(NSNotification notification)
@@ -655,8 +641,8 @@ namespace iMedDrs.iOS
 
         public class PickerModel : UIPickerViewModel
         {
-            List<string> list;
-            UILabel label;
+            readonly List<string> list;
+            readonly UILabel label;
 
             public PickerModel(List<string> list, UILabel label)
             {

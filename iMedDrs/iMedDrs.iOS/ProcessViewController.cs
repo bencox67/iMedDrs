@@ -37,13 +37,12 @@ namespace iMedDrs.iOS
         private string eresponse;
         private string extension;
         private string instructions;
-        private List<string> languages;
+        private readonly List<string> languages;
         private string[] message;
         private string[] result;
-        private UIAlertView alertView;
-        private UIAlertView progressView;
+        private readonly UIAlertView alertView;
         private MServer ms;
-        private PServer ps;
+        private readonly PServer ps;
 
         [Action("UnwindToProcessViewController:")]
         public void UnwindToProcessViewController(UIStoryboardSegue segue)
@@ -54,10 +53,6 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView
-            {
-                Title = "Processing... Please Wait..."
-            };
             selectedLbl = new UILabel();
             languages = new List<string>();
             ps = new PServer();
@@ -259,17 +254,10 @@ namespace iMedDrs.iOS
             }
         }
 
-        private void SetWidth(UIView view, float width)
-        {
-            CoreGraphics.CGRect frame = view.Frame;
-            frame.Width = width;
-            view.Frame = frame;
-        }
-
         public class PickerModel : UIPickerViewModel
         {
-            List<string> list;
-            UILabel label;
+            readonly List<string> list;
+            readonly UILabel label;
 
             public PickerModel(List<string> list, UILabel label)
             {

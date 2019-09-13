@@ -23,33 +23,25 @@ namespace iMedDrs.iOS
         private string[][] scriptdata;
         private string[] message;
         private string[] result;
-        private List<string> scripts;
-        private UILabel scriptLbl;
+        private readonly List<string> scripts;
+        private readonly UILabel scriptLbl;
         private UILabel questionnaireLbl;
         private UILabel languageLbl;
-        private UIAlertView alertView;
-        private UIAlertView progressView;
+        private readonly UIAlertView alertView;
         private UIPickerView questionnaireView;
         private UIPickerView languageView;
         private AVAudioSession audioSession;
         private AVAudioPlayer player;
         private AVAudioRecorder recorder;
-        private AudioSettings settings;
-        private NSError error;
+        private readonly AudioSettings settings;
         private MServer ms;
-        private PServer ps;
 
         public MaintainViewController (IntPtr handle) : base (handle)
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView
-            {
-                Title = "Processing... Please Wait..."
-            };
             scriptLbl = new UILabel();
             scripts = new List<string>();
-            ps = new PServer();
             settings = new AudioSettings
             {
                 SampleRate = 44100.0f,
@@ -179,7 +171,7 @@ namespace iMedDrs.iOS
             {
                 if (recordBtn.TitleLabel.Text == "Record")
                 {
-                    recorder = AVAudioRecorder.Create(new NSUrl(Path.Combine(datapath, nameTxt.Text + ".mp4")), settings, out error);
+                    recorder = AVAudioRecorder.Create(new NSUrl(Path.Combine(datapath, nameTxt.Text + ".mp4")), settings, out NSError error);
                     if (recorder != null)
                     {
                         recorder.PrepareToRecord();
@@ -212,7 +204,7 @@ namespace iMedDrs.iOS
                 {
                     if (File.Exists(Path.Combine(Path.Combine(datapath, nameTxt.Text + ".mp4"))))
                     {
-                        player = AVAudioPlayer.FromUrl(new NSUrl(Path.Combine(datapath, nameTxt.Text + ".mp4")), out error);
+                        player = AVAudioPlayer.FromUrl(new NSUrl(Path.Combine(datapath, nameTxt.Text + ".mp4")), out _);
                         if (player != null)
                         {
                             player.FinishedPlaying += Player_FinishedPlaying;
@@ -326,29 +318,18 @@ namespace iMedDrs.iOS
             NSError error = audioSession.SetCategory(AVAudioSessionCategory.PlayAndRecord, AVAudioSessionCategoryOptions.DefaultToSpeaker);
             if (error == null)
             {
-                if (audioSession.SetMode(AVAudioSession.ModeVideoChat, out error))
+                if (audioSession.SetMode(AVAudioSession.ModeVideoChat, out _))
                 {
-                    if (audioSession.OverrideOutputAudioPort(AVAudioSessionPortOverride.Speaker, out error))
-                        error = audioSession.SetActive(true);
+                    if (audioSession.OverrideOutputAudioPort(AVAudioSessionPortOverride.Speaker, out _))
+                        audioSession.SetActive(true);
                 }
             }
         }
 
-        private void SetFrame(UIView view, float height, float width, float posx, float posy)
-        {
-            CoreGraphics.CGRect frame = view.Frame;
-            if (height > 0) frame.Height = height;
-            if (width > 0) frame.Width = width;
-            if (height > 0) frame.Height = height;
-            if (posx > 0) frame.X = posx;
-            if (posy > 0) frame.Y = posy;
-            view.Frame = frame;
-        }
-
         private class PickerModel : UIPickerViewModel
         {
-            List<string> list;
-            UILabel label;
+            readonly List<string> list;
+            readonly UILabel label;
 
             public PickerModel(List<string> list, UILabel label)
             {

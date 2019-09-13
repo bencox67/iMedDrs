@@ -20,8 +20,7 @@ namespace iMedDrs.iOS
         private List<string> questionnaires;
         private string[] message;
         private string[] result;
-        private UIAlertView alertView;
-        private UIAlertView progressView;
+        private readonly UIAlertView alertView;
         private MServer ms;
         private PServer ps;
 
@@ -35,10 +34,6 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            progressView = new UIAlertView
-            {
-                Title = "Processing... Please Wait..."
-            };
         }
 
         public override void ViewDidLoad()
@@ -76,6 +71,14 @@ namespace iMedDrs.iOS
         {
             if (useridTxt.Text != "" && passwordTxt.Text != "" && useridTxt.Text.ToLower() != "demo")
                 Login();
+        }
+
+        partial void ResetpwdBtn_TouchUpInside(UIButton sender)
+        {
+            if (useridTxt.Text != "")
+                Reset();
+            else
+                AlertMessage("Enter your User ID first!");
         }
 
         private bool TextFieldShouldReturn(UITextField textfield)
@@ -141,6 +144,15 @@ namespace iMedDrs.iOS
                 AlertMessage(result[2]);
         }
 
+        private async void Reset()
+        {
+            BTProgressHUD.Show("Processing...Please wait...");
+            message = new string[] { "user", "reset", useridTxt.Text };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            BTProgressHUD.Dismiss();
+            AlertMessage(result[2]);
+        }
+
         private void AlertMessage(string title)
         {
             if (title != "")
@@ -148,13 +160,6 @@ namespace iMedDrs.iOS
                 alertView.Title = title;
                 alertView.Show();
             }
-        }
-
-        private void SetWidth(UIView view, float width)
-        {
-            CoreGraphics.CGRect frame = view.Frame;
-            frame.Width = width;
-            view.Frame = frame;
         }
     }
 }

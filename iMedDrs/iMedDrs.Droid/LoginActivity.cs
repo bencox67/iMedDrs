@@ -18,6 +18,7 @@ namespace iMedDrs.Droid
         EditText userid;
         EditText password;
         CheckBox rememberme;
+        TextView reset;
         Button login;
         Button register;
         Button returns;
@@ -44,11 +45,13 @@ namespace iMedDrs.Droid
             login = FindViewById<Button>(Resource.Id.login);
             register = FindViewById<Button>(Resource.Id.register);
             returns = FindViewById<Button>(Resource.Id.returns);
+            reset = FindViewById<TextView>(Resource.Id.reset);
 
             // Initialize events
             login.Click += Login_Click;
             register.Click += Register_Click;
             returns.Click += Returns_Click;
+            reset.Click += Reset_Click;
 
             // Alert dialog for messages
             AlertDialog.Builder alertbuilder1 = new AlertDialog.Builder(this);
@@ -125,6 +128,20 @@ namespace iMedDrs.Droid
             Intent intent = new Intent(this.ApplicationContext, typeof(MainActivity));
             StartActivity(intent);
             Finish();
+        }
+
+        private async void Reset_Click(object sender, EventArgs e)
+        {
+            if (userid.Text != "")
+            {
+                progress.Show();
+                message = new string[] { "user", "reset", userid.Text };
+                await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                progress.Dismiss();
+                AlertMessage(result[2]);
+            }
+            else
+                AlertMessage("Enter your User ID first!");
         }
 
         private void AlertMessage(string messagetext)
