@@ -119,8 +119,9 @@ namespace iMedDrs.Droid
             previous = FindViewById<Button>(Resource.Id.previous);
             returns = FindViewById<Button>(Resource.Id.returns);
             player = new MediaPlayer();
-            var attribs = new AudioAttributes.Builder().SetFlags(AudioFlags.None).SetLegacyStreamType(Android.Media.Stream.Music).Build();
-            player.SetAudioAttributes(attribs);
+            var attribs = new AudioAttributes.Builder();
+            player.SetAudioAttributes(attribs.SetFlags(AudioFlags.None).SetLegacyStreamType(Android.Media.Stream.Music).Build());
+            attribs.Dispose();
             //player.SetAudioStreamType(Android.Media.Stream.Music);
             player.Prepared += Player_Prepared;
             player.Completion += Player_Completion;
@@ -164,22 +165,26 @@ namespace iMedDrs.Droid
             alertbuilder1.SetPositiveButton("Yes", OkAction);
             alertbuilder1.SetNegativeButton("No", (EventHandler<DialogClickEventArgs>)null);
             stop = alertbuilder1.Create();
+            alertbuilder1.Dispose();
 
             // Alert dialog for saved questionnaire
             AlertDialog.Builder alertbuilder2 = new AlertDialog.Builder(this);
             alertbuilder2.SetPositiveButton("Ok", OkAction);
             save = alertbuilder2.Create();
+            alertbuilder2.Dispose();
 
             // Alert dialog for messages
             AlertDialog.Builder alertbuilder3 = new AlertDialog.Builder(this);
             alertbuilder3.SetPositiveButton("Ok", (EventHandler<DialogClickEventArgs>)null);
             alert = alertbuilder3.Create();
+            alertbuilder3.Dispose();
 
             // Progress dialog for messaging
             AlertDialog.Builder alertbuilder4 = new AlertDialog.Builder(this);
             alertbuilder4.SetView(LayoutInflater.Inflate(Resource.Layout.Progress, null));
             progress = alertbuilder4.Create();
             progress.SetCancelable(false);
+            alertbuilder4.Dispose();
 
             // Initialize messaging
             ms = new MServer(baseurl);
@@ -616,9 +621,9 @@ namespace iMedDrs.Droid
             if (matches.Count != 0)
             {
                 resp = matches[0];
-                if (resp.ToLower() == "mail" && name == "Gender")
+                if (resp.ToLower().Contains("mail") && name == "Gender")
                     resp = "male";
-                if (resp.ToLower() != "previous" && resp.ToLower() != "next" && !resp.ToLower().StartsWith("stop"))
+                if (!resp.ToLower().Contains("previous") && !resp.ToLower().Contains("next") && !resp.ToLower().StartsWith("stop"))
                 {
                     if (response.Length == 1)
                     {
@@ -660,10 +665,11 @@ namespace iMedDrs.Droid
                         {
                             for (int i = 0; i < response.Length; i++)
                             {
-                                if (response[i].ToLower() == resp.ToLower())
+                                if (resp.ToLower().Contains(response[i].ToLower().Trim()))
                                 {
                                     rb[i].Checked = true;
                                     resp = "next";
+                                    break;
                                 }
                             }
                         }
@@ -671,7 +677,7 @@ namespace iMedDrs.Droid
                         {
                             for (int i = 0; i < response.Length; i++)
                             {
-                                if (response[i].ToLower() == resp.ToLower())
+                                if (resp.ToLower().Contains(response[i].ToLower().Trim()))
                                 {
                                     response4.SetSelection(i);
                                     resp = "next";

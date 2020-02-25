@@ -26,6 +26,7 @@ namespace iMedDrs.iOS
         [Action("UnwindToReportViewController:")]
         public void UnwindToReportViewController(UIStoryboardSegue segue)
         {
+            _ = segue;
         }
 
         public ReportViewController (IntPtr handle) : base (handle)
@@ -59,6 +60,7 @@ namespace iMedDrs.iOS
             if (segue.DestinationViewController.Class.Name == "SendViewController")
             {
                 var viewController = (SendViewController)segue.DestinationViewController;
+                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.baseurl = baseurl;
                 viewController.userid = userid;
                 viewController.username = username;
@@ -71,6 +73,7 @@ namespace iMedDrs.iOS
 
         partial void NextBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             number++;
             if (number == last)
                 number = 0;
@@ -79,6 +82,7 @@ namespace iMedDrs.iOS
 
         partial void PreviousBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             number--;
             if (number < 0)
                 number = last - 1;
@@ -87,6 +91,7 @@ namespace iMedDrs.iOS
 
         partial void SendBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
         }
 
         private async void ShowReport()

@@ -47,6 +47,7 @@ namespace iMedDrs.iOS
         [Action("UnwindToProcessViewController:")]
         public void UnwindToProcessViewController(UIStoryboardSegue segue)
         {
+            _ = segue;
         }
 
         public ProcessViewController (IntPtr handle) : base (handle)
@@ -100,6 +101,7 @@ namespace iMedDrs.iOS
                 if (handsfreeSwh.On)
                     report = true;
                 var viewController = (QuestionViewController)segue.DestinationViewController;
+                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.baseurl = baseurl;
                 viewController.userid = userid;
                 viewController.username = username;
@@ -126,6 +128,7 @@ namespace iMedDrs.iOS
             if (segue.DestinationViewController.Class.Name == "ReportViewController")
             {
                 var viewController = (ReportViewController)segue.DestinationViewController;
+                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.baseurl = baseurl;
                 viewController.userid = userid;
                 viewController.username = username;
@@ -140,6 +143,7 @@ namespace iMedDrs.iOS
             if (segue.DestinationViewController.Class.Name == "UserViewController")
             {
                 var viewController = (UserViewController)segue.DestinationViewController;
+                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.baseurl = baseurl;
                 viewController.userid = userid;
                 viewController.password = password;
@@ -153,6 +157,7 @@ namespace iMedDrs.iOS
             if (segue.DestinationViewController.Class.Name == "MaintainViewController")
             {
                 var viewController = (MaintainViewController)segue.DestinationViewController;
+                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.baseurl = baseurl;
                 viewController.userid = userid;
                 viewController.questionnaires = questionnaires;
@@ -164,11 +169,13 @@ namespace iMedDrs.iOS
 
         partial void StartBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             Start();
         }
 
         partial void ViewBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             Report();
         }
 

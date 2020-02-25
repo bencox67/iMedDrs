@@ -65,6 +65,8 @@ namespace iMedDrs
                 StreamReader reader = new StreamReader(response.GetResponseStream());
                 string rdata = reader.ReadToEnd();
                 result = JsonConvert.DeserializeObject<ResultsList>(rdata);
+                response.Close();
+                response.Dispose();
             }
             catch (Exception ex) { error = ex.Message; }
             if (result.List == null)

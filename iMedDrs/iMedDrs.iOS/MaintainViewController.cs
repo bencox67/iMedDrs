@@ -134,6 +134,7 @@ namespace iMedDrs.iOS
 
         partial void PreviousBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (recordBtn.TitleLabel.Text == "Record")
             {
                 int position = 0;
@@ -148,6 +149,7 @@ namespace iMedDrs.iOS
 
         partial void NextBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (recordBtn.TitleLabel.Text == "Record")
             {
                 int position = 0;
@@ -162,11 +164,13 @@ namespace iMedDrs.iOS
 
         partial void SelectBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             ScriptData(Convert.ToInt32(scriptLbl.Text));
         }
 
         partial void RecordBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (nameTxt.Text != "")
             {
                 if (recordBtn.TitleLabel.Text == "Record")
@@ -192,6 +196,7 @@ namespace iMedDrs.iOS
 
         partial void PlayBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (nameTxt.Text != "")
             {
                 if (recordBtn.TitleLabel.Text == "Stop")
@@ -233,6 +238,7 @@ namespace iMedDrs.iOS
 
         partial void UpdatevoiceBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (recordBtn.TitleLabel.Text == "Record")
             {
                 if (File.Exists(Path.Combine(datapath, nameTxt.Text + ".mp4")))

@@ -99,12 +99,14 @@ namespace iMedDrs.Droid
             AlertDialog.Builder alertbuilder1 = new AlertDialog.Builder(this);
             alertbuilder1.SetPositiveButton("Ok", (EventHandler<DialogClickEventArgs>)null);
             alert = alertbuilder1.Create();
+            alertbuilder1.Dispose();
 
             // Progress dialog for messaging
             AlertDialog.Builder alertbuilder2 = new AlertDialog.Builder(this);
             alertbuilder2.SetView(LayoutInflater.Inflate(Resource.Layout.Progress, null));
             progress = alertbuilder2.Create();
             progress.SetCancelable(false);
+            alertbuilder2.Dispose();
 
             // Initialize messaging
             ms = new MServer(baseurl);

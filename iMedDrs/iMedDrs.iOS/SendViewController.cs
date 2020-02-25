@@ -60,6 +60,7 @@ namespace iMedDrs.iOS
 
         partial void MyemailBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (!locationsTxt.Text.Contains(email))
             {
                 if (locationsTxt.Text != "" && !locationsTxt.Text.EndsWith("\n"))
@@ -70,16 +71,20 @@ namespace iMedDrs.iOS
 
         partial void SendBtn_TouchUpInside(UIButton sender)
         {
-            if (locationsTxt.Text != "")
-                Send();
+            _ = sender;
+             Send();
         }
 
         private async void Send()
         {
-            string location = locationsTxt.Text.Replace("\n", "|");
-            location = location.Replace("||", "|");
-            if (location.EndsWith("|"))
-                location = location.Substring(0, location.Length - 1);
+            string location = "~";
+            if (locationsTxt.Text != "")
+            {
+                location = locationsTxt.Text.Replace("\n", "|");
+                location = location.Replace("||", "|");
+                if (location.EndsWith("|"))
+                    location = location.Substring(0, location.Length - 1);
+            }
             BTProgressHUD.Show("Processing...Please wait...");
             if (level < 2)
                 message = new string[] { "report", "send2", userid, questionnaire, location, data };
@@ -87,7 +92,8 @@ namespace iMedDrs.iOS
                 message = new string[] { "report", "send", userid, questionnaire, location };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
             BTProgressHUD.Dismiss();
-            AlertMessage(result[2]);
+            if (result[2] != "" && result[2] != "~")
+                AlertMessage(result[2]);
         }
 
         private void AlertMessage(string title)

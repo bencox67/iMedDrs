@@ -29,6 +29,7 @@ namespace iMedDrs.iOS
         [Action("UnwindToMainViewController:")]
         public void UnwindToMainViewController(UIStoryboardSegue segue)
         {
+            _ = segue;
         }
 
         public MainViewController(IntPtr handle) : base(handle)
@@ -81,6 +82,7 @@ namespace iMedDrs.iOS
             if (segue.DestinationViewController.Class.Name == "ProcessViewController")
             {
                 var viewController = (ProcessViewController)segue.DestinationViewController;
+                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.baseurl = baseurl;
                 viewController.userid = userid;
                 viewController.username = username;
@@ -96,6 +98,7 @@ namespace iMedDrs.iOS
             if (segue.DestinationViewController.Class.Name == "LoginViewController")
             {
                 var viewController = (LoginViewController)segue.DestinationViewController;
+                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.baseurl = baseurl;
                 viewController.datapath = datapath;
                 viewController.level = level;
@@ -104,6 +107,7 @@ namespace iMedDrs.iOS
 
         partial void StartBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             Start();
         }
 

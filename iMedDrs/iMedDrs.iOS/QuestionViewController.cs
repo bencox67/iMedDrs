@@ -139,11 +139,13 @@ namespace iMedDrs.iOS
 
         partial void VoiceBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             Play();
         }
 
         partial void SpeakBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (recook)
             {
                 nameLbl.Text = "Speak now...";
@@ -153,18 +155,21 @@ namespace iMedDrs.iOS
 
         partial void NextBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             StopVoiceReco();
             Next();
         }
 
         partial void PreviousBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             StopVoiceReco();
             Previous();
         }
 
         partial void ReturnBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             stopView.Show();
             stopView.Clicked += (object senders, UIButtonEventArgs e) => 
             {
@@ -267,9 +272,9 @@ namespace iMedDrs.iOS
                     if (result.Final)
                     {
                         string recresp = result.BestTranscription.FormattedString;
-                        if (recresp.ToLower() != "previous" && recresp.ToLower() != "next" && recresp.ToLower() != "stop")
+                        if (!recresp.ToLower().Contains("previous") && !recresp.ToLower().Contains("next") && recresp.ToLower() != "stop")
                         {
-                            if (recresp.ToLower() == "mail" && name == "Gender")
+                            if (recresp.ToLower().Contains("mail") && name == "Gender")
                                 recresp = "male";
                             if (response.Length == 1)
                             {
@@ -292,13 +297,14 @@ namespace iMedDrs.iOS
                             {
                                 for (int i = 0; i < response.Length; i++)
                                 {
-                                    if (response[i].ToLower() == recresp.ToLower())
+                                    if (recresp.ToLower().Contains(response[i].ToLower().Trim()))
                                     {
                                         if (response.Length < 4)
                                             responseSmc.SelectedSegment = i;
                                         else
                                             responsePkr.Select(i, 0, false);
                                         recresp = "next";
+                                        break;
                                     }
                                 }
                             }

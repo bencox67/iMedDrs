@@ -102,21 +102,23 @@ namespace iMedDrs.Droid
         private async void Send_Click(object sender, EventArgs e)
         {
             imm.HideSoftInputFromWindow(locations.WindowToken, 0);
+            string location = "~";
             if (locations.Text != "")
             {
-                string location = locations.Text.Replace("\n", "|");
+                location = locations.Text.Replace("\n", "|");
                 location = location.Replace("||", "|");
                 if (location.EndsWith("|"))
                     location = location.Substring(0, location.Length - 1);
-                progress.Show();
-                if (level < 2)
-                    message = new string[] { "report", "send2", userid, questionnaire, location, data };
-                else
-                    message = new string[] { "report", "send", userid, questionnaire, location };
-                await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
-                progress.Dismiss();
-                AlertMessage(result[2]);
             }
+            progress.Show();
+            if (level < 2)
+                message = new string[] { "report", "send2", userid, questionnaire, location, data };
+            else
+                message = new string[] { "report", "send", userid, questionnaire, location };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            progress.Dismiss();
+            if (result[2] != "" && result[2] != "~")
+                AlertMessage(result[2]);
         }
 
         private void Returns_Click(object sender, EventArgs e)

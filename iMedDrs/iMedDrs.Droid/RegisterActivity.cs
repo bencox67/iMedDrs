@@ -130,7 +130,7 @@ namespace iMedDrs.Droid
             if (ValidateData())
             {
                 progress.Show();
-                message = new string[] { "user", "register", userid.Text, name.Text, gender, birthdate.Text.Replace("/","|"), language.SelectedItem.ToString(), emailaddr, password1.Text };
+                message = new string[] { "user", "register", userid.Text, name.Text, gender, birthdate.Text.Replace("/","|").Replace("-", "|"), language.SelectedItem.ToString(), emailaddr, password1.Text };
                 await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
                 progress.Dismiss();
                 if (result[1] == "ack")

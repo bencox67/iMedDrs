@@ -27,6 +27,7 @@ namespace iMedDrs.iOS
         [Action("UnwindToLoginViewController:")]
         public void UnwindToLoginViewController(UIStoryboardSegue segue)
         {
+            _ = segue;
             passwordTxt.Text = "";
         }
 
@@ -62,6 +63,14 @@ namespace iMedDrs.iOS
                 rememberSwh.On = true;
         }
 
+        public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
+        {
+            base.TraitCollectionDidChange(previousTraitCollection);
+            if (this.TraitCollection.UserInterfaceStyle != previousTraitCollection.UserInterfaceStyle)
+            {
+            }
+        }
+
         public override void TouchesBegan(NSSet touches, UIEvent evt)
         {
             View.EndEditing(true);
@@ -69,12 +78,14 @@ namespace iMedDrs.iOS
 
         partial void LoginBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (useridTxt.Text != "" && passwordTxt.Text != "" && useridTxt.Text.ToLower() != "demo")
                 Login();
         }
 
         partial void ResetpwdBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (useridTxt.Text != "")
                 Reset();
             else
@@ -97,6 +108,7 @@ namespace iMedDrs.iOS
             if (segue.DestinationViewController.Class.Name == "ProcessViewController")
             {
                 var viewController = (ProcessViewController)segue.DestinationViewController;
+                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.baseurl = baseurl;
                 viewController.userid = useridTxt.Text;
                 viewController.password = passwordTxt.Text;
@@ -112,6 +124,7 @@ namespace iMedDrs.iOS
             if (segue.DestinationViewController.Class.Name == "RegisterViewController")
             {
                 var viewController = (RegisterViewController)segue.DestinationViewController;
+                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.baseurl = baseurl;
             }
         }

@@ -74,6 +74,7 @@ namespace iMedDrs.iOS
 
         partial void RegisterBtn_TouchUpInside(UIButton sender)
         {
+            _ = sender;
             if (ValidateData())
                 Register();
         }
@@ -108,26 +109,22 @@ namespace iMedDrs.iOS
             string error = "";
             if (useridTxt.Text.Length < 4 || useridTxt.Text.ToLower() == "demo")
             {
-                error = "Check User ID";
+                error = "Enter a Valid User ID";
                 result = false;
             }
             if (result && nameTxt.Text.Split(' ').Length < 2)
             {
-                error = "Check Name";
+                error = "Enter a First and Last Name";
                 result = false;
             }
-            try { DateTime dt = Convert.ToDateTime(birthdateTxt.Text); }
-            catch
+            if (result && birthdateTxt.Text == "")
             {
-                if (result)
-                {
-                    error = "Check Birth Date";
-                    result = false;
-                }
+                error = "Enter a Valid Birth Date";
+                result = false;
             }
             if (result && (password1Txt.Text == "" || password2Txt.Text == "" || password1Txt.Text != password2Txt.Text || password1Txt.Text.Length < 4))
             {
-                error = "Check Password";
+                error = "Enter and Confirm a Password";
                 result = false;
             }
             AlertMessage(error);
@@ -168,7 +165,7 @@ namespace iMedDrs.iOS
         private async void Register()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "user", "register", useridTxt.Text, nameTxt.Text, genderSmc.TitleAt(genderSmc.SelectedSegment), birthdateTxt.Text.Replace("/", "|"), selectedLbl.Text, emailTxt.Text, password1Txt.Text };
+            message = new string[] { "user", "register", useridTxt.Text, nameTxt.Text, genderSmc.TitleAt(genderSmc.SelectedSegment), birthdateTxt.Text.Replace("/", "|").Replace("-", "|"), selectedLbl.Text, emailTxt.Text, password1Txt.Text };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
