@@ -33,6 +33,11 @@ namespace iMedDrs.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+            UITextAttributes uITextAttributes = new UITextAttributes
+            {
+                TextColor = UIColor.Black
+            };
+            genderSmc.SetTitleTextAttributes(uITextAttributes, UIControlState.Normal);
             datePicker = new UIDatePicker
             {
                 BackgroundColor = UIColor.White,
