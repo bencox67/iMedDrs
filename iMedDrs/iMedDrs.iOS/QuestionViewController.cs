@@ -12,30 +12,30 @@ namespace iMedDrs.iOS
 {
     public partial class QuestionViewController : UIViewController
     {
-        public string baseurl { get; set; }
-        public string userid { get; set; }
-        public string username { get; set; }
-        public string questionnaire { get; set; }
-        public string number { get; set; }
-        public string name { get; set; }
-        public string text { get; set; }
-        public string[] response { get; set; }
-        public string last { get; set; }
-        public string responses { get; set; }
-        public string branches { get; set; }
-        public bool required { get; set; }
-        public string type { get; set; }
-        public string answer { get; set; }
-        public string[] eresponse { get; set; }
-        public string datapath { get; set; }
-        public string language { get; set; }
-        public string extension { get; set; }
-        public string instructions { get; set; }
-        public int level { get; set; }
-        public string email { get; set; }
-        public bool handsfree { get; set; }
-        public List<string> presponses { get; set; }
-        public UILabel selectedLbl;
+        public string Baseurl { get; set; }
+        public string Userid { get; set; }
+        public string Username { get; set; }
+        public string Questionnaire { get; set; }
+        public string Number { get; set; }
+        public string Name { get; set; }
+        public string Text { get; set; }
+        public string[] Response { get; set; }
+        public string Last { get; set; }
+        public string Responses { get; set; }
+        public string Branches { get; set; }
+        public bool Required { get; set; }
+        public string Type { get; set; }
+        public string Answer { get; set; }
+        public string[] Eresponse { get; set; }
+        public string Datapath { get; set; }
+        public string Language { get; set; }
+        public string Extension { get; set; }
+        public string Instructions { get; set; }
+        public int Level { get; set; }
+        public string Email { get; set; }
+        public bool Handsfree { get; set; }
+        public List<string> Presponses { get; set; }
+        public UILabel SelectedLbl;
         private bool recook = false;
         private bool report = false;
         private readonly string path;
@@ -55,9 +55,9 @@ namespace iMedDrs.iOS
         public QuestionViewController (IntPtr handle) : base (handle)
         {
             ps = new PServer();
-            presponses = new List<string>();
+            Presponses = new List<string>();
             path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/";
-            selectedLbl = new UILabel();
+            SelectedLbl = new UILabel();
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
             stopView = new UIAlertView();
@@ -78,8 +78,8 @@ namespace iMedDrs.iOS
             tap.AddTarget(() => View.EndEditing(true));
             View.AddGestureRecognizer(tap);
             questionBtn.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
-            voiceBtn.Hidden = handsfree;
-            speakBtn.Hidden = handsfree;
+            voiceBtn.Hidden = Handsfree;
+            speakBtn.Hidden = Handsfree;
             if (SFSpeechRecognizer.AuthorizationStatus == SFSpeechRecognizerAuthorizationStatus.NotDetermined)
             {
                 SFSpeechRecognizer.RequestAuthorization((SFSpeechRecognizerAuthorizationStatus status) =>
@@ -113,7 +113,7 @@ namespace iMedDrs.iOS
                 else
                     speakBtn.Hidden = true;
             }
-            ms = new MServer(baseurl);
+            ms = new MServer(Baseurl);
         }
 
         public override void DidReceiveMemoryWarning()
@@ -125,7 +125,7 @@ namespace iMedDrs.iOS
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            namequestLbl.Text = username + " - " + questionnaire;
+            namequestLbl.Text = Username + " - " + Questionnaire;
             SetAudioSettings();
             SetQuestion();
             SetResponses();
@@ -176,7 +176,7 @@ namespace iMedDrs.iOS
                 if (e.ButtonIndex == 1)
                 {
                     StopVoiceReco();
-                    handsfree = false;
+                    Handsfree = false;
                     recook = false;
                     audioEngine.Dispose();
                     speechRecognizer.Dispose();
@@ -193,7 +193,7 @@ namespace iMedDrs.iOS
                 player = null;
             }
             recoLbl.Text = "";
-            var url = NSUrl.FromString("https://imeddrs.com/audio/" + language + "/" + name + extension);
+            var url = NSUrl.FromString("https://imeddrsapi.azurewebsites.net/data/voice/" + Language + "/" + Name + Extension);
             player = AVPlayer.FromUrl(url);
             if (player != null)
             {
@@ -208,7 +208,7 @@ namespace iMedDrs.iOS
                         recoLbl.Text = "complete";
                     });
                 });
-                if (handsfree)
+                if (Handsfree)
                 { 
                     do { await Task.Delay(5); } while (recoLbl.Text == "");
                     if (recoLbl.Text != "")
@@ -236,7 +236,7 @@ namespace iMedDrs.iOS
         {
             recoLbl.Text = "";
             GetRecognition();
-            if (handsfree)
+            if (Handsfree)
                 do { await Task.Delay(5); } while (recoLbl.Text == "");
             switch (recoLbl.Text)
             {
@@ -247,7 +247,7 @@ namespace iMedDrs.iOS
                     Next();
                     break;
                 case "stop":
-                    handsfree = false;
+                    Handsfree = false;
                     recook = false;
                     audioEngine.Stop();
                     recognitionTask.Cancel();
@@ -274,11 +274,11 @@ namespace iMedDrs.iOS
                         string recresp = result.BestTranscription.FormattedString;
                         if (!recresp.ToLower().Contains("previous") && !recresp.ToLower().Contains("next") && recresp.ToLower() != "stop")
                         {
-                            if (recresp.ToLower().Contains("mail") && name == "Gender")
+                            if (recresp.ToLower().Contains("mail") && Name == "Gender")
                                 recresp = "male";
-                            if (response.Length == 1)
+                            if (Response.Length == 1)
                             {
-                                if (type == "number")
+                                if (Type == "number")
                                 {
                                     try
                                     {
@@ -295,11 +295,11 @@ namespace iMedDrs.iOS
                             }
                             else
                             {
-                                for (int i = 0; i < response.Length; i++)
+                                for (int i = 0; i < Response.Length; i++)
                                 {
-                                    if (recresp.ToLower().Contains(response[i].ToLower().Trim()))
+                                    if (recresp.ToLower().Contains(Response[i].ToLower().Trim()))
                                     {
-                                        if (response.Length < 4)
+                                        if (Response.Length < 4)
                                             responseSmc.SelectedSegment = i;
                                         else
                                             responsePkr.Select(i, 0, false);
@@ -309,7 +309,7 @@ namespace iMedDrs.iOS
                                 }
                             }
                         }
-                        if (handsfree)
+                        if (Handsfree)
                         {
                             if (recresp == "")
                                 recoLbl.Text = "error";
@@ -320,18 +320,18 @@ namespace iMedDrs.iOS
                 }
                 else
                 {
-                    if (handsfree)
+                    if (Handsfree)
                         recoLbl.Text = "error";
                 }
                 audioEngine.Stop();
                 recognitionRequest.EndAudio();
-                nameLbl.Text = name;
+                nameLbl.Text = Name;
             });
         }
 
         private void StopVoiceReco()
         {
-            nameLbl.Text = name;
+            nameLbl.Text = Name;
             if (player != null)
             {
                 player.Dispose();
@@ -344,32 +344,32 @@ namespace iMedDrs.iOS
 
         private async void Next()
         {
-            if (Convert.ToInt32(number) < Convert.ToInt32(last))
+            if (Convert.ToInt32(Number) < Convert.ToInt32(Last))
             {
                 string ans = GetRepsonse();
-                if (required && ans == "~")
+                if (Required && ans == "~")
                     AlertMessage("A response is required");
                 else
                 {
                     BTProgressHUD.Show("Processing...Please wait...");
-                    message = new string[] { "questionnaire", "next", userid, questionnaire, number, ans, responses, branches };
-                    await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                    message = new string[] { "questionnaire", "next", Userid, Questionnaire, Number, ans, Responses, Branches };
+                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                     BTProgressHUD.Dismiss();
                     if (result[1] == "ack")
                     {
-                        number = result[2];
-                        name = result[3];
-                        text = result[4];
-                        response = result[5].Split(',');
-                        last = result[6];
-                        responses = result[7];
-                        branches = result[8];
-                        required = Convert.ToBoolean(result[9]);
-                        type = result[10];
-                        answer = result[11];
-                        eresponse = result[12].Split(',');
-                        extension = result[13];
-                        instructions = result[14];
+                        Number = result[2];
+                        Name = result[3];
+                        Text = result[4];
+                        Response = result[5].Split(',');
+                        Last = result[6];
+                        Responses = result[7];
+                        Branches = result[8];
+                        Required = Convert.ToBoolean(result[9]);
+                        Type = result[10];
+                        Answer = result[11];
+                        Eresponse = result[12].Split(',');
+                        Extension = result[13];
+                        Instructions = result[14];
                         SetQuestion();
                         SetResponses();
                     }
@@ -379,26 +379,26 @@ namespace iMedDrs.iOS
             }
             else
             {
-                if (level > 1)
+                if (Level > 1)
                 {
                     BTProgressHUD.Show("Processing...Please wait...");
-                    message = new string[] { "questionnaire", "save", userid, questionnaire, responses };
-                    await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                    message = new string[] { "questionnaire", "save", Userid, Questionnaire, Responses };
+                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                     BTProgressHUD.Dismiss();
-                    if (!handsfree)
+                    if (!Handsfree)
                         AlertMessage(result[2]);
                 }
                 else
                 {
-                    string file = path + questionnaire.Replace(" ", "_") + ".txt";
-                    if (ps.WriteToFile(file, responses, true))
+                    string file = path + Questionnaire.Replace(" ", "_") + ".txt";
+                    if (ps.WriteToFile(file, Responses, true))
                     {
-                        if (!handsfree)
+                        if (!Handsfree)
                             AlertMessage("Questionnaire responses saved");
                     }
                     else
                     {
-                        if (!handsfree)
+                        if (!Handsfree)
                             AlertMessage("Not able to save resposnes");
                     }
                 }
@@ -409,24 +409,24 @@ namespace iMedDrs.iOS
         private async void Previous()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "questionnaire", "previous", userid, questionnaire, number, responses, branches };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            message = new string[] { "questionnaire", "previous", Userid, Questionnaire, Number, Responses, Branches };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
             {
-                number = result[2];
-                name = result[3];
-                text = result[4];
-                response = result[5].Split(',');
-                last = result[6];
-                responses = result[7];
-                branches = result[8];
-                required = Convert.ToBoolean(result[9]);
-                type = result[10];
-                answer = result[11];
-                eresponse = result[12].Split(',');
-                extension = result[13];
-                instructions = result[14];
+                Number = result[2];
+                Name = result[3];
+                Text = result[4];
+                Response = result[5].Split(',');
+                Last = result[6];
+                Responses = result[7];
+                Branches = result[8];
+                Required = Convert.ToBoolean(result[9]);
+                Type = result[10];
+                Answer = result[11];
+                Eresponse = result[12].Split(',');
+                Extension = result[13];
+                Instructions = result[14];
                 SetQuestion();
                 SetResponses();
             }
@@ -436,10 +436,10 @@ namespace iMedDrs.iOS
 
         private void SetQuestion()
         {
-            instructionsLbl.Text = instructions.Replace("~", "\r\n");
-            nameLbl.Text = name;
-            questionBtn.SetTitle(text, UIControlState.Normal);
-            if (name == "End")
+            instructionsLbl.Text = Instructions.Replace("~", "\r\n");
+            nameLbl.Text = Name;
+            questionBtn.SetTitle(Text, UIControlState.Normal);
+            if (Name == "End")
                 report = true;
         }
 
@@ -449,15 +449,15 @@ namespace iMedDrs.iOS
             responseSmc.Hidden = true;
             responsePkr.Hidden = true;
             responseDpr.Hidden = true;
-            if (name != "End")
+            if (Name != "End")
             {
-                if (response.Length == 1)
+                if (Response.Length == 1)
                 {
-                    if (type == "date")
+                    if (Type == "date")
                     {
-                        if (answer != "")
+                        if (Answer != "")
                         {
-                            try { responseDpr.SetDate((NSDate)Convert.ToDateTime(answer), false); }
+                            try { responseDpr.SetDate((NSDate)Convert.ToDateTime(Answer), false); }
                             catch { responseDpr.SetDate((NSDate)DateTime.Now, false); }
                         }
                         else
@@ -466,16 +466,16 @@ namespace iMedDrs.iOS
                     }
                     else
                     {
-                        responseTxt.Text = answer;
-                        if (name == "Age")
+                        responseTxt.Text = Answer;
+                        if (Name == "Age")
                         {
                             if (responseTxt.Text.StartsWith("0."))
-                                responseTxt.Text = responseTxt.Text.Substring(1);
+                                responseTxt.Text = responseTxt.Text[1..];
                             if (responseTxt.Text.EndsWith(".00"))
-                                responseTxt.Text = responseTxt.Text.Substring(0, responseTxt.Text.Length - 3);
+                                responseTxt.Text = responseTxt.Text[0..^3];
                         }
                         responseTxt.Hidden = false;
-                        if (type == "number" || type == "decimal")
+                        if (Type == "number" || Type == "decimal")
                             responseTxt.KeyboardType = UIKeyboardType.NumbersAndPunctuation;
                         else
                             responseTxt.KeyboardType = UIKeyboardType.Default;
@@ -483,16 +483,16 @@ namespace iMedDrs.iOS
                 }
                 else
                 {
-                    if (response.Length < 4)
+                    if (Response.Length < 4)
                     {
                         responseSmc.RemoveAllSegments();
-                        responseSmc.Frame = new CoreGraphics.CGRect(responseSmc.Frame.X, responseSmc.Frame.Y, 150f * response.Length, responseSmc.Frame.Height);
-                        for (int i = 0; i < response.Length; i++)
+                        responseSmc.Frame = new CoreGraphics.CGRect(responseSmc.Frame.X, responseSmc.Frame.Y, 150f * Response.Length, responseSmc.Frame.Height);
+                        for (int i = 0; i < Response.Length; i++)
                         {
-                            responseSmc.InsertSegment(response[i], i, true);
+                            responseSmc.InsertSegment(Response[i], i, true);
                             responseSmc.SetEnabled(true, i);
                             responseSmc.SetWidth(100f, i);
-                            if (eresponse[i] == answer)
+                            if (Eresponse[i] == Answer)
                                 responseSmc.SelectedSegment = i;
                         }
                         responseSmc.Hidden = false;
@@ -500,32 +500,32 @@ namespace iMedDrs.iOS
                     else
                     {
                         int row = 0;
-                        presponses.Clear();
-                        for (int i = 0; i < response.Length; i++)
+                        Presponses.Clear();
+                        for (int i = 0; i < Response.Length; i++)
                         {
-                            presponses.Add(response[i]);
-                            if (eresponse[i] == answer)
+                            Presponses.Add(Response[i]);
+                            if (Eresponse[i] == Answer)
                                 row = i;
                         }
-                        selectedLbl.Text = presponses[row];
-                        responsePkr.Model = new PickerModel(presponses, selectedLbl);
+                        SelectedLbl.Text = Presponses[row];
+                        responsePkr.Model = new PickerModel(Presponses, SelectedLbl);
                         responsePkr.Select(row, 0, false);
                         responsePkr.Hidden = false;
                     }
                 }
             }
-            if (handsfree)
+            if (Handsfree)
                 Play();
         }
 
         private string GetRepsonse()
         {
             string result = "";
-            if (name != "End")
+            if (Name != "End")
             {
-                if (response.Length == 1)
+                if (Response.Length == 1)
                 {
-                    switch (type)
+                    switch (Type)
                     {
                         case "date":
                             try
@@ -552,14 +552,14 @@ namespace iMedDrs.iOS
                 }
                 else
                 {
-                    if (response.Length < 4)
+                    if (Response.Length < 4)
                     {
                         if (responseSmc.SelectedSegment > -1)
-                            result = eresponse[responseSmc.SelectedSegment];
+                            result = Eresponse[responseSmc.SelectedSegment];
                     }
                     else
                     {
-                        result = selectedLbl.Text;
+                        result = SelectedLbl.Text;
                     }
                 }
             }

@@ -16,13 +16,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView1"
-                android:text="User ID:" />
+                android:text="Email:" />
             <EditText
-                android:id="@+id/userid"
+                android:id="@+id/email"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:enabled="false"
+                android:inputType="textEmailAddress"
                 android:singleLine="true" />
         </TableRow>
         <TableRow
@@ -108,23 +108,6 @@
                 android:layout_width="fill_parent"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:layout_height="wrap_content" />
-        </TableRow>
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/textView8"
-                android:text="Email:" />
-            <EditText
-                android:id="@+id/email"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:inputType="textEmailAddress"
-                android:singleLine="true" />
         </TableRow>
         <TableRow
             android:layout_width="fill_parent"

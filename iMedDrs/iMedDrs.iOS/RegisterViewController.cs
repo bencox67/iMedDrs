@@ -10,8 +10,8 @@ namespace iMedDrs.iOS
 {
     public partial class RegisterViewController : UIViewController
     {
-        public string baseurl { get; set; }
-        public UILabel selectedLbl;
+        public string Baseurl { get; set; }
+        public UILabel SelectedLbl;
         private readonly List<string> languages;
         private string[] message;
         private string[] result;
@@ -24,7 +24,7 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            selectedLbl = new UILabel();
+            SelectedLbl = new UILabel();
             languages = new List<string>();
             NSNotificationCenter.DefaultCenter.AddObserver(UIKeyboard.WillHideNotification, OnKeyboardNotification);
             NSNotificationCenter.DefaultCenter.AddObserver(UIKeyboard.WillShowNotification, OnKeyboardNotification);
@@ -62,7 +62,7 @@ namespace iMedDrs.iOS
             var tap = new UITapGestureRecognizer { CancelsTouchesInView = false };
             tap.AddTarget(() => View.EndEditing(true));
             View.AddGestureRecognizer(tap);
-            ms = new MServer(baseurl);
+            ms = new MServer(Baseurl);
             GetLanguages();
         }
 
@@ -103,7 +103,7 @@ namespace iMedDrs.iOS
 
         public void Language(object sender, EventArgs e)
         {
-            languageTxt.Text = selectedLbl.Text;
+            languageTxt.Text = SelectedLbl.Text;
             languageTxt.ResignFirstResponder();
             emailTxt.BecomeFirstResponder();
         }
@@ -140,17 +140,17 @@ namespace iMedDrs.iOS
         {
             BTProgressHUD.Show("Processing...Please wait...");
             message = new string[] { "user", "languages" };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
             {
                 for (int i = 2; i < result.Length; i++)
                     languages.Add(result[i]);
-                selectedLbl.Text = languages[0];
+                SelectedLbl.Text = languages[0];
                 pickerView = new UIPickerView
                 {
                     BackgroundColor = UIColor.White,
-                    Model = new PickerModel(languages, selectedLbl)
+                    Model = new PickerModel(languages, SelectedLbl)
                 };
                 UIToolbar toolbar = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)this.View.Frame.Size.Width, 44.0f))
                 {
@@ -170,8 +170,8 @@ namespace iMedDrs.iOS
         private async void Register()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "user", "register", useridTxt.Text, nameTxt.Text, genderSmc.TitleAt(genderSmc.SelectedSegment), birthdateTxt.Text.Replace("/", "|").Replace("-", "|"), selectedLbl.Text, emailTxt.Text, password1Txt.Text };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            message = new string[] { "user", "register", useridTxt.Text, nameTxt.Text, genderSmc.TitleAt(genderSmc.SelectedSegment), birthdateTxt.Text.Replace("/", "|").Replace("-", "|"), SelectedLbl.Text, emailTxt.Text, password1Txt.Text };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
                 AlertMessage("Registeration Complete");

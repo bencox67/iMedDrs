@@ -8,13 +8,13 @@ namespace iMedDrs.iOS
 {
     public partial class SendViewController : UIViewController
     {
-        public string baseurl { get; set; }
-        public string userid { get; set; }
-        public string username { get; set; }
-        public string questionnaire { get; set; }
-        public string data { get; set; }
-        public string email { get; set; }
-        public int level { get; set; }
+        public string Baseurl { get; set; }
+        public string Userid { get; set; }
+        public string Username { get; set; }
+        public string Questionnaire { get; set; }
+        public string Data { get; set; }
+        public string Email { get; set; }
+        public int Level { get; set; }
         private string[] message;
         private string[] result;
         private readonly UIAlertView alertView;
@@ -35,14 +35,14 @@ namespace iMedDrs.iOS
             var tap = new UITapGestureRecognizer { CancelsTouchesInView = false };
             tap.AddTarget(() => View.EndEditing(true));
             View.AddGestureRecognizer(tap);
-            ms = new MServer(baseurl);
-            if (email == "")
+            ms = new MServer(Baseurl);
+            if (Email == "")
                 myemailBtn.Hidden = true;
             else
             {
                 if (locationsTxt.Text != "" && !locationsTxt.Text.EndsWith("\n"))
                     locationsTxt.Text += "\n";
-                locationsTxt.Text += email + "\n";
+                locationsTxt.Text += Email + "\n";
             }
         }
 
@@ -55,17 +55,17 @@ namespace iMedDrs.iOS
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            namequestLbl.Text = username + " - " + questionnaire;
+            namequestLbl.Text = Username + " - " + Questionnaire;
         }
 
         partial void MyemailBtn_TouchUpInside(UIButton sender)
         {
             _ = sender;
-            if (!locationsTxt.Text.Contains(email))
+            if (!locationsTxt.Text.Contains(Email))
             {
                 if (locationsTxt.Text != "" && !locationsTxt.Text.EndsWith("\n"))
                     locationsTxt.Text += "\n";
-                locationsTxt.Text += email + "\n";
+                locationsTxt.Text += Email + "\n";
             }
         }
 
@@ -83,14 +83,14 @@ namespace iMedDrs.iOS
                 location = locationsTxt.Text.Replace("\n", "|");
                 location = location.Replace("||", "|");
                 if (location.EndsWith("|"))
-                    location = location.Substring(0, location.Length - 1);
+                    location = location[0..^1];
             }
             BTProgressHUD.Show("Processing...Please wait...");
-            if (level < 2)
-                message = new string[] { "report", "send2", userid, questionnaire, location, data };
+            if (Level < 2)
+                message = new string[] { "report", "send2", Userid, Questionnaire, location, Data };
             else
-                message = new string[] { "report", "send", userid, questionnaire, location };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                message = new string[] { "report", "send", Userid, Questionnaire, location };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[2] != "" && result[2] != "~")
                 AlertMessage(result[2]);

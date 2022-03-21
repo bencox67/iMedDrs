@@ -55,9 +55,9 @@
 	<key>XSAppIconAssets</key>
 	<string>Resources/Images.xcassets/AppIcons.appiconset</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.6</string>
+	<string>3.8</string>
 	<key>CFBundleVersion</key>
-	<string>3.6</string>
+	<string>3.8</string>
 	<key>UIRequiresFullScreen</key>
 	<true/>
 </dict>

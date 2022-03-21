@@ -17,7 +17,8 @@ namespace iMedDrs.Droid
         string questionnaire;
         string data;
         string email;
-        int level;
+        string role;
+        string language;
         string[] message;
         string[] result;
         EditText locations;
@@ -40,7 +41,8 @@ namespace iMedDrs.Droid
             questionnaire = Intent.GetStringExtra("questionnaire");
             data = Intent.GetStringExtra("data");
             email = Intent.GetStringExtra("email");
-            level = Intent.GetIntExtra("level", 0);
+            role = Intent.GetStringExtra("role");
+            language = Intent.GetStringExtra("language");
 
             // Set title
             this.ActionBar.Subtitle = username + " - " + questionnaire;
@@ -108,17 +110,17 @@ namespace iMedDrs.Droid
                 location = locations.Text.Replace("\n", "|");
                 location = location.Replace("||", "|");
                 if (location.EndsWith("|"))
-                    location = location.Substring(0, location.Length - 1);
+                    location = location[0..^1];
             }
             progress.Show();
-            if (level < 2)
-                message = new string[] { "report", "send2", userid, questionnaire, location, data };
+            if (role == "demo")
+                message = new string[] { "reports", userid, questionnaire, location, data, language };
             else
-                message = new string[] { "report", "send", userid, questionnaire, location };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                message = new string[] { "reports", userid, questionnaire, location, "*", language };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             progress.Dismiss();
-            if (result[2] != "" && result[2] != "~")
-                AlertMessage(result[2]);
+            if (result[1] != "" && result[1] != "~")
+                AlertMessage(result[1]);
         }
 
         private void Returns_Click(object sender, EventArgs e)

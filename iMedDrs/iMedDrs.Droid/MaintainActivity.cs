@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Android;
 using Android.App;
 using Android.Content;
 using Android.Media;
@@ -148,24 +149,27 @@ namespace iMedDrs.Droid
 
         private void Record_Click(object sender, EventArgs e)
         {
-            if (name.Text != "")
+            if (CheckCallingOrSelfPermission(Manifest.Permission.RecordAudio) == Android.Content.PM.Permission.Granted)
             {
-                if (record.Text == "Record")
+                if (name.Text != "")
                 {
-                    record.Text = "Stop";
-                    recorder.Reset();
-                    recorder.SetAudioSource(AudioSource.Mic);
-                    recorder.SetOutputFormat(OutputFormat.Mpeg4);
-                    recorder.SetAudioEncoder(AudioEncoder.Aac);
-                    recorder.SetOutputFile(Path.Combine(datapath, name.Text + ".mp4"));
-                    recorder.Prepare();
-                    recorder.Start();
-                }
-                else
-                {
-                    record.Text = "Record";
-                    recorder.Stop();
-                    recorder.Reset();
+                    if (record.Text == "Record")
+                    {
+                        record.Text = "Stop";
+                        recorder.Reset();
+                        recorder.SetAudioSource(AudioSource.Mic);
+                        recorder.SetOutputFormat(OutputFormat.Mpeg4);
+                        recorder.SetAudioEncoder(AudioEncoder.Aac);
+                        recorder.SetOutputFile(Path.Combine(datapath, name.Text + ".mp4"));
+                        recorder.Prepare();
+                        recorder.Start();
+                    }
+                    else
+                    {
+                        record.Text = "Record";
+                        recorder.Stop();
+                        recorder.Reset();
+                    }
                 }
             }
         }
@@ -243,7 +247,7 @@ namespace iMedDrs.Droid
             ClearForm();
             message = new string[] { "script", "data", questionnaire.SelectedItem.ToString(), level.ToString(), language.SelectedItem.ToString() };
             progress.Show();
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             progress.Dismiss();
             if (result[1] == "ack")
             {

@@ -42,7 +42,7 @@ namespace iMedDrs.iOS
         {
             base.ViewDidLoad();
             versionLbl.Text = "Version " + NSBundle.MainBundle.InfoDictionary["CFBundleShortVersionString"].ToString();
-            baseurl = "https://imeddrs.com/beacon/api";
+            baseurl = "https://imeddrsapi.azurewebsites.net/api";
             datapath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             ms = new MServer(baseurl);
             ps = new PServer();
@@ -83,25 +83,25 @@ namespace iMedDrs.iOS
             {
                 var viewController = (ProcessViewController)segue.DestinationViewController;
                 viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
-                viewController.baseurl = baseurl;
-                viewController.userid = userid;
-                viewController.username = username;
-                viewController.password = password;
-                viewController.questionnaires = questionnaires;
-                viewController.gender = gender;
-                viewController.birthdate = birthdate;
-                viewController.language = language;
-                viewController.email = email;
-                viewController.datapath = datapath;
-                viewController.level = level;
+                viewController.Baseurl = baseurl;
+                viewController.Userid = userid;
+                viewController.Username = username;
+                viewController.Password = password;
+                viewController.Questionnaires = questionnaires;
+                viewController.Gender = gender;
+                viewController.Birthdate = birthdate;
+                viewController.Language = language;
+                viewController.Email = email;
+                viewController.Datapath = datapath;
+                viewController.Level = level;
             }
             if (segue.DestinationViewController.Class.Name == "LoginViewController")
             {
                 var viewController = (LoginViewController)segue.DestinationViewController;
                 viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
-                viewController.baseurl = baseurl;
-                viewController.datapath = datapath;
-                viewController.level = level;
+                viewController.Baseurl = baseurl;
+                viewController.Datapath = datapath;
+                viewController.Level = level;
             }
         }
 
@@ -115,7 +115,7 @@ namespace iMedDrs.iOS
         {
             message = new string[] { "user", "in", userid, password };
             BTProgressHUD.Show("Processing...Please wait...");
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
             {

@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Support.V4.App;
 using Android.Support.V7.App;
 using Android.Widget;
+using Newtonsoft.Json;
 
 namespace iMedDrs.Droid
 {
@@ -13,16 +13,16 @@ namespace iMedDrs.Droid
     public class UserActivity : AppCompatActivity
     {
         string baseurl;
+        string userid;
         string password;
         string gender;
         string languageid;
-        string emailaddr;
         string newpassword;
+        string role;
         string[] languages;
         string[] message;
         string[] result;
         bool updated;
-        EditText userid;
         EditText name;
         RadioButton male;
         RadioButton female;
@@ -45,15 +45,24 @@ namespace iMedDrs.Droid
             // Set our view from the "login" layout resource
             SetContentView(Resource.Layout.User);
 
+            // Get intent variables
+            baseurl = Intent.GetStringExtra("baseurl");
+            userid = Intent.GetStringExtra("userid");
+            password = Intent.GetStringExtra("password");
+            string nameText = Intent.GetStringExtra("username");
+            gender = Intent.GetStringExtra("gender");
+            string birthdateText = Intent.GetStringExtra("birthdate");
+            string emailText = Intent.GetStringExtra("email");
+            languageid = Intent.GetStringExtra("language");
+            languages = Intent.GetStringExtra("languages").Split('|');
+            role = Intent.GetStringExtra("role");
+
             // Initialize variables
-            userid = FindViewById<EditText>(Resource.Id.userid);
             name = FindViewById<EditText>(Resource.Id.name);
             male = FindViewById<RadioButton>(Resource.Id.male);
             female = FindViewById<RadioButton>(Resource.Id.female);
             birthdate = FindViewById<EditText>(Resource.Id.birthdate);
             language = FindViewById<Spinner>(Resource.Id.language);
-            languageid = Intent.GetStringExtra("language");
-            languages = Intent.GetStringExtra("languages").Split(',');
             language.Adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerDropDownItem, languages);
             for (int i = 0; i < languages.Length; i++)
             {
@@ -66,19 +75,6 @@ namespace iMedDrs.Droid
             calendar = FindViewById<ImageButton>(Resource.Id.calendar);
             update = FindViewById<Button>(Resource.Id.update);
             returns = FindViewById<Button>(Resource.Id.returns);
-
-            // Get intent variables
-            baseurl = Intent.GetStringExtra("baseurl");
-            userid.Text = Intent.GetStringExtra("userid");
-            password = Intent.GetStringExtra("password");
-            name.Text = Intent.GetStringExtra("username");
-            gender = Intent.GetStringExtra("gender");
-            birthdate.Text = Intent.GetStringExtra("birthdate");
-            email.Text = Intent.GetStringExtra("email");
-            if (gender == "Male")
-                male.Checked = true;
-            else
-                female.Checked = true;
 
             // Initialize events
             calendar.Click += Calendar_Click;
@@ -95,6 +91,19 @@ namespace iMedDrs.Droid
             alertbuilder2.SetView(LayoutInflater.Inflate(Resource.Layout.Progress, null));
             progress = alertbuilder2.Create();
             progress.SetCancelable(false);
+
+            // Set form data
+            name.Text = nameText;
+            birthdate.Text = birthdateText;
+            email.Text = emailText;
+            if (gender == "Male") 
+            {
+                male.Checked = true; 
+            }
+            else
+            {
+                female.Checked = true; 
+            }
 
             // Initialize messaging
             ms = new MServer(baseurl);
@@ -139,10 +148,25 @@ namespace iMedDrs.Droid
             if (ValidateData())
             {
                 progress.Show();
-                message = new string[] { "user", "change", userid.Text, name.Text, gender, birthdate.Text.Replace("/","|"), language.SelectedItem.ToString(), emailaddr, password, newpassword };
-                await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                var names = name.Text.Split(' ');
+                message = new string[] { "users" };
+                UserModel user = new UserModel()
+                {
+                    Id = Convert.ToInt32(userid),
+                    Email = email.Text,
+                    FirstName = names[0],
+                    LastName = names[1],
+                    Gender = gender,
+                    Birthdate = Convert.ToDateTime(birthdate.Text),
+                    Language = language.SelectedItem.ToString(),
+                    Role = role,
+                    Password1 = password1.Text,
+                    Password2 = password2.Text,
+                };
+                string json = JsonConvert.SerializeObject(user);
+                await Task.Run(() => result = ms.ProcessMessage(message, "PUT", json));
                 progress.Dismiss();
-                if (result[1] == "ack")
+                if (result[0] == "ack")
                 {
                     password1.Text = "";
                     password2.Text = "";
@@ -150,7 +174,7 @@ namespace iMedDrs.Droid
                     AlertMessage("Update Complete");
                 }
                 else
-                    AlertMessage(result[2]);
+                    AlertMessage(result[1]);
             }
         }
 
@@ -158,6 +182,12 @@ namespace iMedDrs.Droid
         {
             bool result = true;
             string error = "";
+            email.Text = email.Text.Trim();
+            if (email.Text == "")
+            {
+                error = "Check email address";
+                result = false;
+            }
             if (result && name.Text.Split(' ').Length < 2)
             {
                 error = "Check Name";
@@ -188,10 +218,6 @@ namespace iMedDrs.Droid
                 error = "Check Password";
                 result = false;
             }
-            if (email.Text == "")
-                emailaddr = "~";
-            else
-                emailaddr = email.Text;
             if (password1.Text == "")
                 newpassword = "~";
             else

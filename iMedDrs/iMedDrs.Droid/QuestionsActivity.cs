@@ -11,23 +11,22 @@ using Android.Speech;
 using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
+using Newtonsoft.Json;
 
 namespace iMedDrs.Droid
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
     [Activity(Name = "com.imeddrs.imeddrs.QuestionsActivity", Label = "iMedDrs - Questionnaire", Icon = "@drawable/Icon", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, Theme = "@android:style/Theme.Holo.Light")]
     public class QuestionsActivity : Activity, IRecognitionListener
     {
         string baseurl;
         string userid;
         string username;
+        string questionnaireid;
         string questionnaire;
         string number;
         string name;
         string text;
         string last;
-        string responses;
-        string branches;
         string answer;
         string type;
         string datapath;
@@ -35,11 +34,12 @@ namespace iMedDrs.Droid
         string extension;
         string instruction;
         string email;
+        string role;
+        string[] responses;
         string[] response;
         string[] eresponse;
         string[] message;
         string[] result;
-        int level;
         bool init;
         bool required;
         bool play;
@@ -79,18 +79,18 @@ namespace iMedDrs.Droid
             userid = Intent.GetStringExtra("userid");
             username = Intent.GetStringExtra("username");
             questionnaire = Intent.GetStringExtra("questionnaire");
+            questionnaireid = Intent.GetStringExtra("questionnaireid");
             number = Intent.GetStringExtra("number");
             name = Intent.GetStringExtra("name");
             text = Intent.GetStringExtra("text");
-            response = Intent.GetStringExtra("response").Split(',');
-            eresponse = Intent.GetStringExtra("eresponse").Split(',');
-            responses = Intent.GetStringExtra("responses");
-            branches = Intent.GetStringExtra("branches");
+            response = Intent.GetStringArrayExtra("response");
+            eresponse = Intent.GetStringArrayExtra("eresponse");
+            responses = Intent.GetStringArrayExtra("responses");
             last = Intent.GetStringExtra("last");
-            required = Convert.ToBoolean(Intent.GetStringExtra("required"));
+            required = Intent.GetBooleanExtra("required", false);
             type = Intent.GetStringExtra("type");
             answer = Intent.GetStringExtra("answer");
-            level = Intent.GetIntExtra("level", 0);
+            role = Intent.GetStringExtra("role");
             datapath = Intent.GetStringExtra("datapath");
             language = Intent.GetStringExtra("language");
             extension = Intent.GetStringExtra("extension");
@@ -285,56 +285,55 @@ namespace iMedDrs.Droid
                     AlertMessage("A response is required");
                 else
                 {
+                    responses[Convert.ToInt32(number) - 1] = ans;
                     progress.Show();
-                    message = new string[] { "questionnaire", "next", userid, questionnaire, number, ans, responses, branches };
-                    await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                    message = new string[] { "questionnaires", questionnaireid, number, userid, "Next", String.Join('|', responses).Replace("/", "~"), language };
+                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                     progress.Dismiss();
-                    if (result[1] == "ack")
+                    if (result[0] == "ack")
                     {
-                        number = result[2];
-                        name = result[3];
-                        text = result[4];
-                        response = result[5].Split(',');
-                        last = result[6];
-                        responses = result[7];
-                        branches = result[8];
-                        required = Convert.ToBoolean(result[9]);
-                        type = result[10];
-                        answer = result[11];
-                        eresponse = result[12].Split(',');
-                        extension = result[13];
-                        instruction = result[14];
+                        QuestionnaireModel model = JsonConvert.DeserializeObject<QuestionnaireModel>(result[1]);
+                        number = model.Sequence.ToString();
+                        name = model.QuestionName;
+                        text = model.Question;
+                        response = model.ActResponses.ToArray();
+                        responses = model.Responses;
+                        required = model.Required;
+                        type = model.Type;
+                        answer = responses[Convert.ToInt32(number) - 1];
+                        eresponse = model.EngResponses.ToArray();
+                        instruction = model.Instructions;
                         SetQuestion();
                         SetResponses();
                     }
                     else
-                        AlertMessage(result[2]);
+                        AlertMessage(result[1]);
                 }
             }
             else
             {
-                if (level > 1)
+                if (role != "demo")
                 {
                     progress.Show();
-                    message = new string[] { "questionnaire", "save", userid, questionnaire, responses };
-                    await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                    message = new string[] { "questionnaire", "save", userid, questionnaireid, String.Join(',', responses).Replace("/", "~") };
+                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                     progress.Dismiss();
-                    if (result[1] == "ack")
+                    if (result[0] == "ack")
                     {
                         if (!handsfree)
                         {
-                            save.SetMessage(result[2]);
+                            save.SetMessage(result[1]);
                             save.Show();
                         }
                         else
                             GetReport();
                     }
                     else
-                        AlertMessage(result[2]);
+                        AlertMessage(result[1]);
                 }
                 else
                 {
-                    if (ps.WriteToFile(Path.Combine(datapath, questionnaire.Replace(" ", "_") + ".txt"), responses, true))
+                    if (ps.WriteToFile(Path.Combine(datapath, questionnaire.Replace(" ", "_") + ".txt"), String.Join(',', responses), true))
                     {
                         if (!handsfree)
                         {
@@ -353,36 +352,34 @@ namespace iMedDrs.Droid
         private async void PreviousQuestion()
         {
             progress.Show();
-            message = new string[] { "questionnaire", "previous", userid, questionnaire, number, responses, branches };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            message = new string[] { "questionnaires", questionnaireid, number, userid, "Previous", String.Join('|', responses).Replace("/", "~"), language };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             progress.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
-                number = result[2];
-                name = result[3];
-                text = result[4];
-                response = result[5].Split(',');
-                last = result[6];
-                responses = result[7];
-                branches = result[8];
-                required = Convert.ToBoolean(result[9]);
-                type = result[10];
-                answer = result[11];
-                eresponse = result[12].Split(',');
-                extension = result[13];
-                instruction = result[14];
+                QuestionnaireModel model = JsonConvert.DeserializeObject<QuestionnaireModel>(result[1]);
+                number = model.Sequence.ToString();
+                name = model.QuestionName;
+                text = model.Question;
+                response = model.ActResponses.ToArray();
+                responses = model.Responses;
+                required = model.Required;
+                type = model.Type;
+                answer = responses[Convert.ToInt32(number) - 1];
+                eresponse = model.EngResponses.ToArray();
+                instruction = model.Instructions;
                 SetQuestion();
                 SetResponses();
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private async void GetReport()
         {
             string data = "";
             message = null;
-            if (level < 2)
+            if (role == "demo")
             {
                 data = ps.ReadFromFile(Path.Combine(datapath, questionnaire.Replace(" ", "_") + ".txt"));
                 if (data != "")
@@ -393,9 +390,9 @@ namespace iMedDrs.Droid
             if (message != null)
             {
                 progress.Show();
-                await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                 progress.Dismiss();
-                if (result[1] == "ack")
+                if (result[0] == "ack")
                 {
                     Intent intent = new Intent(this.ApplicationContext, typeof(ReportActivity));
                     intent.PutExtra("baseurl", baseurl);
@@ -407,7 +404,8 @@ namespace iMedDrs.Droid
                     intent.PutExtra("text", result[4]);
                     intent.PutExtra("data", data);
                     intent.PutExtra("email", email);
-                    intent.PutExtra("level", level);
+                    intent.PutExtra("role", role);
+                    intent.PutExtra("language", language);
                     StartActivity(intent);
                 }
             }
@@ -432,7 +430,7 @@ namespace iMedDrs.Droid
             player.Reset();
             try
             {
-                player.SetDataSource("https://imeddrs.com/audio/" + language + "/" + name + extension);
+                player.SetDataSource("https://imeddrsapi.azurewebsites.net/data/voice/" + language + "/" + name + extension);
                 player.PrepareAsync();
             }
             catch { }
@@ -465,7 +463,7 @@ namespace iMedDrs.Droid
             response5.Visibility = ViewStates.Gone;
             if (name != "End")
             {
-                if (response.Length == 1)
+                if (response.Length == 0)
                 {
                     switch (type)
                     {
@@ -482,9 +480,9 @@ namespace iMedDrs.Droid
                             if (name == "Age")
                             {
                                 if (response1.Text.StartsWith("0."))
-                                    response1.Text = response1.Text.Substring(1);
+                                    response1.Text = response1.Text[1..];
                                 if (response1.Text.EndsWith(".00"))
-                                    response1.Text = response1.Text.Substring(0, response1.Text.Length - 3);
+                                    response1.Text = response1.Text[0..^3];
                             }
                             response1.Visibility = ViewStates.Visible;
                             break;
@@ -532,7 +530,7 @@ namespace iMedDrs.Droid
             string result = "";
             if (name != "End")
             {
-                if (response.Length == 1)
+                if (response.Length == 0)
                 {
                     switch (type)
                     {
@@ -625,7 +623,7 @@ namespace iMedDrs.Droid
                     resp = "male";
                 if (!resp.ToLower().Contains("previous") && !resp.ToLower().Contains("next") && !resp.ToLower().StartsWith("stop"))
                 {
-                    if (response.Length == 1)
+                    if (response.Length == 0)
                     {
                         switch (type)
                         {

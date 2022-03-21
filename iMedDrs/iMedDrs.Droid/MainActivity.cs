@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Widget;
+using Newtonsoft.Json;
 
 namespace iMedDrs.Droid
 {
@@ -14,6 +16,7 @@ namespace iMedDrs.Droid
         string userid;
         string password;
         string datapath;
+        string languages;
         string[] message;
         string[] result;
         TextView inst2;
@@ -37,7 +40,7 @@ namespace iMedDrs.Droid
             SetContentView(Resource.Layout.Main);
 
             // Initialize variables
-            baseurl = "https://imeddrs.com/beacon/api";
+            baseurl = "https://imeddrs.com/api";
             datapath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
             inst2 = FindViewById<TextView>(Resource.Id.textView2);
             inst3 = FindViewById<TextView>(Resource.Id.textView3);
@@ -79,6 +82,8 @@ namespace iMedDrs.Droid
                 userid = "demo";
                 password = "1234";
             }
+
+            GetLanguages();
         }
 
         protected override void OnResume()
@@ -98,6 +103,7 @@ namespace iMedDrs.Droid
             Intent intent = new Intent(this.ApplicationContext, typeof(LoginActivity));
             intent.PutExtra("baseurl", baseurl);
             intent.PutExtra("datapath", datapath);
+            intent.PutExtra("languages", languages);
             StartActivity(intent);
             Finish();
         }
@@ -105,28 +111,51 @@ namespace iMedDrs.Droid
         private async void Start()
         {
             progress.Show();
-            message = new string[] { "user", "in", userid, password };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            message = new string[] { "users", "demo", password };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             progress.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
+                UserModel user = JsonConvert.DeserializeObject<UserModel>(result[1]);
+                string questionnaires = "";
+                foreach (var item in user.QuestionnaireList)
+                {
+                    questionnaires += questionnaires != "" ? "," + item.Name : item.Name;
+                }
                 Intent intent = new Intent(this.ApplicationContext, typeof(ProcessActivity));
                 intent.PutExtra("baseurl", baseurl);
-                intent.PutExtra("userid", userid);
-                intent.PutExtra("password", password);
-                intent.PutExtra("username", result[2]);
-                intent.PutExtra("questionnaires", result[3]);
-                intent.PutExtra("gender", result[4]);
-                intent.PutExtra("birthdate", result[5]);
-                intent.PutExtra("language", result[6]);
-                intent.PutExtra("email", result[7]);
-                intent.PutExtra("level", Convert.ToInt32(result[8]));
+                intent.PutExtra("userid", user.Id.Value.ToString());
+                intent.PutExtra("username", user.Name);
+                intent.PutExtra("questionnaires", questionnaires);
+                intent.PutExtra("languages", user.LanguageList);
+                intent.PutExtra("gender", user.Gender);
+                intent.PutExtra("birthdate", user.Birthdate.ToShortDateString());
+                intent.PutExtra("language", user.Language);
+                intent.PutExtra("email", user.Email);
+                intent.PutExtra("role", user.Role);
                 intent.PutExtra("datapath", datapath);
                 StartActivity(intent);
                 Finish();
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
+        }
+
+        private async void GetLanguages()
+        {
+            progress.Show();
+            message = new string[] { "users", "demo", "1234" };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+            progress.Dismiss();
+            if (result[0] == "ack")
+            {
+                UserModel user = JsonConvert.DeserializeObject<UserModel>(result[1]);
+                languages = String.Join('|', user.LanguageList);
+            }
+            else
+            {
+                languages = "English|French|Spanish";
+            }
         }
 
         private void AlertMessage(string messagetext)

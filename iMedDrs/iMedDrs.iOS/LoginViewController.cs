@@ -9,9 +9,9 @@ namespace iMedDrs.iOS
 {
     public partial class LoginViewController : UIViewController
     {
-        public string baseurl { get; set; }
-        public string datapath { get; set; }
-        public int level { get; set; }
+        public string Baseurl { get; set; }
+        public string Datapath { get; set; }
+        public int Level { get; set; }
         private string username;
         private string gender;
         private string birthdate;
@@ -45,7 +45,7 @@ namespace iMedDrs.iOS
             var tap = new UITapGestureRecognizer { CancelsTouchesInView = false };
             tap.AddTarget(() => View.EndEditing(true));
             View.AddGestureRecognizer(tap);
-            ms = new MServer(baseurl);
+            ms = new MServer(Baseurl);
             ps = new PServer();
         }
 
@@ -58,7 +58,7 @@ namespace iMedDrs.iOS
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            useridTxt.Text = ps.RememberMe(datapath, "", true);
+            useridTxt.Text = ps.RememberMe(Datapath, "", true);
             if (useridTxt.Text != "")
                 rememberSwh.On = true;
         }
@@ -109,23 +109,23 @@ namespace iMedDrs.iOS
             {
                 var viewController = (ProcessViewController)segue.DestinationViewController;
                 viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
-                viewController.baseurl = baseurl;
-                viewController.userid = useridTxt.Text;
-                viewController.password = passwordTxt.Text;
-                viewController.username = username;
-                viewController.questionnaires = questionnaires;
-                viewController.gender = gender;
-                viewController.birthdate = birthdate;
-                viewController.language = language;
-                viewController.email = email;
-                viewController.datapath = datapath;
-                viewController.level = level;
+                viewController.Baseurl = Baseurl;
+                viewController.Userid = useridTxt.Text;
+                viewController.Password = passwordTxt.Text;
+                viewController.Username = username;
+                viewController.Questionnaires = questionnaires;
+                viewController.Gender = gender;
+                viewController.Birthdate = birthdate;
+                viewController.Language = language;
+                viewController.Email = email;
+                viewController.Datapath = Datapath;
+                viewController.Level = Level;
             }
             if (segue.DestinationViewController.Class.Name == "RegisterViewController")
             {
                 var viewController = (RegisterViewController)segue.DestinationViewController;
                 viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
-                viewController.baseurl = baseurl;
+                viewController.Baseurl = Baseurl;
             }
         }
 
@@ -133,7 +133,7 @@ namespace iMedDrs.iOS
         {
             BTProgressHUD.Show("Processing...Please wait...");
             message = new string[] { "user", "in", useridTxt.Text, passwordTxt.Text };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
             {
@@ -149,8 +149,8 @@ namespace iMedDrs.iOS
                 birthdate = result[5];
                 language = result[6];
                 email = result[7];
-                level = Convert.ToInt32(result[8]);
-                ps.RememberMe(datapath, up, rememberSwh.On);
+                Level = Convert.ToInt32(result[8]);
+                ps.RememberMe(Datapath, up, rememberSwh.On);
                 PerformSegue("ProcessSegue", this);
             }
             else
@@ -161,7 +161,7 @@ namespace iMedDrs.iOS
         {
             BTProgressHUD.Show("Processing...Please wait...");
             message = new string[] { "user", "reset", useridTxt.Text };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             AlertMessage(result[2]);
         }

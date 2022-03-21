@@ -10,17 +10,17 @@ namespace iMedDrs.iOS
 {
     public partial class UserViewController : UIViewController
     {
-        public string baseurl { get; set; }
-        public string userid { get; set; }
-        public string username { get; set; }
-        public string password { get; set; }
-        public string gender { get; set; }
-        public string birthdate { get; set; }
-        public string language { get; set; }
-        public string email { get; set; }
-        public bool updated { get; set; }
-        public List<string> languages { get; set; }
-        public UILabel selectedLbl;
+        public string Baseurl { get; set; }
+        public string Userid { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string Gender { get; set; }
+        public string Birthdate { get; set; }
+        public string Language { get; set; }
+        public string Email { get; set; }
+        public bool Updated { get; set; }
+        public List<string> Languages { get; set; }
+        public UILabel SelectedLbl;
         private string newpassword;
         private string emailaddr;
         private string[] message;
@@ -34,8 +34,8 @@ namespace iMedDrs.iOS
         {
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
-            selectedLbl = new UILabel();
-            languages = new List<string>();
+            SelectedLbl = new UILabel();
+            Languages = new List<string>();
             NSNotificationCenter.DefaultCenter.AddObserver(UIKeyboard.WillHideNotification, OnKeyboardNotification);
             NSNotificationCenter.DefaultCenter.AddObserver(UIKeyboard.WillShowNotification, OnKeyboardNotification);
         }
@@ -71,35 +71,35 @@ namespace iMedDrs.iOS
             var tap = new UITapGestureRecognizer { CancelsTouchesInView = false };
             tap.AddTarget(() => View.EndEditing(true));
             View.AddGestureRecognizer(tap);
-            ms = new MServer(baseurl);
-            useridTxt.Text = userid;
-            nameTxt.Text = username;
-            birthdateTxt.Text = birthdate;
-            datePicker.SetDate((NSDate)DateTime.SpecifyKind(Convert.ToDateTime(birthdate), DateTimeKind.Local), false);
+            ms = new MServer(Baseurl);
+            useridTxt.Text = Userid;
+            nameTxt.Text = Username;
+            birthdateTxt.Text = Birthdate;
+            datePicker.SetDate((NSDate)DateTime.SpecifyKind(Convert.ToDateTime(Birthdate), DateTimeKind.Local), false);
             for (int i = 0; i < genderSmc.NumberOfSegments; i++)
             {
-                if (genderSmc.TitleAt(i) == gender)
+                if (genderSmc.TitleAt(i) == Gender)
                     genderSmc.SelectedSegment = i;
             }
-            selectedLbl.Text = language;
-            languageTxt.Text = language;
+            SelectedLbl.Text = Language;
+            languageTxt.Text = Language;
             pickerView = new UIPickerView
             {
                 BackgroundColor = UIColor.White,
-                Model = new PickerModel(languages, selectedLbl)
+                Model = new PickerModel(Languages, SelectedLbl)
             };
             UIToolbar toolbar2 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f))
             {
                 Items = new UIBarButtonItem[]{
                     new UIBarButtonItem(UIBarButtonSystemItem.Cancel, delegate { languageTxt.ResignFirstResponder(); }),
                     new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
-                    new UIBarButtonItem(UIBarButtonSystemItem.Done, Language)
+                    new UIBarButtonItem(UIBarButtonSystemItem.Done, LanguageList)
                 }
             };
             languageTxt.InputView = pickerView;
             languageTxt.InputAccessoryView = toolbar2;
-            emailTxt.Text = email;
-            updated = false;
+            emailTxt.Text = Email;
+            Updated = false;
         }
 
         public override void DidReceiveMemoryWarning()
@@ -137,9 +137,9 @@ namespace iMedDrs.iOS
             languageTxt.BecomeFirstResponder();
         }
 
-        public void Language(object sender, EventArgs e)
+        public void LanguageList(object sender, EventArgs e)
         {
-            languageTxt.Text = selectedLbl.Text;
+            languageTxt.Text = SelectedLbl.Text;
             languageTxt.ResignFirstResponder();
             emailTxt.BecomeFirstResponder();
         }
@@ -183,8 +183,8 @@ namespace iMedDrs.iOS
         private async void Update()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "user", "change", useridTxt.Text, nameTxt.Text, genderSmc.TitleAt(genderSmc.SelectedSegment), birthdateTxt.Text.Replace("/", "|"), selectedLbl.Text, emailaddr, password, newpassword };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            message = new string[] { "user", "change", useridTxt.Text, nameTxt.Text, genderSmc.TitleAt(genderSmc.SelectedSegment), birthdateTxt.Text.Replace("/", "|"), SelectedLbl.Text, emailaddr, Password, newpassword };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
             {
@@ -192,13 +192,13 @@ namespace iMedDrs.iOS
                 password2Txt.Text = "";
                 AlertMessage("Update Complete");
                 var viewController = (ProcessViewController)this.PresentingViewController;
-                viewController.username = nameTxt.Text;
-                viewController.gender = genderSmc.TitleAt(genderSmc.SelectedSegment);
-                viewController.birthdate = birthdateTxt.Text;
-                viewController.language = selectedLbl.Text;
-                viewController.email = emailTxt.Text;
+                viewController.Username = nameTxt.Text;
+                viewController.Gender = genderSmc.TitleAt(genderSmc.SelectedSegment);
+                viewController.Birthdate = birthdateTxt.Text;
+                viewController.Language = SelectedLbl.Text;
+                viewController.Email = emailTxt.Text;
                 if (newpassword != "~")
-                    viewController.password = newpassword;
+                    viewController.Password = newpassword;
             }
             else
                 AlertMessage(result[2]);

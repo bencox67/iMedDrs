@@ -8,16 +8,16 @@ namespace iMedDrs.iOS
 {
     public partial class ReportViewController : UIViewController
     {
-        public string baseurl { get; set; }
-        public string userid { get; set; }
-        public string username { get; set; }
-        public string questionnaire { get; set; }
-        public string text { get; set; }
-        public string data { get; set; }
-        public string email { get; set; }
-        public int last { get; set; }
-        public int number { get; set; }
-        public int level { get; set; }
+        public string Baseurl { get; set; }
+        public string Userid { get; set; }
+        public string Username { get; set; }
+        public string Questionnaire { get; set; }
+        public string Text { get; set; }
+        public string Data { get; set; }
+        public string Email { get; set; }
+        public int Last { get; set; }
+        public int Number { get; set; }
+        public int Level { get; set; }
         private string[] message;
         private string[] result;
         private readonly UIAlertView alertView;
@@ -38,7 +38,7 @@ namespace iMedDrs.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            ms = new MServer(baseurl);
+            ms = new MServer(Baseurl);
         }
 
         public override void DidReceiveMemoryWarning()
@@ -50,8 +50,8 @@ namespace iMedDrs.iOS
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            namequestLbl.Text = username + " - " + questionnaire;
-            reportWv.LoadHtmlString(text, null);
+            namequestLbl.Text = Username + " - " + Questionnaire;
+            reportWv.LoadHtmlString(Text, null);
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -61,31 +61,31 @@ namespace iMedDrs.iOS
             {
                 var viewController = (SendViewController)segue.DestinationViewController;
                 viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
-                viewController.baseurl = baseurl;
-                viewController.userid = userid;
-                viewController.username = username;
-                viewController.questionnaire = questionnaire;
-                viewController.data = data;
-                viewController.email = email;
-                viewController.level = level;
+                viewController.Baseurl = Baseurl;
+                viewController.Userid = Userid;
+                viewController.Username = Username;
+                viewController.Questionnaire = Questionnaire;
+                viewController.Data = Data;
+                viewController.Email = Email;
+                viewController.Level = Level;
             }
         }
 
         partial void NextBtn_TouchUpInside(UIButton sender)
         {
             _ = sender;
-            number++;
-            if (number == last)
-                number = 0;
+            Number++;
+            if (Number == Last)
+                Number = 0;
             ShowReport();
         }
 
         partial void PreviousBtn_TouchUpInside(UIButton sender)
         {
             _ = sender;
-            number--;
-            if (number < 0)
-                number = last - 1;
+            Number--;
+            if (Number < 0)
+                Number = Last - 1;
             ShowReport();
         }
 
@@ -97,16 +97,16 @@ namespace iMedDrs.iOS
         private async void ShowReport()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            if (level < 2)
-                message = new string[] { "report", "load2", userid, questionnaire, number.ToString(), data };
+            if (Level < 2)
+                message = new string[] { "report", "load2", Userid, Questionnaire, Number.ToString(), Data };
             else
-                message = new string[] { "report", "load", userid, questionnaire, number.ToString() };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                message = new string[] { "report", "load", Userid, Questionnaire, Number.ToString() };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
             {
-                last = Convert.ToInt32(result[2]);
-                number = Convert.ToInt32(result[3]);
+                Last = Convert.ToInt32(result[2]);
+                Number = Convert.ToInt32(result[3]);
                 reportWv.LoadHtmlString(result[4], null);
             }
             else

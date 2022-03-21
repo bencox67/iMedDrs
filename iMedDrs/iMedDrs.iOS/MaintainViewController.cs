@@ -12,13 +12,13 @@ namespace iMedDrs.iOS
 {
     public partial class MaintainViewController : UIViewController
     {
-        public string baseurl { get; set; }
-        public string userid { get; set; }
-        public List<string> questionnaires { get; set; }
-        public List<string> languages { get; set; }
-        public string title { get; set; }
-        public string datapath { get; set; }
-        public int level { get; set; }
+        public string Baseurl { get; set; }
+        public string Userid { get; set; }
+        public List<string> Questionnaires { get; set; }
+        public List<string> Languages { get; set; }
+        public string MessageTitle { get; set; }
+        public string Datapath { get; set; }
+        public int Level { get; set; }
         private int scriptnum;
         private string[][] scriptdata;
         private string[] message;
@@ -61,7 +61,7 @@ namespace iMedDrs.iOS
             questionnaireView = new UIPickerView
             {
                 BackgroundColor = UIColor.White,
-                Model = new PickerModel(questionnaires, questionnaireLbl)
+                Model = new PickerModel(Questionnaires, questionnaireLbl)
             };
             UIToolbar toolbar1 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f))
             {
@@ -80,7 +80,7 @@ namespace iMedDrs.iOS
             languageView = new UIPickerView
             {
                 BackgroundColor = UIColor.White,
-                Model = new PickerModel(languages, languageLbl)
+                Model = new PickerModel(Languages, languageLbl)
             };
             UIToolbar toolbar2 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f))
             {
@@ -92,12 +92,12 @@ namespace iMedDrs.iOS
             };
             languageTxt.InputView = languageView;
             languageTxt.InputAccessoryView = toolbar2;
-            questionnaireTxt.Text = questionnaires[0];
-            languageTxt.Text = languages[0];
+            questionnaireTxt.Text = Questionnaires[0];
+            languageTxt.Text = Languages[0];
             var tap = new UITapGestureRecognizer { CancelsTouchesInView = false };
             tap.AddTarget(() => View.EndEditing(true));
             View.AddGestureRecognizer(tap);
-            ms = new MServer(baseurl);
+            ms = new MServer(Baseurl);
             Load();
         }
 
@@ -115,9 +115,9 @@ namespace iMedDrs.iOS
         public void Questionnaire(object sender, EventArgs e)
         {
             questionnaireTxt.ResignFirstResponder();
-            if (questionnaireTxt.Text != questionnaires[Convert.ToInt32(questionnaireLbl.Text)])
+            if (questionnaireTxt.Text != Questionnaires[Convert.ToInt32(questionnaireLbl.Text)])
             {
-                questionnaireTxt.Text = questionnaires[Convert.ToInt32(questionnaireLbl.Text)];
+                questionnaireTxt.Text = Questionnaires[Convert.ToInt32(questionnaireLbl.Text)];
                 Load();
             }
         }
@@ -125,9 +125,9 @@ namespace iMedDrs.iOS
         public void Language(object sender, EventArgs e)
         {
             languageTxt.ResignFirstResponder();
-            if (languageTxt.Text != languages[Convert.ToInt32(languageLbl.Text)])
+            if (languageTxt.Text != Languages[Convert.ToInt32(languageLbl.Text)])
             {
-                languageTxt.Text = languages[Convert.ToInt32(languageLbl.Text)];
+                languageTxt.Text = Languages[Convert.ToInt32(languageLbl.Text)];
                 Load();
             }
         }
@@ -175,7 +175,7 @@ namespace iMedDrs.iOS
             {
                 if (recordBtn.TitleLabel.Text == "Record")
                 {
-                    recorder = AVAudioRecorder.Create(new NSUrl(Path.Combine(datapath, nameTxt.Text + ".mp4")), settings, out NSError error);
+                    recorder = AVAudioRecorder.Create(new NSUrl(Path.Combine(Datapath, nameTxt.Text + ".mp4")), settings, out NSError error);
                     if (recorder != null)
                     {
                         recorder.PrepareToRecord();
@@ -207,9 +207,9 @@ namespace iMedDrs.iOS
                 }
                 if (playBtn.TitleLabel.Text == "Play")
                 {
-                    if (File.Exists(Path.Combine(Path.Combine(datapath, nameTxt.Text + ".mp4"))))
+                    if (File.Exists(Path.Combine(Path.Combine(Datapath, nameTxt.Text + ".mp4"))))
                     {
-                        player = AVAudioPlayer.FromUrl(new NSUrl(Path.Combine(datapath, nameTxt.Text + ".mp4")), out _);
+                        player = AVAudioPlayer.FromUrl(new NSUrl(Path.Combine(Datapath, nameTxt.Text + ".mp4")), out _);
                         if (player != null)
                         {
                             player.FinishedPlaying += Player_FinishedPlaying;
@@ -241,7 +241,7 @@ namespace iMedDrs.iOS
             _ = sender;
             if (recordBtn.TitleLabel.Text == "Record")
             {
-                if (File.Exists(Path.Combine(datapath, nameTxt.Text + ".mp4")))
+                if (File.Exists(Path.Combine(Datapath, nameTxt.Text + ".mp4")))
                     UpdateVoice();
             }
         }
@@ -249,9 +249,9 @@ namespace iMedDrs.iOS
         private async void Load()
         {
             ClearForm();
-            message = new string[] { "script", "data", questionnaireTxt.Text, level.ToString(), languageTxt.Text };
+            message = new string[] { "script", "data", questionnaireTxt.Text, Level.ToString(), languageTxt.Text };
             BTProgressHUD.Show("Processing...Please wait...");
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
             {
@@ -276,14 +276,14 @@ namespace iMedDrs.iOS
         private async void UpdateVoice()
         {
             string message = "";
-            if (File.Exists(Path.Combine(datapath, nameTxt.Text + ".mp4")))
+            if (File.Exists(Path.Combine(Datapath, nameTxt.Text + ".mp4")))
             {
                 BTProgressHUD.Show("Processing...Please wait...");
-                await Task.Run(() => message = ms.PostFile(languageTxt.Text, datapath, nameTxt.Text + ".mp4"));
+                await Task.Run(() => message = ms.PostFile(languageTxt.Text, Datapath, nameTxt.Text + ".mp4"));
                 BTProgressHUD.Dismiss();
                 if (message == "Recording updated")
                 {
-                    try { File.Delete(Path.Combine(datapath, nameTxt.Text + ".mp4")); }
+                    try { File.Delete(Path.Combine(Datapath, nameTxt.Text + ".mp4")); }
                     catch { }
                 }
             }

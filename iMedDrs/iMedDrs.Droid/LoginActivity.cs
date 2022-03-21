@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json;
 
 namespace iMedDrs.Droid
 {
@@ -13,6 +15,7 @@ namespace iMedDrs.Droid
     {
         string baseurl;
         string datapath;
+        string languages;
         string[] message;
         string[] result;
         EditText userid;
@@ -34,6 +37,7 @@ namespace iMedDrs.Droid
             // Get intent variables
             baseurl = Intent.GetStringExtra("baseurl");
             datapath = Intent.GetStringExtra("datapath");
+            languages = Intent.GetStringExtra("languages");
 
             // Set our view from the "login" layout resource
             SetContentView(Resource.Layout.Login);
@@ -89,26 +93,30 @@ namespace iMedDrs.Droid
             if (userid.Text != "" && password.Text != "" && userid.Text.ToLower() != "demo")
             {
                 progress.Show();
-                message = new string[] { "user", "in", userid.Text, password.Text };
-                await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                message = new string[] { "users", userid.Text, password.Text };
+                await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                 progress.Dismiss();
-                if (result[1] == "ack")
+                if (result[0] == "ack")
                 {
-                    string up = userid.Text;
-                    if (result[8] == "1")
-                        up = up + "~" + password.Text;
-                    ps.RememberMe(datapath, up, rememberme.Checked);
+                    UserModel user = JsonConvert.DeserializeObject<UserModel>(result[1]);
+                    string questionnaires = "";
+                    foreach (var item in user.QuestionnaireList)
+                    {
+                        questionnaires += questionnaires != "" ? "," + item.Name : item.Name;
+                    }
+                    ps.RememberMe(datapath, user.Email, rememberme.Checked);
                     Intent intent = new Intent(this.ApplicationContext, typeof(ProcessActivity));
                     intent.PutExtra("baseurl", baseurl);
-                    intent.PutExtra("userid", userid.Text);
-                    intent.PutExtra("password", password.Text);
-                    intent.PutExtra("username", result[2]);
-                    intent.PutExtra("questionnaires", result[3]);
-                    intent.PutExtra("gender", result[4]);
-                    intent.PutExtra("birthdate", result[5]);
-                    intent.PutExtra("language", result[6]);
-                    intent.PutExtra("email", result[7]);
-                    intent.PutExtra("level", Convert.ToInt32(result[8]));
+                    intent.PutExtra("userid", user.Id.Value.ToString());
+                    intent.PutExtra("username", user.Name);
+                    intent.PutExtra("questionnaires", questionnaires);
+                    intent.PutExtra("languages", user.LanguageList);
+                    intent.PutExtra("gender", user.Gender);
+                    intent.PutExtra("birthdate", user.Birthdate.ToShortDateString());
+                    intent.PutExtra("language", user.Language);
+                    intent.PutExtra("languages", languages);
+                    intent.PutExtra("email", user.Email);
+                    intent.PutExtra("role", user.Role);
                     intent.PutExtra("datapath", datapath);
                     StartActivity(intent);
                     Finish();
@@ -122,6 +130,7 @@ namespace iMedDrs.Droid
         {
             Intent intent = new Intent(this.ApplicationContext, typeof(RegisterActivity));
             intent.PutExtra("baseurl", baseurl);
+            intent.PutExtra("languages", languages);
             StartActivity(intent);
         }
 
@@ -137,13 +146,13 @@ namespace iMedDrs.Droid
             if (userid.Text != "")
             {
                 progress.Show();
-                message = new string[] { "user", "reset", userid.Text };
-                await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                message = new string[] { "users", "reset", userid.Text };
+                await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                 progress.Dismiss();
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
             }
             else
-                AlertMessage("Enter your User ID first!");
+                AlertMessage("Enter your email first!");
         }
 
         private void AlertMessage(string messagetext)

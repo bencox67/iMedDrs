@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Android.App;
@@ -6,6 +7,7 @@ using Android.Content;
 using Android.OS;
 using Android.Runtime;
 using Android.Widget;
+using Newtonsoft.Json;
 
 namespace iMedDrs.Droid
 {
@@ -14,15 +16,14 @@ namespace iMedDrs.Droid
     {
         string baseurl;
         string userid;
-        string password;
         string username;
         string gender;
         string birthdate;
         string language;
+        string languages;
         string email;
         string datapath;
-        string languages;
-        int level;
+        string role;
         string[] questionnaires;
         string[] message;
         string[] result;
@@ -45,14 +46,14 @@ namespace iMedDrs.Droid
             // Get intent variables
             baseurl = Intent.GetStringExtra("baseurl");
             userid = Intent.GetStringExtra("userid");
-            password = Intent.GetStringExtra("password");
             username = Intent.GetStringExtra("username");
             questionnaires = Intent.GetStringExtra("questionnaires").Split(',');
             gender = Intent.GetStringExtra("gender");
             birthdate = Intent.GetStringExtra("birthdate");
             language = Intent.GetStringExtra("language");
+            languages = Intent.GetStringExtra("languages");
             email = Intent.GetStringExtra("email");
-            level = Intent.GetIntExtra("level", 0);
+            role = Intent.GetStringExtra("role");
             datapath = Intent.GetStringExtra("datapath");
 
             // Set title
@@ -93,18 +94,18 @@ namespace iMedDrs.Droid
             ms = new MServer(baseurl);
             ps = new PServer();
 
-            if (level == 0)
+            if (role == "demo")
+            {
                 logout.Text = "Return to Start";
-            if (level < 2)
                 update.Visibility = Android.Views.ViewStates.Gone;
-            if (level < 8)
+            }
+            if (role != "admin")
                 maintain.Visibility = Android.Views.ViewStates.Gone;
         }
 
         protected override void OnResume()
         {
             base.OnResume();
-            GetLanguages();
         }
 
         public override void OnBackPressed()
@@ -122,7 +123,6 @@ namespace iMedDrs.Droid
                 birthdate = data.GetStringExtra("birthdate");
                 language = data.GetStringExtra("language");
                 email = data.GetStringExtra("email");
-                password = data.GetStringExtra("password");
                 this.ActionBar.Subtitle = username;
             }
         }
@@ -130,30 +130,31 @@ namespace iMedDrs.Droid
         private async void Start_Click(object sender, EventArgs e)
         {
             progress.Show();
-            message = new string[] { "questionnaire", "start", userid, questionnaire.SelectedItem.ToString() };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+            message = new string[] { "questionnaires", questionnaire.SelectedItem.ToString(), userid, language };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             progress.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
+                QuestionnaireModel model = JsonConvert.DeserializeObject<QuestionnaireModel>(result[1]);
                 Intent intent = new Intent(this.ApplicationContext, typeof(QuestionsActivity));
                 intent.PutExtra("baseurl", baseurl);
                 intent.PutExtra("userid", userid);
                 intent.PutExtra("username", username);
+                intent.PutExtra("questionnaireid", model.Id.ToString());
                 intent.PutExtra("questionnaire", questionnaire.SelectedItem.ToString());
-                intent.PutExtra("number", result[2]);
-                intent.PutExtra("name", result[3]);
-                intent.PutExtra("text", result[4]);
-                intent.PutExtra("response", result[5]);
-                intent.PutExtra("last", result[6]);
-                intent.PutExtra("responses", result[7]);
-                intent.PutExtra("branches", result[8]);
-                intent.PutExtra("required", result[9]);
-                intent.PutExtra("type", result[10]);
-                intent.PutExtra("answer", result[11]);
-                intent.PutExtra("eresponse", result[12]);
-                intent.PutExtra("extension", result[13]);
-                intent.PutExtra("instruction", result[14]);
-                intent.PutExtra("level", level);
+                intent.PutExtra("number", model.Sequence.ToString());
+                intent.PutExtra("name", model.QuestionName);
+                intent.PutExtra("text", model.Question);
+                intent.PutExtra("response", model.ActResponses.ToArray());
+                intent.PutExtra("last", model.EndSequence.ToString());
+                intent.PutExtra("responses", model.Responses);
+                intent.PutExtra("required", model.Required);
+                intent.PutExtra("type", model.Type);
+                intent.PutExtra("answer", "");
+                intent.PutExtra("eresponse", model.EngResponses.ToArray());
+                intent.PutExtra("extension", "mp3");
+                intent.PutExtra("instruction", model.Instructions.Replace("<br/>", "\r\n"));
+                intent.PutExtra("role", role);
                 intent.PutExtra("datapath", datapath);
                 intent.PutExtra("language", language);
                 intent.PutExtra("email", email);
@@ -161,45 +162,47 @@ namespace iMedDrs.Droid
                 StartActivity(intent);
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private async void View_Click(object sender, EventArgs e)
         {
             string data = "";
             message = null;
-            if (level < 2)
+            if (role == "demo")
             {
                 data = ps.ReadFromFile(Path.Combine(datapath, questionnaire.SelectedItem.ToString().Replace(" ", "_") + ".txt"));
                 if (data != "")
-                    message = new string[] { "report", "load2", userid, questionnaire.SelectedItem.ToString(), "0", data };
+                    message = new string[] { "reports", userid, questionnaire.SelectedItem.ToString(), data.Replace("/", "~"), "English" };
                 else
                     AlertMessage("No responses saved");
             }
             else
-                message = new string[] { "report", "load", userid, questionnaire.SelectedItem.ToString(), "0" };
+                message = new string[] { "reports", userid, questionnaire.SelectedItem.ToString(), "*", "English" };
             if (message != null)
             {
                 progress.Show();
-                await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                 progress.Dismiss();
-                if (result[1] == "ack")
+                if (result[0] == "ack")
                 {
+                    ReportModel model = JsonConvert.DeserializeObject<ReportModel>(result[1]);
                     Intent intent = new Intent(this.ApplicationContext, typeof(ReportActivity));
                     intent.PutExtra("baseurl", baseurl);
                     intent.PutExtra("userid", userid);
                     intent.PutExtra("username", username);
                     intent.PutExtra("questionnaire", questionnaire.SelectedItem.ToString());
-                    intent.PutExtra("last", Convert.ToInt32(result[2]));
-                    intent.PutExtra("number", Convert.ToInt32(result[3]));
-                    intent.PutExtra("text", result[4]);
+                    intent.PutExtra("last", model.MaxId);
+                    intent.PutExtra("number", 0);
+                    intent.PutExtra("text", model.Reports[0].Text);
                     intent.PutExtra("data", data);
                     intent.PutExtra("email", email);
-                    intent.PutExtra("level", level);
+                    intent.PutExtra("role", role);
+                    intent.PutExtra("language", language);
                     StartActivity(intent);
                 }
                 else
-                    AlertMessage(result[2]);
+                    AlertMessage(result[1]);
             }
         }
 
@@ -208,13 +211,13 @@ namespace iMedDrs.Droid
             Intent intent = new Intent(this.ApplicationContext, typeof(UserActivity));
             intent.PutExtra("baseurl", baseurl);
             intent.PutExtra("userid", userid);
-            intent.PutExtra("password", password);
             intent.PutExtra("username", username);
             intent.PutExtra("gender", gender);
             intent.PutExtra("birthdate", birthdate);
             intent.PutExtra("language", language);
-            intent.PutExtra("languages", languages);
             intent.PutExtra("email", email);
+            intent.PutExtra("role", role);
+            intent.PutExtra("languages", languages);
             StartActivityForResult(intent, 1);
         }
 
@@ -224,8 +227,8 @@ namespace iMedDrs.Droid
             intent.PutExtra("baseurl", baseurl);
             intent.PutExtra("userid", userid);
             intent.PutExtra("questionnaires", Intent.GetStringExtra("questionnaires"));
-            intent.PutExtra("level", level);
-            intent.PutExtra("languages", languages);
+            intent.PutExtra("languages", "English|French|Spanish");
+            intent.PutExtra("role", role);
             intent.PutExtra("datapath", datapath);
             StartActivity(intent);
         }
@@ -235,22 +238,6 @@ namespace iMedDrs.Droid
             Intent intent = new Intent(this.ApplicationContext, typeof(MainActivity));
             StartActivity(intent);
             Finish();
-        }
-
-        private async void GetLanguages()
-        {
-            progress.Show();
-            message = new string[] { "user", "languages" };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
-            progress.Dismiss();
-            if (result[1] == "ack")
-            {
-                languages = result[2];
-                for (int i = 3; i < result.Length; i++)
-                    languages = languages + "," + result[i];
-            }
-            else
-                languages = "English";
         }
 
         private void AlertMessage(string messagetext)

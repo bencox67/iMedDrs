@@ -22,7 +22,7 @@
         android:id="@+id/textView3"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Touch the Start button to try a demo."
+        android:text="Touch the Demo button to try a demo."
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_marginTop="25dp" />
     <Button
@@ -37,6 +37,6 @@
         android:layout_width="fill_parent"
         android:layout_height="40dp"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Start"
+        android:text="Demo"
         android:layout_marginTop="25dp" />
 </LinearLayout>

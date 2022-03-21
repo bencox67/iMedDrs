@@ -5,6 +5,7 @@ using Android.Content;
 using Android.OS;
 using Android.Webkit;
 using Android.Widget;
+using Newtonsoft.Json;
 
 namespace iMedDrs.Droid
 {
@@ -18,9 +19,10 @@ namespace iMedDrs.Droid
         string text;
         string data;
         string email;
+        string role;
+        string language;
         string[] message;
         string[] result;
-        int level;
         int last;
         int number;
         WebView report;
@@ -46,7 +48,8 @@ namespace iMedDrs.Droid
             text = Intent.GetStringExtra("text");
             data = Intent.GetStringExtra("data");
             email = Intent.GetStringExtra("email");
-            level = Intent.GetIntExtra("level", 0);
+            role = Intent.GetStringExtra("role");
+            language = Intent.GetStringExtra("language");
 
             // Set title
             this.ActionBar.Subtitle = username + " - " + questionnaire;
@@ -116,7 +119,8 @@ namespace iMedDrs.Droid
             intent.PutExtra("questionnaire", questionnaire);
             intent.PutExtra("data", data);
             intent.PutExtra("email", email);
-            intent.PutExtra("level", level);
+            intent.PutExtra("role", role);
+            intent.PutExtra("language", language);
             StartActivity(intent);
         }
 
@@ -128,21 +132,19 @@ namespace iMedDrs.Droid
         private async void ShowReport()
         {
             progress.Show();
-            if (level < 2)
-                message = new string[] { "report", "load2", userid, questionnaire, number.ToString(), data };
+            if (role == "demo")
+                message = new string[] { "reports", userid, questionnaire, data, language };
             else
-                message = new string[] { "report", "load", userid, questionnaire, number.ToString() };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET"));
+                message = new string[] { "reports", userid, questionnaire, "*", language };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             progress.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
-                //Intent intent = new Intent(this.ApplicationContext, typeof(ReportActivity));
-                last = Convert.ToInt32(result[2]);
-                number = Convert.ToInt32(result[3]);
-                report.LoadDataWithBaseURL(null, result[4], "text/html", "utf-8", null);
+                ReportModel model = JsonConvert.DeserializeObject<ReportModel>(result[1]);
+                report.LoadDataWithBaseURL(null, model.Reports[number].Text, "text/html", "utf-8", null);
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private void AlertMessage(string messagetext)

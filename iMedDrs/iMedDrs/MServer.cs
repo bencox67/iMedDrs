@@ -2,58 +2,39 @@ using System;
 using System.IO;
 using System.Net;
 using System.Security;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace iMedDrs
 {
-    public class ResultsList
-    {
-        public string[] List { get; set; }
-    }
-
-    public class DataList
-    {
-        public string[] List { get; set; }
-    }
-
     public class MServer
     {
         private readonly string baseurl;
-        private readonly DataList data;
 
         public MServer(string baseurl)
         {
             if (baseurl != "")
             {
                 this.baseurl = baseurl;
-                data = new DataList();
             }
         }
 
         [SecurityCritical]
-        public string[] ProcessMessage(string[] message, string method)
+        public string[] ProcessMessage(string[] message, string method, string json)
         {
-            ResultsList result = new ResultsList();
+            string[] list = new string[0];
             string error = "No response from server";
             string url = baseurl;
-            string json = "";
-            switch (method)
+            foreach (var item in message)
             {
-                case "GET":
-                    for (int i = 0; i < message.Length; i++)
-                        url += "/" + message[i];
-                    break;
-                default:
-                    url += "/" + message[0];
-                    data.List = message;
-                    json = JsonConvert.SerializeObject(data);
-                    break;
+                url += "/" + item;
             }
             try
             {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(new Uri(url));
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(new System.Uri(url));
                 request.Proxy = null;
                 request.Method = method;
+                request.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
                 request.ContentType = "application/json";
                 if (method != "GET")
                 {
@@ -64,14 +45,16 @@ namespace iMedDrs
                 WebResponse response = request.GetResponse();
                 StreamReader reader = new StreamReader(response.GetResponseStream());
                 string rdata = reader.ReadToEnd();
-                result = JsonConvert.DeserializeObject<ResultsList>(rdata);
+                list = new string[] { "ack", rdata };
                 response.Close();
                 response.Dispose();
             }
             catch (Exception ex) { error = ex.Message; }
-            if (result.List == null)
-                result.List = new string[] { "2", "nak", error };
-            return result.List;
+            if (list.Length == 0)
+            {
+                list = new string[] { "nak", error };
+            }
+            return list;
         }
 
         public string PostFile(string language, string path, string file)
