@@ -21,7 +21,7 @@ namespace iMedDrs.iOS
         public string Text { get; set; }
         public string[] Response { get; set; }
         public string Last { get; set; }
-        public string Responses { get; set; }
+        public string[] Responses { get; set; }
         public string Branches { get; set; }
         public bool Required { get; set; }
         public string Type { get; set; }
@@ -31,7 +31,7 @@ namespace iMedDrs.iOS
         public string Language { get; set; }
         public string Extension { get; set; }
         public string Instructions { get; set; }
-        public int Level { get; set; }
+        public string Role { get; set; }
         public string Email { get; set; }
         public bool Handsfree { get; set; }
         public List<string> Presponses { get; set; }
@@ -352,7 +352,7 @@ namespace iMedDrs.iOS
                 else
                 {
                     BTProgressHUD.Show("Processing...Please wait...");
-                    message = new string[] { "questionnaire", "next", Userid, Questionnaire, Number, ans, Responses, Branches };
+                    message = new string[] { "questionnaire", "next", Userid, Questionnaire, Number, ans, String.Join(',', Responses).Replace("/", "~"), Branches };
                     await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                     BTProgressHUD.Dismiss();
                     if (result[1] == "ack")
@@ -362,7 +362,7 @@ namespace iMedDrs.iOS
                         Text = result[4];
                         Response = result[5].Split(',');
                         Last = result[6];
-                        Responses = result[7];
+                        //Responses = result[7];
                         Branches = result[8];
                         Required = Convert.ToBoolean(result[9]);
                         Type = result[10];
@@ -379,10 +379,10 @@ namespace iMedDrs.iOS
             }
             else
             {
-                if (Level > 1)
+                if (Role != "demo")
                 {
                     BTProgressHUD.Show("Processing...Please wait...");
-                    message = new string[] { "questionnaire", "save", Userid, Questionnaire, Responses };
+                    message = new string[] { "questionnaire", "save", Userid, Questionnaire, String.Join(',', Responses).Replace("/", "~") };
                     await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                     BTProgressHUD.Dismiss();
                     if (!Handsfree)
@@ -391,7 +391,7 @@ namespace iMedDrs.iOS
                 else
                 {
                     string file = path + Questionnaire.Replace(" ", "_") + ".txt";
-                    if (ps.WriteToFile(file, Responses, true))
+                    if (ps.WriteToFile(file, String.Join(',', Responses), true))
                     {
                         if (!Handsfree)
                             AlertMessage("Questionnaire responses saved");
@@ -409,7 +409,7 @@ namespace iMedDrs.iOS
         private async void Previous()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "questionnaire", "previous", Userid, Questionnaire, Number, Responses, Branches };
+            message = new string[] { "questionnaire", "previous", Userid, Questionnaire, Number, String.Join(',', Responses).Replace("/", "~"), Branches };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
             if (result[1] == "ack")
@@ -419,7 +419,7 @@ namespace iMedDrs.iOS
                 Text = result[4];
                 Response = result[5].Split(',');
                 Last = result[6];
-                Responses = result[7];
+                //Responses = result[7];
                 Branches = result[8];
                 Required = Convert.ToBoolean(result[9]);
                 Type = result[10];

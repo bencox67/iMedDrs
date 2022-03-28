@@ -430,7 +430,7 @@ namespace iMedDrs.Droid
             player.Reset();
             try
             {
-                player.SetDataSource("https://imeddrsapi.azurewebsites.net/data/voice/" + language + "/" + name + extension);
+                player.SetDataSource("https://imeddrs.com/data/voice/" + language + "/" + name + extension);
                 player.PrepareAsync();
             }
             catch { }

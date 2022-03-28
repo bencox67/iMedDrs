@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AVFoundation;
 using UIKit;
 using BigTed;
+using Newtonsoft.Json;
 
 namespace iMedDrs.iOS
 {
@@ -18,9 +19,8 @@ namespace iMedDrs.iOS
         public List<string> Languages { get; set; }
         public string MessageTitle { get; set; }
         public string Datapath { get; set; }
-        public int Level { get; set; }
         private int scriptnum;
-        private string[][] scriptdata;
+        List<ScriptModel> scriptdata;
         private string[] message;
         private string[] result;
         private readonly List<string> scripts;
@@ -175,7 +175,7 @@ namespace iMedDrs.iOS
             {
                 if (recordBtn.TitleLabel.Text == "Record")
                 {
-                    recorder = AVAudioRecorder.Create(new NSUrl(Path.Combine(Datapath, nameTxt.Text + ".mp4")), settings, out NSError error);
+                    recorder = AVAudioRecorder.Create(new NSUrl(Path.Combine(Datapath, nameTxt.Text + ".mp3")), settings, out NSError error);
                     if (recorder != null)
                     {
                         recorder.PrepareToRecord();
@@ -207,9 +207,9 @@ namespace iMedDrs.iOS
                 }
                 if (playBtn.TitleLabel.Text == "Play")
                 {
-                    if (File.Exists(Path.Combine(Path.Combine(Datapath, nameTxt.Text + ".mp4"))))
+                    if (File.Exists(Path.Combine(Path.Combine(Datapath, nameTxt.Text + ".mp3"))))
                     {
-                        player = AVAudioPlayer.FromUrl(new NSUrl(Path.Combine(Datapath, nameTxt.Text + ".mp4")), out _);
+                        player = AVAudioPlayer.FromUrl(new NSUrl(Path.Combine(Datapath, nameTxt.Text + ".mp3")), out _);
                         if (player != null)
                         {
                             player.FinishedPlaying += Player_FinishedPlaying;
@@ -241,7 +241,7 @@ namespace iMedDrs.iOS
             _ = sender;
             if (recordBtn.TitleLabel.Text == "Record")
             {
-                if (File.Exists(Path.Combine(Datapath, nameTxt.Text + ".mp4")))
+                if (File.Exists(Path.Combine(Datapath, nameTxt.Text + ".mp3")))
                     UpdateVoice();
             }
         }
@@ -249,18 +249,17 @@ namespace iMedDrs.iOS
         private async void Load()
         {
             ClearForm();
-            message = new string[] { "script", "data", questionnaireTxt.Text, Level.ToString(), languageTxt.Text };
+            message = new string[] { "questionnaires", "scripts", questionnaireTxt.Text, languageTxt.Text };
             BTProgressHUD.Show("Processing...Please wait...");
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
-                int len = result.Length - 2;
-                scriptdata = new string[len][];
-                for (int i = 0; i < len; i++)
+                scriptdata = JsonConvert.DeserializeObject<List<ScriptModel>>(result[1]);
+                scripts.Clear();
+                foreach (var script in scriptdata)
                 {
-                    scriptdata[i] = result[i + 2].Split('|');
-                    scripts.Add(scriptdata[i][0]);
+                    scripts.Add(script.Name);
                 }
                 scriptLbl.Text = "0";
                 questionPkr.Model = new PickerModel(scripts, scriptLbl);
@@ -269,7 +268,7 @@ namespace iMedDrs.iOS
             else
             {
                 questionPkr.Model = new PickerModel(scripts, scriptLbl);
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
             }
         }
 
@@ -279,11 +278,11 @@ namespace iMedDrs.iOS
             if (File.Exists(Path.Combine(Datapath, nameTxt.Text + ".mp4")))
             {
                 BTProgressHUD.Show("Processing...Please wait...");
-                await Task.Run(() => message = ms.PostFile(languageTxt.Text, Datapath, nameTxt.Text + ".mp4"));
+                await Task.Run(() => message = ms.PostFile(languageTxt.Text, Datapath, nameTxt.Text + ".mp3"));
                 BTProgressHUD.Dismiss();
                 if (message == "Recording updated")
                 {
-                    try { File.Delete(Path.Combine(Datapath, nameTxt.Text + ".mp4")); }
+                    try { File.Delete(Path.Combine(Datapath, nameTxt.Text + ".mp3")); }
                     catch { }
                 }
             }
@@ -293,11 +292,8 @@ namespace iMedDrs.iOS
         private void ScriptData(int number)
         {
             scriptnum = number + 1;
-            nameTxt.Text = scriptdata[number][0];
-            if (scriptdata[number][8] == "")
-                questionTxt.Text = scriptdata[number][7];
-            else
-                questionTxt.Text = scriptdata[number][8];
+            nameTxt.Text = scriptdata[number].Name;
+            questionTxt.Text = scriptdata[number].Text;
         }
 
         private void ClearForm()

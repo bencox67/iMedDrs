@@ -375,7 +375,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User ID:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="166">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Email:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="166">
                                 <rect key="frame" x="10" y="100" width="70" height="20.5"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="70" id="25186"/>
@@ -857,14 +857,14 @@
                                     <view contentMode="scaleToFill" id="35466" translatesAutoresizingMaskIntoConstraints="NO">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="729"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="User ID:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="35475">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Email:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="35475">
                                                 <rect key="frame" x="10" y="12" width="70" height="21"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="4 characters minimum" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="35476">
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="35476">
                                                 <rect key="frame" x="98" y="8" width="268" height="34"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="next" enablesReturnKeyAutomatically="YES"/>
@@ -924,20 +924,6 @@
                                                 <rect key="frame" x="98" y="168" width="267" height="34"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="next" enablesReturnKeyAutomatically="YES"/>
-                                                <color key="backgroundColor" cocoaTouchSystemColor="lightTextColor"/>
-                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                            </textField>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Email:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="35487">
-                                                <rect key="frame" x="10" y="210" width="70" height="21"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <textField opaque="NO" clipsSubviews="YES" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="35488">
-                                                <rect key="frame" x="98" y="206" width="268" height="34"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="emailAddress" returnKeyType="next" enablesReturnKeyAutomatically="YES"/>
                                                 <color key="backgroundColor" cocoaTouchSystemColor="lightTextColor"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             </textField>
@@ -1021,9 +1007,6 @@
                                             <constraint id="47924" firstItem="35486" firstAttribute="top" secondItem="35466" secondAttribute="top" constant="168"/>
                                             <constraint id="47925" firstItem="35486" firstAttribute="leading" secondItem="35466" secondAttribute="leading" constant="98"/>
                                             <constraint id="47926" firstAttribute="trailing" secondItem="35486" secondAttribute="trailing" constant="10"/>
-                                            <constraint id="47927" firstItem="35488" firstAttribute="top" secondItem="35466" secondAttribute="top" constant="206"/>
-                                            <constraint id="47928" firstItem="35488" firstAttribute="leading" secondItem="35466" secondAttribute="leading" constant="98"/>
-                                            <constraint id="47929" firstAttribute="trailing" secondItem="35488" secondAttribute="trailing" constant="9"/>
                                             <constraint id="47930" firstItem="35490" firstAttribute="top" secondItem="35466" secondAttribute="top" constant="246"/>
                                             <constraint id="47931" firstItem="35490" firstAttribute="leading" secondItem="35466" secondAttribute="leading" constant="98"/>
                                             <constraint id="47932" firstAttribute="trailing" secondItem="35490" secondAttribute="trailing" constant="9"/>
@@ -1064,7 +1047,6 @@
                         <outlet property="languageTxt" destination="35486" id="name-outlet-35486"/>
                         <outlet property="password1Txt" destination="35490" id="name-outlet-35490"/>
                         <outlet property="registerBtn" destination="35493" id="name-outlet-35493"/>
-                        <outlet property="emailTxt" destination="35488" id="name-outlet-35488"/>
                         <outlet property="password2Txt" destination="35492" id="name-outlet-35492"/>
                         <outlet property="returnBtn" destination="35496" id="name-outlet-35496"/>
                         <outlet property="genderSmc" destination="35480" id="name-outlet-35480"/>
@@ -1400,7 +1382,7 @@
                                     <view contentMode="scaleToFill" id="49317" translatesAutoresizingMaskIntoConstraints="NO">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="729"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="User ID:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="49319">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Email:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="49319">
                                                 <rect key="frame" x="10" y="17" width="70" height="21"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -1467,20 +1449,6 @@
                                                 <rect key="frame" x="98" y="166" width="267" height="34"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" enablesReturnKeyAutomatically="YES"/>
-                                                <color key="backgroundColor" cocoaTouchSystemColor="lightTextColor"/>
-                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                            </textField>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Email:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="49331">
-                                                <rect key="frame" x="10" y="210" width="70" height="21"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <textField opaque="NO" clipsSubviews="YES" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="49332">
-                                                <rect key="frame" x="98" y="206" width="267" height="34"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="emailAddress" returnKeyType="next" enablesReturnKeyAutomatically="YES"/>
                                                 <color key="backgroundColor" cocoaTouchSystemColor="lightTextColor"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             </textField>
@@ -1558,8 +1526,6 @@
                                             <constraint id="49939" firstItem="49330" firstAttribute="top" secondItem="49317" secondAttribute="top" constant="166"/>
                                             <constraint id="49940" firstItem="49330" firstAttribute="leading" secondItem="49317" secondAttribute="leading" constant="98"/>
                                             <constraint id="49941" firstAttribute="trailing" secondItem="49330" secondAttribute="trailing" constant="10"/>
-                                            <constraint id="49942" firstItem="49332" firstAttribute="top" secondItem="49317" secondAttribute="top" constant="206"/>
-                                            <constraint id="49943" firstItem="49332" firstAttribute="leading" secondItem="49317" secondAttribute="leading" constant="98"/>
                                             <constraint id="49944" firstAttribute="trailing" secondItem="49332" secondAttribute="trailing" constant="10"/>
                                             <constraint id="49945" firstItem="49334" firstAttribute="top" secondItem="49317" secondAttribute="top" constant="246"/>
                                             <constraint id="49946" firstItem="49334" firstAttribute="leading" secondItem="49317" secondAttribute="leading" constant="98"/>
@@ -1607,7 +1573,6 @@
                         <outlet property="genderSmc" destination="49324" id="name-outlet-49324"/>
                         <outlet property="birthdateTxt" destination="49328" id="name-outlet-49328"/>
                         <outlet property="languageTxt" destination="49330" id="name-outlet-49330"/>
-                        <outlet property="emailTxt" destination="49332" id="name-outlet-49332"/>
                         <outlet property="password1Txt" destination="49334" id="name-outlet-49334"/>
                         <outlet property="password2Txt" destination="49336" id="name-outlet-49336"/>
                         <outlet property="updateBtn" destination="49337" id="name-outlet-49337"/>

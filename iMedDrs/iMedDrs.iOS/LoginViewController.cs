@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UIKit;
 using BigTed;
+using Newtonsoft.Json;
 
 namespace iMedDrs.iOS
 {
@@ -11,12 +12,9 @@ namespace iMedDrs.iOS
     {
         public string Baseurl { get; set; }
         public string Datapath { get; set; }
-        public int Level { get; set; }
-        private string username;
-        private string gender;
-        private string birthdate;
-        private string language;
-        private string email;
+        public string Role { get; set; }
+        public List<string> Languages { get; set; }
+        private UserModel user;
         private List<string> questionnaires;
         private string[] message;
         private string[] result;
@@ -79,7 +77,7 @@ namespace iMedDrs.iOS
         partial void LoginBtn_TouchUpInside(UIButton sender)
         {
             _ = sender;
-            if (useridTxt.Text != "" && passwordTxt.Text != "" && useridTxt.Text.ToLower() != "demo")
+            if (useridTxt.Text != "" && passwordTxt.Text != "")
                 Login();
         }
 
@@ -89,7 +87,7 @@ namespace iMedDrs.iOS
             if (useridTxt.Text != "")
                 Reset();
             else
-                AlertMessage("Enter your User ID first!");
+                AlertMessage("Enter your email address first!");
         }
 
         private bool TextFieldShouldReturn(UITextField textfield)
@@ -110,60 +108,55 @@ namespace iMedDrs.iOS
                 var viewController = (ProcessViewController)segue.DestinationViewController;
                 viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.Baseurl = Baseurl;
-                viewController.Userid = useridTxt.Text;
+                viewController.Userid = user.Id.Value.ToString();
                 viewController.Password = passwordTxt.Text;
-                viewController.Username = username;
+                viewController.Username = user.Name;
                 viewController.Questionnaires = questionnaires;
-                viewController.Gender = gender;
-                viewController.Birthdate = birthdate;
-                viewController.Language = language;
-                viewController.Email = email;
+                viewController.Gender = user.Gender;
+                viewController.Birthdate = user.Birthdate.ToShortDateString();
+                viewController.Language = user.Language;
+                viewController.Email = user.Email;
                 viewController.Datapath = Datapath;
-                viewController.Level = Level;
+                viewController.Role = user.Role;
+                viewController.Languages = Languages;
             }
             if (segue.DestinationViewController.Class.Name == "RegisterViewController")
             {
                 var viewController = (RegisterViewController)segue.DestinationViewController;
                 viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.Baseurl = Baseurl;
+                viewController.Languages = Languages.ToArray();
             }
         }
 
         private async void Login()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "user", "in", useridTxt.Text, passwordTxt.Text };
+            message = new string[] { "users", useridTxt.Text, passwordTxt.Text };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
-                string up = useridTxt.Text;
-                if (result[8] == "1")
-                    up = up + "~" + passwordTxt.Text;
-                username = result[2];
-                Array a = result[3].Split(',');
+                user = JsonConvert.DeserializeObject<UserModel>(result[1]);
+                ps.RememberMe(Datapath, user.Email, rememberSwh.On);
                 questionnaires = new List<string>();
-                for (int i = 0; i < a.Length; i++)
-                    questionnaires.Add(a.GetValue(i).ToString());
-                gender = result[4];
-                birthdate = result[5];
-                language = result[6];
-                email = result[7];
-                Level = Convert.ToInt32(result[8]);
-                ps.RememberMe(Datapath, up, rememberSwh.On);
+                foreach (var item in user.QuestionnaireList)
+                {
+                    questionnaires.Add(item.Name);
+                }
                 PerformSegue("ProcessSegue", this);
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private async void Reset()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "user", "reset", useridTxt.Text };
+            message = new string[] { "users", "reset", useridTxt.Text };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
-            AlertMessage(result[2]);
+            AlertMessage(result[1]);
         }
 
         private void AlertMessage(string title)

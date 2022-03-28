@@ -152,7 +152,7 @@ namespace iMedDrs.Droid
                 AlertMessage(result[1]);
             }
             else
-                AlertMessage("Enter your email first!");
+                AlertMessage("Enter your email address first!");
         }
 
         private void AlertMessage(string messagetext)

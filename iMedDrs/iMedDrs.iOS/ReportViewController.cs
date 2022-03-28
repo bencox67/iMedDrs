@@ -17,7 +17,7 @@ namespace iMedDrs.iOS
         public string Email { get; set; }
         public int Last { get; set; }
         public int Number { get; set; }
-        public int Level { get; set; }
+        public string Role { get; set; }
         private string[] message;
         private string[] result;
         private readonly UIAlertView alertView;
@@ -67,7 +67,7 @@ namespace iMedDrs.iOS
                 viewController.Questionnaire = Questionnaire;
                 viewController.Data = Data;
                 viewController.Email = Email;
-                viewController.Level = Level;
+                viewController.Role = Role;
             }
         }
 
@@ -97,7 +97,7 @@ namespace iMedDrs.iOS
         private async void ShowReport()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            if (Level < 2)
+            if (Role == "demo")
                 message = new string[] { "report", "load2", Userid, Questionnaire, Number.ToString(), Data };
             else
                 message = new string[] { "report", "load", Userid, Questionnaire, Number.ToString() };

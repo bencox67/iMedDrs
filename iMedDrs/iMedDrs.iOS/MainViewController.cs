@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UIKit;
 using BigTed;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace iMedDrs.iOS
 {
@@ -11,14 +13,8 @@ namespace iMedDrs.iOS
     {
         private string baseurl;
         private string userid;
-        private string username;
-        private string password;
-        private string gender;
-        private string birthdate;
-        private string language;
-        private string email;
         private string datapath;
-        private int level;
+        private UserModel user;
         private List<string> questionnaires;
         private string[] message;
         private string[] result;
@@ -38,29 +34,35 @@ namespace iMedDrs.iOS
             alertView.AddButton("Ok");
         }
 
-        public override void ViewDidLoad()
+        public async override void ViewDidLoad()
         {
             base.ViewDidLoad();
             versionLbl.Text = "Version " + NSBundle.MainBundle.InfoDictionary["CFBundleShortVersionString"].ToString();
-            baseurl = "https://imeddrsapi.azurewebsites.net/api";
+            baseurl = "https://imeddrs.com/api";
             datapath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             ms = new MServer(baseurl);
             ps = new PServer();
             userid = ps.RememberMe(datapath, "", true);
-            if (userid.Contains("~"))
+            if (!string.IsNullOrWhiteSpace(userid))
             {
-                string[] up = userid.Split('~');
-                userid = up[0];
-                password = up[1];
                 main1Lbl.Hidden = true;
                 main2Lbl.Hidden = true;
                 loginBtn.Hidden = true;
             }
-            else
+
+            message = new string[] { "users", "demo", "1234" };
+            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+            if (result[0] == "ack")
             {
-                userid = "demo";
-                password = "1234";
+                user = JsonConvert.DeserializeObject<UserModel>(result[1]);
+                questionnaires = new List<string>();
+                foreach (var item in user.QuestionnaireList)
+                {
+                    questionnaires.Add(item.Name);
+                }
             }
+            else
+                AlertMessage(result[1]);
         }
 
         public override void DidReceiveMemoryWarning()
@@ -72,67 +74,44 @@ namespace iMedDrs.iOS
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            if (userid != "demo")
-                Start();
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
         {
             base.PrepareForSegue(segue, sender);
-            if (segue.DestinationViewController.Class.Name == "ProcessViewController")
+            if (user != null)
             {
-                var viewController = (ProcessViewController)segue.DestinationViewController;
-                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
-                viewController.Baseurl = baseurl;
-                viewController.Userid = userid;
-                viewController.Username = username;
-                viewController.Password = password;
-                viewController.Questionnaires = questionnaires;
-                viewController.Gender = gender;
-                viewController.Birthdate = birthdate;
-                viewController.Language = language;
-                viewController.Email = email;
-                viewController.Datapath = datapath;
-                viewController.Level = level;
-            }
-            if (segue.DestinationViewController.Class.Name == "LoginViewController")
-            {
-                var viewController = (LoginViewController)segue.DestinationViewController;
-                viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
-                viewController.Baseurl = baseurl;
-                viewController.Datapath = datapath;
-                viewController.Level = level;
+                if (segue.DestinationViewController.Class.Name == "ProcessViewController")
+                {
+                    var viewController = (ProcessViewController)segue.DestinationViewController;
+                    viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
+                    viewController.Baseurl = baseurl;
+                    viewController.Userid = user.Id.Value.ToString();
+                    viewController.Username = user.Name;
+                    viewController.Questionnaires = questionnaires;
+                    viewController.Gender = user.Gender;
+                    viewController.Birthdate = user.Birthdate.ToShortDateString();
+                    viewController.Language = user.Language;
+                    viewController.Languages = user.LanguageList.ToList();
+                    viewController.Email = user.Email;
+                    viewController.Datapath = datapath;
+                    viewController.Role = user.Role;
+                }
+                if (segue.DestinationViewController.Class.Name == "LoginViewController")
+                {
+                    var viewController = (LoginViewController)segue.DestinationViewController;
+                    viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
+                    viewController.Baseurl = baseurl;
+                    viewController.Datapath = datapath;
+                    viewController.Languages = user.LanguageList.ToList();
+                }
             }
         }
 
         partial void StartBtn_TouchUpInside(UIButton sender)
         {
             _ = sender;
-            Start();
-        }
-
-        private async void Start()
-        {
-            message = new string[] { "user", "in", userid, password };
-            BTProgressHUD.Show("Processing...Please wait...");
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
-            BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
-            {
-                username = result[2];
-                Array a = result[3].Split(',');
-                questionnaires = new List<string>();
-                for (int i = 0; i < a.Length; i++)
-                    questionnaires.Add(a.GetValue(i).ToString());
-                gender = result[4];
-                birthdate = result[5];
-                language = result[6];
-                email = result[7];
-                level = Convert.ToInt32(result[8]);
-                PerformSegue("StartSegue", this);
-            }
-            else
-                AlertMessage(result[2]);
+            PerformSegue("StartSegue", this);
         }
 
         private void AlertMessage(string title)

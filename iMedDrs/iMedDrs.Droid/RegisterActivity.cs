@@ -132,7 +132,7 @@ namespace iMedDrs.Droid
                 progress.Dismiss();
                 if (result[0] == "ack")
                 {
-                    retrn.SetMessage("Registeration Complete");
+                    retrn.SetMessage("Registration Complete");
                     retrn.Show();
                 }
                 else
@@ -152,7 +152,7 @@ namespace iMedDrs.Droid
             email.Text = email.Text.Trim();
             if (email.Text == "")
             {
-                error = "Check email address";
+                error = "Check Email Address";
                 result = false;
             }
             if (result && name.Text.Split(' ').Length < 2)

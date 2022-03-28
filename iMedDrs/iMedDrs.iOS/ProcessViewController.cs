@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using UIKit;
 using BigTed;
+using Newtonsoft.Json;
 
 namespace iMedDrs.iOS
 {
@@ -19,27 +20,16 @@ namespace iMedDrs.iOS
         public string Language { get; set; }
         public string Email { get; set; }
         public string Datapath { get; set; }
-        public int Level { get; set; }
+        public string Role { get; set; }
         public List<string> Questionnaires { get; set; }
+        public List<string> Languages { get; set; }
         public UILabel SelectedLbl;
         private bool report;
-        private string number;
-        private string name;
-        private string text;
-        private string response;
-        private string last;
-        private string responses;
-        private string branches;
-        private string required;
-        private string type;
-        private string answer;
         private string data;
-        private string eresponse;
-        private string extension;
-        private string instructions;
-        private readonly List<string> languages;
         private string[] message;
         private string[] result;
+        private QuestionnaireModel questionnaire;
+        private ReportModel model;
         private readonly UIAlertView alertView;
         private MServer ms;
         private readonly PServer ps;
@@ -55,7 +45,6 @@ namespace iMedDrs.iOS
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
             SelectedLbl = new UILabel();
-            languages = new List<string>();
             ps = new PServer();
         }
 
@@ -68,16 +57,15 @@ namespace iMedDrs.iOS
             PickerModel model = new PickerModel(Questionnaires, SelectedLbl);
             questionairePkr.Model = model;
             ms = new MServer(Baseurl);
-            if (Level < 2)
+            if (Role == "demo")
             {
                 updateBtn.Hidden = true;
                 logoutBtn.Hidden = true;
             }
             else
                 returnBtn.Hidden = true;
-            if (Level < 8)
+            if (Role != "admin")
                 maintainBtn.Hidden = true;
-            GetLanguages();
         }
 
         public override void DidReceiveMemoryWarning()
@@ -106,22 +94,21 @@ namespace iMedDrs.iOS
                 viewController.Userid = Userid;
                 viewController.Username = Username;
                 viewController.Questionnaire = SelectedLbl.Text;
-                viewController.Number = number;
-                viewController.Name = name;
-                viewController.Text = text;
-                viewController.Response = response.Split(',');
-                viewController.Last = last;
-                viewController.Responses = responses;
-                viewController.Branches = branches;
-                viewController.Required = Convert.ToBoolean(required);
-                viewController.Type = type;
-                viewController.Answer = answer;
-                viewController.Eresponse = eresponse.Split(',');
+                viewController.Number = questionnaire.Sequence.ToString();
+                viewController.Name = questionnaire.QuestionName;
+                viewController.Text = questionnaire.Question;
+                viewController.Response = questionnaire.ActResponses.ToArray();
+                viewController.Last = questionnaire.EndSequence.ToString();
+                viewController.Responses = questionnaire.Responses;
+                viewController.Required = questionnaire.Required;
+                viewController.Type = questionnaire.Type;
+                viewController.Answer = "";
+                viewController.Eresponse = questionnaire.EngResponses.ToArray();
                 viewController.Datapath = Datapath;
                 viewController.Language = Language;
-                viewController.Extension = extension;
-                viewController.Instructions = instructions;
-                viewController.Level = Level;
+                viewController.Extension = "mp3";
+                viewController.Instructions = questionnaire.Instructions.Replace("<br/>", "\r\n");
+                viewController.Role = Role;
                 viewController.Email = Email;
                 viewController.Handsfree = handsfreeSwh.On;
             }
@@ -133,12 +120,12 @@ namespace iMedDrs.iOS
                 viewController.Userid = Userid;
                 viewController.Username = Username;
                 viewController.Questionnaire = SelectedLbl.Text;
-                viewController.Last = Convert.ToInt32(last);
-                viewController.Number = Convert.ToInt32(number);
-                viewController.Text = text;
+                viewController.Last = model.MaxId;
+                viewController.Number = 0;
+                viewController.Text = model.Reports[0].Text;
                 viewController.Data = data;
                 viewController.Email = Email;
-                viewController.Level = Level;
+                viewController.Role = Role;
             }
             if (segue.DestinationViewController.Class.Name == "UserViewController")
             {
@@ -151,8 +138,9 @@ namespace iMedDrs.iOS
                 viewController.Language = Language;
                 viewController.Gender = Gender;
                 viewController.Birthdate = Birthdate;
-                viewController.Languages = languages;
+                viewController.Languages = Languages;
                 viewController.Email = Email;
+                viewController.Role = Role;
             }
             if (segue.DestinationViewController.Class.Name == "MaintainViewController")
             {
@@ -161,9 +149,8 @@ namespace iMedDrs.iOS
                 viewController.Baseurl = Baseurl;
                 viewController.Userid = Userid;
                 viewController.Questionnaires = Questionnaires;
-                viewController.Languages = languages;
+                viewController.Languages = Languages;
                 viewController.Datapath = Datapath;
-                viewController.Level = Level;
             }
         }
 
@@ -179,76 +166,47 @@ namespace iMedDrs.iOS
             Report();
         }
 
-        private async void GetLanguages()
-        {
-            BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "user", "languages" };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
-            BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
-            {
-                for (int i = 2; i < result.Length; i++)
-                    languages.Add(result[i]);
-            }
-            else
-                AlertMessage(result[2]);
-        }
-
         private async void Start()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "questionnaire", "start", Userid, SelectedLbl.Text };
+            message = new string[] { "questionnaires", SelectedLbl.Text, Userid, Language };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
-                number = result[2];
-                name = result[3];
-                text = result[4];
-                response = result[5];
-                last = result[6];
-                responses = result[7];
-                branches = result[8];
-                required = result[9];
-                type = result[10];
-                answer = result[11];
-                eresponse = result[12];
-                extension = result[13];
-                instructions = result[14];
+                questionnaire = JsonConvert.DeserializeObject<QuestionnaireModel>(result[1]);
                 PerformSegue("QuestSegue", this);
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private async void Report()
         {
             report = false;
             message = null;
-            if (Level < 2)
+            if (Role == "demo")
             {
                 data = ps.ReadFromFile(Datapath + "/" + SelectedLbl.Text.Replace(" ", "_") + ".txt");
                 if (data != "")
-                    message = new string[] { "report", "load2", Userid, SelectedLbl.Text, "0", data };
+                    message = new string[] { "reports", Userid, SelectedLbl.Text, data.Replace("/", "~"), "English" };
                 else
                     AlertMessage("No responses saved");
             }
             else
-                message = new string[] { "report", "load", Userid, SelectedLbl.Text, "0" };
+                message = new string[] { "reports", Userid, SelectedLbl.Text, "*", "English" };
             if (message != null)
             {
                 BTProgressHUD.Show("Processing...Please wait...");
                 await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                 BTProgressHUD.Dismiss();
-                if (result[1] == "ack")
+                if (result[0] == "ack")
                 {
-                    last = result[2];
-                    number = result[3];
-                    text = result[4];
+                    model = JsonConvert.DeserializeObject<ReportModel>(result[1]);
                     PerformSegue("ReportSegue", this);
                 }
                 else
-                    AlertMessage(result[2]);
+                    AlertMessage(result[1]);
             }
         }
 

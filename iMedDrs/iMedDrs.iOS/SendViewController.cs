@@ -14,7 +14,7 @@ namespace iMedDrs.iOS
         public string Questionnaire { get; set; }
         public string Data { get; set; }
         public string Email { get; set; }
-        public int Level { get; set; }
+        public string Role { get; set; }
         private string[] message;
         private string[] result;
         private readonly UIAlertView alertView;
@@ -86,7 +86,7 @@ namespace iMedDrs.iOS
                     location = location[0..^1];
             }
             BTProgressHUD.Show("Processing...Please wait...");
-            if (Level < 2)
+            if (Role == "demo")
                 message = new string[] { "report", "send2", Userid, Questionnaire, location, Data };
             else
                 message = new string[] { "report", "send", Userid, Questionnaire, location };

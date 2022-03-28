@@ -3,5 +3,5 @@
     android:id="@+id/textItem"
     android:textAppearance="?android:attr/textAppearanceSmall"
     android:gravity="center_vertical"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="30dp" />

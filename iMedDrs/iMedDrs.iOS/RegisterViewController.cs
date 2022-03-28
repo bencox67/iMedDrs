@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Threading.Tasks;
 using UIKit;
 using BigTed;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace iMedDrs.iOS
 {
@@ -12,7 +14,7 @@ namespace iMedDrs.iOS
     {
         public string Baseurl { get; set; }
         public UILabel SelectedLbl;
-        private readonly List<string> languages;
+        public string[] Languages;
         private string[] message;
         private string[] result;
         private readonly UIAlertView alertView;
@@ -25,7 +27,6 @@ namespace iMedDrs.iOS
             alertView = new UIAlertView();
             alertView.AddButton("Ok");
             SelectedLbl = new UILabel();
-            languages = new List<string>();
             NSNotificationCenter.DefaultCenter.AddObserver(UIKeyboard.WillHideNotification, OnKeyboardNotification);
             NSNotificationCenter.DefaultCenter.AddObserver(UIKeyboard.WillShowNotification, OnKeyboardNotification);
         }
@@ -41,7 +42,9 @@ namespace iMedDrs.iOS
             datePicker = new UIDatePicker
             {
                 BackgroundColor = UIColor.White,
-                Mode = UIDatePickerMode.Date
+                Mode = UIDatePickerMode.Date,
+                Frame = new RectangleF(0.0f, 0.0f, (float)this.View.Frame.Size.Width, 100.0f),
+                PreferredDatePickerStyle = UIDatePickerStyle.Wheels
             };
             UIToolbar toolbar = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f))
             {
@@ -53,17 +56,31 @@ namespace iMedDrs.iOS
             };
             birthdateTxt.InputView = datePicker;
             birthdateTxt.InputAccessoryView = toolbar;
+            SelectedLbl.Text = Languages[0];
+            pickerView = new UIPickerView
+            {
+                BackgroundColor = UIColor.White,
+                Model = new PickerModel(Languages.ToList(), SelectedLbl)
+            };
+            toolbar = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)this.View.Frame.Size.Width, 44.0f))
+            {
+                Items = new UIBarButtonItem[]{
+                    new UIBarButtonItem(UIBarButtonSystemItem.Cancel, delegate { this.languageTxt.ResignFirstResponder(); }),
+                    new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
+                    new UIBarButtonItem(UIBarButtonSystemItem.Done, Language)
+                }
+            };
+            languageTxt.InputView = pickerView;
+            languageTxt.InputAccessoryView = toolbar;
             useridTxt.ShouldReturn += TextFieldShouldReturn;
             nameTxt.ShouldReturn += TextFieldShouldReturn;
             birthdateTxt.ShouldReturn += TextFieldShouldReturn;
-            emailTxt.ShouldReturn += TextFieldShouldReturn;
             password1Txt.ShouldReturn += TextFieldShouldReturn;
             password2Txt.ShouldReturn += TextFieldShouldReturn;
             var tap = new UITapGestureRecognizer { CancelsTouchesInView = false };
             tap.AddTarget(() => View.EndEditing(true));
             View.AddGestureRecognizer(tap);
             ms = new MServer(Baseurl);
-            GetLanguages();
         }
 
         public override void DidReceiveMemoryWarning()
@@ -105,16 +122,15 @@ namespace iMedDrs.iOS
         {
             languageTxt.Text = SelectedLbl.Text;
             languageTxt.ResignFirstResponder();
-            emailTxt.BecomeFirstResponder();
         }
 
         private bool ValidateData()
         {
             bool result = true;
             string error = "";
-            if (useridTxt.Text.Length < 4 || useridTxt.Text.ToLower() == "demo")
+            if (string.IsNullOrWhiteSpace(useridTxt.Text))
             {
-                error = "Enter a Valid User ID";
+                error = "Enter a Valid Email Address";
                 result = false;
             }
             if (result && nameTxt.Text.Split(' ').Length < 2)
@@ -136,47 +152,30 @@ namespace iMedDrs.iOS
             return result;
         }
 
-        private async void GetLanguages()
-        {
-            BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "user", "languages" };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
-            BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
-            {
-                for (int i = 2; i < result.Length; i++)
-                    languages.Add(result[i]);
-                SelectedLbl.Text = languages[0];
-                pickerView = new UIPickerView
-                {
-                    BackgroundColor = UIColor.White,
-                    Model = new PickerModel(languages, SelectedLbl)
-                };
-                UIToolbar toolbar = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)this.View.Frame.Size.Width, 44.0f))
-                {
-                    Items = new UIBarButtonItem[]{
-                    new UIBarButtonItem(UIBarButtonSystemItem.Cancel, delegate { this.languageTxt.ResignFirstResponder(); }),
-                    new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
-                    new UIBarButtonItem(UIBarButtonSystemItem.Done, Language)
-                }
-                };
-                languageTxt.InputView = pickerView;
-                languageTxt.InputAccessoryView = toolbar;
-            }
-            else
-                AlertMessage(result[2]);
-        }
-
         private async void Register()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "user", "register", useridTxt.Text, nameTxt.Text, genderSmc.TitleAt(genderSmc.SelectedSegment), birthdateTxt.Text.Replace("/", "|").Replace("-", "|"), SelectedLbl.Text, emailTxt.Text, password1Txt.Text };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+            var names = nameTxt.Text.Split(' ');
+            message = new string[] { "users" };
+            UserModel user = new UserModel()
+            {
+                Email = useridTxt.Text,
+                FirstName = names[0],
+                LastName = names[1],
+                Gender = genderSmc.TitleAt(genderSmc.SelectedSegment),
+                Birthdate = Convert.ToDateTime(birthdateTxt.Text),
+                Language = SelectedLbl.Text,
+                Role = "user",
+                Password1 = password1Txt.Text,
+                Password2 = password2Txt.Text,
+            };
+            string json = JsonConvert.SerializeObject(user);
+            await Task.Run(() => result = ms.ProcessMessage(message, "POST", json));
             BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
-                AlertMessage("Registeration Complete");
+            if (result[0] == "ack")
+                AlertMessage("Registration Complete");
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private void AlertMessage(string title)
@@ -206,12 +205,12 @@ namespace iMedDrs.iOS
 
             public override nint GetRowsInComponent(UIPickerView pickerView, nint component)
             {
-                return list.Count;
+                return list != null ? list.Count :0;
             }
 
             public override string GetTitle(UIPickerView pickerView, nint row, nint component)
             {
-                return list[(int)row];
+                return list != null ? list[(int)row] : "";
             }
 
             public override nfloat GetRowHeight(UIPickerView pickerView, nint component)
@@ -226,7 +225,7 @@ namespace iMedDrs.iOS
                     TextColor = UIColor.Black,
                     Font = UIFont.SystemFontOfSize(17f),
                     TextAlignment = UITextAlignment.Center,
-                    Text = list[(int)row]
+                    Text = list != null ? list[(int)row] : ""
                 };
                 return lbl;
             }
@@ -255,7 +254,7 @@ namespace iMedDrs.iOS
         {
             bool restore = false;
             UIView firstResponder = null;
-            if (emailTxt.IsFirstResponder || password1Txt.IsFirstResponder || password2Txt.IsFirstResponder)
+            if (password1Txt.IsFirstResponder || password2Txt.IsFirstResponder)
                 firstResponder = password1Txt;
             else
                 restore = true;

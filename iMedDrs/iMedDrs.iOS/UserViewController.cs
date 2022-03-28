@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using UIKit;
 using BigTed;
+using Newtonsoft.Json;
 
 namespace iMedDrs.iOS
 {
@@ -18,11 +19,10 @@ namespace iMedDrs.iOS
         public string Birthdate { get; set; }
         public string Language { get; set; }
         public string Email { get; set; }
+        public string Role { get; set; }
         public bool Updated { get; set; }
         public List<string> Languages { get; set; }
         public UILabel SelectedLbl;
-        private string newpassword;
-        private string emailaddr;
         private string[] message;
         private string[] result;
         private readonly UIAlertView alertView;
@@ -51,7 +51,9 @@ namespace iMedDrs.iOS
             datePicker = new UIDatePicker
             {
                 BackgroundColor = UIColor.White,
-                Mode = UIDatePickerMode.Date
+                Mode = UIDatePickerMode.Date,
+                Frame = new RectangleF(0.0f, 0.0f, (float)this.View.Frame.Size.Width, 100.0f),
+                PreferredDatePickerStyle = UIDatePickerStyle.Wheels
             };
             UIToolbar toolbar1 = new UIToolbar(new RectangleF(0.0f, 0.0f, (float)View.Frame.Size.Width, 44.0f))
             {
@@ -65,14 +67,14 @@ namespace iMedDrs.iOS
             birthdateTxt.InputAccessoryView = toolbar1;
             nameTxt.ShouldReturn += TextFieldShouldReturn;
             birthdateTxt.ShouldReturn += TextFieldShouldReturn;
-            emailTxt.ShouldReturn += TextFieldShouldReturn;
             password1Txt.ShouldReturn += TextFieldShouldReturn;
             password2Txt.ShouldReturn += TextFieldShouldReturn;
             var tap = new UITapGestureRecognizer { CancelsTouchesInView = false };
             tap.AddTarget(() => View.EndEditing(true));
             View.AddGestureRecognizer(tap);
             ms = new MServer(Baseurl);
-            useridTxt.Text = Userid;
+            useridTxt.Text = Email;
+            useridTxt.Enabled = false;
             nameTxt.Text = Username;
             birthdateTxt.Text = Birthdate;
             datePicker.SetDate((NSDate)DateTime.SpecifyKind(Convert.ToDateTime(Birthdate), DateTimeKind.Local), false);
@@ -98,7 +100,6 @@ namespace iMedDrs.iOS
             };
             languageTxt.InputView = pickerView;
             languageTxt.InputAccessoryView = toolbar2;
-            emailTxt.Text = Email;
             Updated = false;
         }
 
@@ -141,7 +142,7 @@ namespace iMedDrs.iOS
         {
             languageTxt.Text = SelectedLbl.Text;
             languageTxt.ResignFirstResponder();
-            emailTxt.BecomeFirstResponder();
+            password1Txt.BecomeFirstResponder();
         }
 
         private bool ValidateData()
@@ -162,31 +163,36 @@ namespace iMedDrs.iOS
                     result = false;
                 }
             }
-            newpassword = "~";
             if (result && password1Txt.Text != "" && (password1Txt.Text != password2Txt.Text || password1Txt.Text.Length < 4))
             {
                 error = "Check Password";
                 result = false;
             }
-            if (emailTxt.Text == "")
-                emailaddr = "~";
-            else
-                emailaddr = emailTxt.Text;
-            if (password1Txt.Text == "")
-                newpassword = "~";
-            else
-                newpassword = password1Txt.Text;
             AlertMessage(error);
             return result;
         }
 
         private async void Update()
         {
-            BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "user", "change", useridTxt.Text, nameTxt.Text, genderSmc.TitleAt(genderSmc.SelectedSegment), birthdateTxt.Text.Replace("/", "|"), SelectedLbl.Text, emailaddr, Password, newpassword };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+            var names = nameTxt.Text.Split(' ');
+            message = new string[] { "users" };
+            UserModel user = new UserModel()
+            {
+                Id = Convert.ToInt32(Userid),
+                Email = useridTxt.Text,
+                FirstName = names[0],
+                LastName = names[1],
+                Gender = genderSmc.TitleAt(genderSmc.SelectedSegment),
+                Birthdate = Convert.ToDateTime(birthdateTxt.Text),
+                Language = SelectedLbl.Text,
+                Role = Role,
+                Password1 = password1Txt.Text,
+                Password2 = password2Txt.Text,
+            };
+            string json = JsonConvert.SerializeObject(user);
+            await Task.Run(() => result = ms.ProcessMessage(message, "PUT", json));
             BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
                 password1Txt.Text = "";
                 password2Txt.Text = "";
@@ -196,12 +202,9 @@ namespace iMedDrs.iOS
                 viewController.Gender = genderSmc.TitleAt(genderSmc.SelectedSegment);
                 viewController.Birthdate = birthdateTxt.Text;
                 viewController.Language = SelectedLbl.Text;
-                viewController.Email = emailTxt.Text;
-                if (newpassword != "~")
-                    viewController.Password = newpassword;
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private void AlertMessage(string title)
@@ -231,12 +234,12 @@ namespace iMedDrs.iOS
 
             public override nint GetRowsInComponent(UIPickerView pickerView, nint component)
             {
-                return list.Count;
+                return list != null ? list.Count : 0;
             }
 
             public override string GetTitle(UIPickerView pickerView, nint row, nint component)
             {
-                return list[(int)row];
+                return list != null ? list[(int)row] : "";
             }
 
             public override nfloat GetRowHeight(UIPickerView pickerView, nint component)
@@ -251,7 +254,7 @@ namespace iMedDrs.iOS
                     TextColor = UIColor.Black,
                     Font = UIFont.SystemFontOfSize(17f),
                     TextAlignment = UITextAlignment.Center,
-                    Text = list[(int)row]
+                    Text = list != null ? list[(int)row] : ""
                 };
                 return lbl;
             }
@@ -280,7 +283,7 @@ namespace iMedDrs.iOS
         {
             bool restore = false;
             UIView firstResponder = null;
-            if (emailTxt.IsFirstResponder || password1Txt.IsFirstResponder || password2Txt.IsFirstResponder)
+            if (password1Txt.IsFirstResponder || password2Txt.IsFirstResponder)
                 firstResponder = password1Txt;
             else
                 restore = true;

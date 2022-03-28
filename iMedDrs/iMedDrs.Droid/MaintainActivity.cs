@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Android;
@@ -8,6 +9,7 @@ using Android.Media;
 using Android.OS;
 using Android.Util;
 using Android.Widget;
+using Newtonsoft.Json;
 
 namespace iMedDrs.Droid
 {
@@ -16,14 +18,13 @@ namespace iMedDrs.Droid
     {
         string baseurl;
         string datapath;
-        int level;
         int scriptnum;
-        string[][] scriptdata;
         string[] questionnaires;
         string[] languages;
         string[] scripts;
         string[] message;
         string[] result;
+        List<ScriptModel> scriptdata;
         Spinner questionnaire;
         Spinner language;
         TextView name;
@@ -48,8 +49,7 @@ namespace iMedDrs.Droid
             // Get intent variables
             baseurl = Intent.GetStringExtra("baseurl");
             questionnaires = Intent.GetStringExtra("questionnaires").Split(',');
-            level = Intent.GetIntExtra("level", 0);
-            languages = Intent.GetStringExtra("languages").Split(',');
+            languages = Intent.GetStringExtra("languages").Split('|');
             datapath = Intent.GetStringExtra("datapath");
 
             // Set our view from the "process" layout resource
@@ -160,7 +160,7 @@ namespace iMedDrs.Droid
                         recorder.SetAudioSource(AudioSource.Mic);
                         recorder.SetOutputFormat(OutputFormat.Mpeg4);
                         recorder.SetAudioEncoder(AudioEncoder.Aac);
-                        recorder.SetOutputFile(Path.Combine(datapath, name.Text + ".mp4"));
+                        recorder.SetOutputFile(Path.Combine(datapath, name.Text + ".mp3"));
                         recorder.Prepare();
                         recorder.Start();
                     }
@@ -184,10 +184,10 @@ namespace iMedDrs.Droid
                     recorder.Stop();
                     recorder.Reset();
                 }
-                if (File.Exists(Path.Combine(datapath, name.Text + ".mp4")))
+                if (File.Exists(Path.Combine(datapath, name.Text + ".mp3")))
                 {
                     player.Reset();
-                    player.SetDataSource(Path.Combine(datapath, name.Text + ".mp4"));
+                    player.SetDataSource(Path.Combine(datapath, name.Text + ".mp3"));
                     player.Prepare();
                     player.Start();
                 }
@@ -226,15 +226,15 @@ namespace iMedDrs.Droid
         {
             if (record.Text == "Record")
             {
-                if (File.Exists(Path.Combine(datapath, name.Text + ".mp4")))
+                if (File.Exists(Path.Combine(datapath, name.Text + ".mp3")))
                 {
                     string message = "";
                     progress.Show();
-                    await Task.Run(() => message = ms.PostFile(language.SelectedItem.ToString(), datapath, name.Text + ".mp4"));
+                    await Task.Run(() => message = ms.PostFile(language.SelectedItem.ToString(), datapath, name.Text + ".mp3"));
                     progress.Dismiss();
                     if (message == "Recording updated")
                     {
-                        try { File.Delete(Path.Combine(datapath, name.Text + ".mp4")); }
+                        try { File.Delete(Path.Combine(datapath, name.Text + ".mp3")); }
                         catch { }
                     }
                     AlertMessage(message);
@@ -245,36 +245,30 @@ namespace iMedDrs.Droid
         private async void Load()
         {
             ClearForm();
-            message = new string[] { "script", "data", questionnaire.SelectedItem.ToString(), level.ToString(), language.SelectedItem.ToString() };
+            message = new string[] { "questionnaires", "scripts", questionnaire.SelectedItem.ToString(), language.SelectedItem.ToString() };
             progress.Show();
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             progress.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
-                int len = result.Length - 2;
-                scriptdata = new string[len][];
-                scripts = new string[len];
-                for (int i = 0; i < len; i++)
+                scriptdata = JsonConvert.DeserializeObject<List<ScriptModel>>(result[1]);
+                scripts = new string[scriptdata.Count];
+                for (int i = 0; i < scripts.Length; i++)
                 {
-                    scriptdata[i] = result[i + 2].Split('|');
-                    scripts[i] = scriptdata[i][0];
+                    scripts[i] = scriptdata[i].Name;
                 }
                 script.Adapter = new ArrayAdapter(this, Resource.Layout.ListItem, scripts);
                 script.SetItemChecked(0, true);
                 script.SetSelection(0);
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private void ScriptData(int number)
         {
-            scriptnum = number + 1;
-            name.Text = scriptdata[number][0];
-            if (scriptdata[number][8] == "")
-                question.Text = scriptdata[number][7];
-            else
-                question.Text = scriptdata[number][8];
+            name.Text = scriptdata[number].Name;
+            question.Text = scriptdata[number].Text;
         }
 
         private void ClearForm()
