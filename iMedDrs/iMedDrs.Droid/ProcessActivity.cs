@@ -173,7 +173,7 @@ namespace iMedDrs.Droid
             {
                 data = ps.ReadFromFile(Path.Combine(datapath, questionnaire.SelectedItem.ToString().Replace(" ", "_") + ".txt"));
                 if (data != "")
-                    message = new string[] { "reports", userid, questionnaire.SelectedItem.ToString(), data.Replace("/", "~"), "English" };
+                    message = new string[] { "reports", userid, questionnaire.SelectedItem.ToString(), data.Replace("/", "~").Replace(",", "|"), "English" };
                 else
                     AlertMessage("No responses saved");
             }
@@ -187,19 +187,24 @@ namespace iMedDrs.Droid
                 if (result[0] == "ack")
                 {
                     ReportModel model = JsonConvert.DeserializeObject<ReportModel>(result[1]);
-                    Intent intent = new Intent(this.ApplicationContext, typeof(ReportActivity));
-                    intent.PutExtra("baseurl", baseurl);
-                    intent.PutExtra("userid", userid);
-                    intent.PutExtra("username", username);
-                    intent.PutExtra("questionnaire", questionnaire.SelectedItem.ToString());
-                    intent.PutExtra("last", model.MaxId);
-                    intent.PutExtra("number", 0);
-                    intent.PutExtra("text", model.Reports[0].Text);
-                    intent.PutExtra("data", data);
-                    intent.PutExtra("email", email);
-                    intent.PutExtra("role", role);
-                    intent.PutExtra("language", language);
-                    StartActivity(intent);
+                    if (!string.IsNullOrWhiteSpace(model.Reports[0].Text))
+                    {
+                        Intent intent = new Intent(this.ApplicationContext, typeof(ReportActivity));
+                        intent.PutExtra("baseurl", baseurl);
+                        intent.PutExtra("userid", userid);
+                        intent.PutExtra("username", username);
+                        intent.PutExtra("questionnaire", questionnaire.SelectedItem.ToString());
+                        intent.PutExtra("last", model.MaxId);
+                        intent.PutExtra("number", 0);
+                        intent.PutExtra("text", model.Reports[0].Text);
+                        intent.PutExtra("data", data);
+                        intent.PutExtra("email", email);
+                        intent.PutExtra("role", role);
+                        intent.PutExtra("language", language);
+                        StartActivity(intent);
+                    }
+                    else
+                        AlertMessage("No responses saved");
                 }
                 else
                     AlertMessage(result[1]);

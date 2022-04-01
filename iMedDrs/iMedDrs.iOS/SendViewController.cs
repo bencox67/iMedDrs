@@ -15,6 +15,7 @@ namespace iMedDrs.iOS
         public string Data { get; set; }
         public string Email { get; set; }
         public string Role { get; set; }
+        public string Language { get; set; }
         private string[] message;
         private string[] result;
         private readonly UIAlertView alertView;
@@ -87,13 +88,13 @@ namespace iMedDrs.iOS
             }
             BTProgressHUD.Show("Processing...Please wait...");
             if (Role == "demo")
-                message = new string[] { "report", "send2", Userid, Questionnaire, location, Data };
+                message = new string[] { "reports", Userid, Questionnaire, location, Data.Replace("/", "~").Replace(",", "|"), Language };
             else
-                message = new string[] { "report", "send", Userid, Questionnaire, location };
+                message = new string[] { "reports", Userid, Questionnaire, location, "*", Language };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
-            if (result[2] != "" && result[2] != "~")
-                AlertMessage(result[2]);
+            if (result[1] != "" && result[1] != "~")
+                AlertMessage(result[1]);
         }
 
         private void AlertMessage(string title)

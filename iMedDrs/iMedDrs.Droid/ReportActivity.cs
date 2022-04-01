@@ -59,7 +59,6 @@ namespace iMedDrs.Droid
 
             // Initialize variables
             report = FindViewById<WebView>(Resource.Id.report);
-            //report.Settings.DefaultTextEncodingName = "utf-8";
             report.LoadDataWithBaseURL(null, text, "text/html", "utf-8", null);
             next = FindViewById<Button>(Resource.Id.next);
             previous = FindViewById<Button>(Resource.Id.previous);
@@ -133,7 +132,7 @@ namespace iMedDrs.Droid
         {
             progress.Show();
             if (role == "demo")
-                message = new string[] { "reports", userid, questionnaire, data, language };
+                message = new string[] { "reports", userid, questionnaire, data.Replace("/", "~").Replace(",", "|"), language };
             else
                 message = new string[] { "reports", userid, questionnaire, "*", language };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));

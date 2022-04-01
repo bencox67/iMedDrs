@@ -99,30 +99,35 @@ namespace iMedDrs.Droid
                 if (result[0] == "ack")
                 {
                     UserModel user = JsonConvert.DeserializeObject<UserModel>(result[1]);
-                    string questionnaires = "";
-                    foreach (var item in user.QuestionnaireList)
+                    if (user.Id != null)
                     {
-                        questionnaires += questionnaires != "" ? "," + item.Name : item.Name;
+                        string questionnaires = "";
+                        foreach (var item in user.QuestionnaireList)
+                        {
+                            questionnaires += questionnaires != "" ? "," + item.Name : item.Name;
+                        }
+                        ps.RememberMe(datapath, user.Email, rememberme.Checked);
+                        Intent intent = new Intent(this.ApplicationContext, typeof(ProcessActivity));
+                        intent.PutExtra("baseurl", baseurl);
+                        intent.PutExtra("userid", user.Id.Value.ToString());
+                        intent.PutExtra("username", user.Name);
+                        intent.PutExtra("questionnaires", questionnaires);
+                        intent.PutExtra("languages", user.LanguageList);
+                        intent.PutExtra("gender", user.Gender);
+                        intent.PutExtra("birthdate", user.Birthdate.ToShortDateString());
+                        intent.PutExtra("language", user.Language);
+                        intent.PutExtra("languages", languages);
+                        intent.PutExtra("email", user.Email);
+                        intent.PutExtra("role", user.Role);
+                        intent.PutExtra("datapath", datapath);
+                        StartActivity(intent);
+                        Finish();
                     }
-                    ps.RememberMe(datapath, user.Email, rememberme.Checked);
-                    Intent intent = new Intent(this.ApplicationContext, typeof(ProcessActivity));
-                    intent.PutExtra("baseurl", baseurl);
-                    intent.PutExtra("userid", user.Id.Value.ToString());
-                    intent.PutExtra("username", user.Name);
-                    intent.PutExtra("questionnaires", questionnaires);
-                    intent.PutExtra("languages", user.LanguageList);
-                    intent.PutExtra("gender", user.Gender);
-                    intent.PutExtra("birthdate", user.Birthdate.ToShortDateString());
-                    intent.PutExtra("language", user.Language);
-                    intent.PutExtra("languages", languages);
-                    intent.PutExtra("email", user.Email);
-                    intent.PutExtra("role", user.Role);
-                    intent.PutExtra("datapath", datapath);
-                    StartActivity(intent);
-                    Finish();
+                    else
+                        AlertMessage("Log in failed");
                 }
                 else
-                    AlertMessage(result[2]);
+                    AlertMessage(result[1]);
             }
         }
 

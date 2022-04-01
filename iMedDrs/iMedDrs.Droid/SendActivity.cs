@@ -114,7 +114,7 @@ namespace iMedDrs.Droid
             }
             progress.Show();
             if (role == "demo")
-                message = new string[] { "reports", userid, questionnaire, location, data, language };
+                message = new string[] { "reports", userid, questionnaire, location, data.Replace("/", "~").Replace(",", "|"), language };
             else
                 message = new string[] { "reports", userid, questionnaire, location, "*", language };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));

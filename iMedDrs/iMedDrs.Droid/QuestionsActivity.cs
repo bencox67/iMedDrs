@@ -315,7 +315,7 @@ namespace iMedDrs.Droid
                 if (role != "demo")
                 {
                     progress.Show();
-                    message = new string[] { "questionnaire", "save", userid, questionnaireid, String.Join(',', responses).Replace("/", "~") };
+                    message = new string[] { "questionnaires", "save", userid, questionnaireid, String.Join('|', responses).Replace("/", "~") };
                     await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                     progress.Dismiss();
                     if (result[0] == "ack")
@@ -503,7 +503,7 @@ namespace iMedDrs.Droid
                             rb[i] = new RadioButton(this)
                             { Text = response[i].PadRight(10, ' ') };
                             response3.AddView(rb[i]);
-                            if (eresponse[i] == answer)
+                            if (eresponse[i].ToLower() == answer.ToLower())
                                 rb[i].Checked = true;
                         }
                         response3.Visibility = ViewStates.Visible;
@@ -513,7 +513,7 @@ namespace iMedDrs.Droid
                         response4.Adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerDropDownItem, response);
                         for (int i = 0; i < response.Length; i++)
                         {
-                            if (eresponse[i] == answer)
+                            if (eresponse[i].ToLower() == answer.ToLower())
                             {
                                 response4.SetSelection(i);
                                 break;
@@ -560,11 +560,11 @@ namespace iMedDrs.Droid
                         for (int i = 0; i < rb.Length; i++)
                         {
                             if (rb[i].Checked)
-                                result = eresponse[i].Trim();
+                                result = eresponse[i].ToLower().Trim();
                         }
                     }
                     else
-                        result = eresponse[response4.SelectedItemPosition].Trim();
+                        result = eresponse[response4.SelectedItemPosition].ToLower().Trim();
                 }
             }
             if (result == "")

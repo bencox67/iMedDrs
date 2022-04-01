@@ -7,6 +7,7 @@ using AVFoundation;
 using Speech;
 using UIKit;
 using BigTed;
+using Newtonsoft.Json;
 
 namespace iMedDrs.iOS
 {
@@ -16,6 +17,7 @@ namespace iMedDrs.iOS
         public string Userid { get; set; }
         public string Username { get; set; }
         public string Questionnaire { get; set; }
+        public string Questionnaireid { get; set; }
         public string Number { get; set; }
         public string Name { get; set; }
         public string Text { get; set; }
@@ -193,7 +195,7 @@ namespace iMedDrs.iOS
                 player = null;
             }
             recoLbl.Text = "";
-            var url = NSUrl.FromString("https://imeddrsapi.azurewebsites.net/data/voice/" + Language + "/" + Name + Extension);
+            var url = NSUrl.FromString("https://imeddrs.com/data/voice/" + Language + "/" + Name + Extension);
             player = AVPlayer.FromUrl(url);
             if (player != null)
             {
@@ -351,30 +353,30 @@ namespace iMedDrs.iOS
                     AlertMessage("A response is required");
                 else
                 {
+                    Responses[Convert.ToInt32(Number) - 1] = ans;
                     BTProgressHUD.Show("Processing...Please wait...");
-                    message = new string[] { "questionnaire", "next", Userid, Questionnaire, Number, ans, String.Join(',', Responses).Replace("/", "~"), Branches };
+                    message = new string[] { "questionnaires", Questionnaireid, Number, Userid, "Next", String.Join('|', Responses).Replace("/", "~"), Language };
                     await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                     BTProgressHUD.Dismiss();
-                    if (result[1] == "ack")
+                    if (result[0] == "ack")
                     {
-                        Number = result[2];
-                        Name = result[3];
-                        Text = result[4];
-                        Response = result[5].Split(',');
-                        Last = result[6];
-                        //Responses = result[7];
-                        Branches = result[8];
-                        Required = Convert.ToBoolean(result[9]);
-                        Type = result[10];
-                        Answer = result[11];
-                        Eresponse = result[12].Split(',');
-                        Extension = result[13];
-                        Instructions = result[14];
+                        QuestionnaireModel model = JsonConvert.DeserializeObject<QuestionnaireModel>(result[1]);
+                        Number = model.Sequence.ToString();
+                        Name = model.QuestionName;
+                        Text = model.Question;
+                        Response = model.ActResponses.ToArray();
+                        Responses = model.Responses;
+                        Required = model.Required;
+                        Type = model.Type;
+                        Answer = Responses[Convert.ToInt32(Number) - 1];
+                        Eresponse = model.EngResponses.ToArray();
+                        Extension = "mp3";
+                        Instructions = model.Instructions;
                         SetQuestion();
                         SetResponses();
                     }
                     else
-                        AlertMessage(result[2]);
+                        AlertMessage(result[1]);
                 }
             }
             else
@@ -382,11 +384,11 @@ namespace iMedDrs.iOS
                 if (Role != "demo")
                 {
                     BTProgressHUD.Show("Processing...Please wait...");
-                    message = new string[] { "questionnaire", "save", Userid, Questionnaire, String.Join(',', Responses).Replace("/", "~") };
+                    message = new string[] { "questionnaires", "save", Userid, Questionnaireid, String.Join('|', Responses).Replace("/", "~") };
                     await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                     BTProgressHUD.Dismiss();
                     if (!Handsfree)
-                        AlertMessage(result[2]);
+                        AlertMessage(result[1]);
                 }
                 else
                 {
@@ -409,29 +411,28 @@ namespace iMedDrs.iOS
         private async void Previous()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "questionnaire", "previous", Userid, Questionnaire, Number, String.Join(',', Responses).Replace("/", "~"), Branches };
+            message = new string[] { "questionnaires", Questionnaireid, Number, Userid, "Previous", String.Join('|', Responses).Replace("/", "~"), Language };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
-                Number = result[2];
-                Name = result[3];
-                Text = result[4];
-                Response = result[5].Split(',');
-                Last = result[6];
-                //Responses = result[7];
-                Branches = result[8];
-                Required = Convert.ToBoolean(result[9]);
-                Type = result[10];
-                Answer = result[11];
-                Eresponse = result[12].Split(',');
-                Extension = result[13];
-                Instructions = result[14];
+                QuestionnaireModel model = JsonConvert.DeserializeObject<QuestionnaireModel>(result[1]);
+                Number = model.Sequence.ToString();
+                Name = model.QuestionName;
+                Text = model.Question;
+                Response = model.ActResponses.ToArray();
+                Responses = model.Responses;
+                Required = model.Required;
+                Type = model.Type;
+                Answer = Responses[Convert.ToInt32(Number) - 1];
+                Eresponse = model.EngResponses.ToArray();
+                Extension = "mp3";
+                Instructions = model.Instructions;
                 SetQuestion();
                 SetResponses();
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private void SetQuestion()
@@ -451,7 +452,7 @@ namespace iMedDrs.iOS
             responseDpr.Hidden = true;
             if (Name != "End")
             {
-                if (Response.Length == 1)
+                if (Response.Length == 0)
                 {
                     if (Type == "date")
                     {
@@ -492,7 +493,7 @@ namespace iMedDrs.iOS
                             responseSmc.InsertSegment(Response[i], i, true);
                             responseSmc.SetEnabled(true, i);
                             responseSmc.SetWidth(100f, i);
-                            if (Eresponse[i] == Answer)
+                            if (Eresponse[i].ToLower() == Answer.ToLower())
                                 responseSmc.SelectedSegment = i;
                         }
                         responseSmc.Hidden = false;
@@ -504,7 +505,7 @@ namespace iMedDrs.iOS
                         for (int i = 0; i < Response.Length; i++)
                         {
                             Presponses.Add(Response[i]);
-                            if (Eresponse[i] == Answer)
+                            if (Eresponse[i].ToLower() == Answer.ToLower())
                                 row = i;
                         }
                         SelectedLbl.Text = Presponses[row];
@@ -523,7 +524,7 @@ namespace iMedDrs.iOS
             string result = "";
             if (Name != "End")
             {
-                if (Response.Length == 1)
+                if (Response.Length == 0)
                 {
                     switch (Type)
                     {
@@ -555,11 +556,11 @@ namespace iMedDrs.iOS
                     if (Response.Length < 4)
                     {
                         if (responseSmc.SelectedSegment > -1)
-                            result = Eresponse[responseSmc.SelectedSegment];
+                            result = Eresponse[responseSmc.SelectedSegment].ToLower();
                     }
                     else
                     {
-                        result = SelectedLbl.Text;
+                        result = SelectedLbl.Text.ToLower();
                     }
                 }
             }

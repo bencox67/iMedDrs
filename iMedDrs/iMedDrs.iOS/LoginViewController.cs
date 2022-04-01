@@ -138,13 +138,18 @@ namespace iMedDrs.iOS
             if (result[0] == "ack")
             {
                 user = JsonConvert.DeserializeObject<UserModel>(result[1]);
-                ps.RememberMe(Datapath, user.Email, rememberSwh.On);
-                questionnaires = new List<string>();
-                foreach (var item in user.QuestionnaireList)
+                if (user.Id != null)
                 {
-                    questionnaires.Add(item.Name);
+                    ps.RememberMe(Datapath, user.Email, rememberSwh.On);
+                    questionnaires = new List<string>();
+                    foreach (var item in user.QuestionnaireList)
+                    {
+                        questionnaires.Add(item.Name);
+                    }
+                    PerformSegue("ProcessSegue", this);
                 }
-                PerformSegue("ProcessSegue", this);
+                else
+                    AlertMessage("Log in failed");
             }
             else
                 AlertMessage(result[1]);

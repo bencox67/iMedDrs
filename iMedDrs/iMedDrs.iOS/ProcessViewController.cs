@@ -94,6 +94,7 @@ namespace iMedDrs.iOS
                 viewController.Userid = Userid;
                 viewController.Username = Username;
                 viewController.Questionnaire = SelectedLbl.Text;
+                viewController.Questionnaireid = questionnaire.Id.ToString();
                 viewController.Number = questionnaire.Sequence.ToString();
                 viewController.Name = questionnaire.QuestionName;
                 viewController.Text = questionnaire.Question;
@@ -126,6 +127,7 @@ namespace iMedDrs.iOS
                 viewController.Data = data;
                 viewController.Email = Email;
                 viewController.Role = Role;
+                viewController.Language = "English";
             }
             if (segue.DestinationViewController.Class.Name == "UserViewController")
             {
@@ -189,7 +191,7 @@ namespace iMedDrs.iOS
             {
                 data = ps.ReadFromFile(Datapath + "/" + SelectedLbl.Text.Replace(" ", "_") + ".txt");
                 if (data != "")
-                    message = new string[] { "reports", Userid, SelectedLbl.Text, data.Replace("/", "~"), "English" };
+                    message = new string[] { "reports", Userid, SelectedLbl.Text, data.Replace("/", "~").Replace(",", "|"), "English" };
                 else
                     AlertMessage("No responses saved");
             }
@@ -203,7 +205,10 @@ namespace iMedDrs.iOS
                 if (result[0] == "ack")
                 {
                     model = JsonConvert.DeserializeObject<ReportModel>(result[1]);
-                    PerformSegue("ReportSegue", this);
+                    if (!string.IsNullOrWhiteSpace(model.Reports[0].Text))
+                        PerformSegue("ReportSegue", this);
+                    else
+                        AlertMessage("No responses saved");
                 }
                 else
                     AlertMessage(result[1]);

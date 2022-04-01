@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using UIKit;
 using BigTed;
+using Newtonsoft.Json;
 
 namespace iMedDrs.iOS
 {
@@ -18,6 +19,7 @@ namespace iMedDrs.iOS
         public int Last { get; set; }
         public int Number { get; set; }
         public string Role { get; set; }
+        public string Language { get; set; }
         private string[] message;
         private string[] result;
         private readonly UIAlertView alertView;
@@ -68,6 +70,7 @@ namespace iMedDrs.iOS
                 viewController.Data = Data;
                 viewController.Email = Email;
                 viewController.Role = Role;
+                viewController.Language = Language;
             }
         }
 
@@ -98,19 +101,18 @@ namespace iMedDrs.iOS
         {
             BTProgressHUD.Show("Processing...Please wait...");
             if (Role == "demo")
-                message = new string[] { "report", "load2", Userid, Questionnaire, Number.ToString(), Data };
+                message = new string[] { "reports", Userid, Questionnaire, Data.Replace("/", "~").Replace(",", "|"), Language };
             else
-                message = new string[] { "report", "load", Userid, Questionnaire, Number.ToString() };
+                message = new string[] { "reports", Userid, Questionnaire, "*", Language };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             BTProgressHUD.Dismiss();
-            if (result[1] == "ack")
+            if (result[0] == "ack")
             {
-                Last = Convert.ToInt32(result[2]);
-                Number = Convert.ToInt32(result[3]);
-                reportWv.LoadHtmlString(result[4], null);
+                ReportModel model = JsonConvert.DeserializeObject<ReportModel>(result[1]);
+                reportWv.LoadHtmlString(model.Reports[Number].Text, null);
             }
             else
-                AlertMessage(result[2]);
+                AlertMessage(result[1]);
         }
 
         private void AlertMessage(string title)
