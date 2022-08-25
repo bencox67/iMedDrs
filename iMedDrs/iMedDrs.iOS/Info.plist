@@ -9,7 +9,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
-	<string>10.3</string>
+	<string>11.0</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
@@ -52,13 +52,15 @@
 	<string>Allow you to answer questions</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow you to answer questions</string>
-	<key>XSAppIconAssets</key>
-	<string>Resources/Images.xcassets/AppIcons.appiconset</string>
-	<key>CFBundleShortVersionString</key>
-	<string>3.9</string>
-	<key>CFBundleVersion</key>
-	<string>3.9</string>
 	<key>UIRequiresFullScreen</key>
 	<true/>
+	<key>CFBundleShortVersionString</key>
+	<string>4.5</string>
+	<key>CFBundleVersion</key>
+	<string>4.5</string>
+	<key>XSAppIconAssets</key>
+	<string>Resources/Images.xcassets/AppIcons.appiconset</string>
+	<key>XSLaunchImageAssets</key>
+	<string>Resources/Images.xcassets/LaunchImages.launchimage</string>
 </dict>
 </plist>

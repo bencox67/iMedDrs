@@ -1,9 +1,11 @@
 ﻿using Foundation;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UIKit;
 using BigTed;
 using Newtonsoft.Json;
+using WebKit;
 
 namespace iMedDrs.iOS
 {
@@ -13,17 +15,13 @@ namespace iMedDrs.iOS
         public string Userid { get; set; }
         public string Username { get; set; }
         public string Questionnaire { get; set; }
-        public string Text { get; set; }
+        public List<Report> Reports { get; set; }
         public string Data { get; set; }
         public string Email { get; set; }
         public int Last { get; set; }
         public int Number { get; set; }
         public string Role { get; set; }
         public string Language { get; set; }
-        private string[] message;
-        private string[] result;
-        private readonly UIAlertView alertView;
-        private MServer ms;
 
         [Action("UnwindToReportViewController:")]
         public void UnwindToReportViewController(UIStoryboardSegue segue)
@@ -33,14 +31,11 @@ namespace iMedDrs.iOS
 
         public ReportViewController (IntPtr handle) : base (handle)
         {
-            alertView = new UIAlertView();
-            alertView.AddButton("Ok");
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            ms = new MServer(Baseurl);
         }
 
         public override void DidReceiveMemoryWarning()
@@ -51,9 +46,9 @@ namespace iMedDrs.iOS
 
         public override void ViewWillAppear(bool animated)
         {
-            base.ViewWillAppear(animated);
             namequestLbl.Text = Username + " - " + Questionnaire;
-            reportWv.LoadHtmlString(Text, null);
+            reportWv.LoadHtmlString(Reports[Number].Text, null);
+            base.ViewWillAppear(animated);
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -80,7 +75,7 @@ namespace iMedDrs.iOS
             Number++;
             if (Number == Last)
                 Number = 0;
-            ShowReport();
+            reportWv.LoadHtmlString(Reports[Number].Text, null);
         }
 
         partial void PreviousBtn_TouchUpInside(UIButton sender)
@@ -89,39 +84,12 @@ namespace iMedDrs.iOS
             Number--;
             if (Number < 0)
                 Number = Last - 1;
-            ShowReport();
+            reportWv.LoadHtmlString(Reports[Number].Text, null);
         }
 
         partial void SendBtn_TouchUpInside(UIButton sender)
         {
             _ = sender;
-        }
-
-        private async void ShowReport()
-        {
-            BTProgressHUD.Show("Processing...Please wait...");
-            if (Role == "demo")
-                message = new string[] { "reports", Userid, Questionnaire, Data.Replace("/", "~").Replace(",", "|"), Language };
-            else
-                message = new string[] { "reports", Userid, Questionnaire, "*", Language };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
-            BTProgressHUD.Dismiss();
-            if (result[0] == "ack")
-            {
-                ReportModel model = JsonConvert.DeserializeObject<ReportModel>(result[1]);
-                reportWv.LoadHtmlString(model.Reports[Number].Text, null);
-            }
-            else
-                AlertMessage(result[1]);
-        }
-
-        private void AlertMessage(string title)
-        {
-            if (title != "")
-            {
-                alertView.Title = title;
-                alertView.Show();
-            }
         }
     }
 }

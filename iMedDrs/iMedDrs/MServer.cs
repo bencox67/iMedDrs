@@ -22,7 +22,7 @@ namespace iMedDrs
         [SecurityCritical]
         public string[] ProcessMessage(string[] message, string method, string json)
         {
-            string[] list = new string[0];
+            string[] list = null;
             string error = "No response from server";
             string url = baseurl;
             foreach (var item in message)
@@ -50,10 +50,7 @@ namespace iMedDrs
                 response.Dispose();
             }
             catch (Exception ex) { error = ex.Message; }
-            if (list.Length == 0)
-            {
-                list = new string[] { "nak", error };
-            }
+            list ??= new string[] { "nak", error };
             return list;
         }
 

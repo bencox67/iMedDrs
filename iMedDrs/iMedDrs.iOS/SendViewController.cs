@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using UIKit;
 using BigTed;
+using Newtonsoft.Json;
 
 namespace iMedDrs.iOS
 {
@@ -87,11 +88,15 @@ namespace iMedDrs.iOS
                     location = location[0..^1];
             }
             BTProgressHUD.Show("Processing...Please wait...");
+            string[] responses = new string[] { "" };
             if (Role == "demo")
-                message = new string[] { "reports", Userid, Questionnaire, location, Data.Replace("/", "~").Replace(",", "|"), Language };
+            {
+                responses = Data.Split(',');
+                message = new string[] { "reports", Userid, Questionnaire, location, Language };
+            }
             else
-                message = new string[] { "reports", Userid, Questionnaire, location, "*", Language };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                message = new string[] { "reports", Userid, Questionnaire, location, Language };
+            await Task.Run(() => result = ms.ProcessMessage(message, "POST", JsonConvert.SerializeObject(responses)));
             BTProgressHUD.Dismiss();
             if (result[1] != "" && result[1] != "~")
                 AlertMessage(result[1]);

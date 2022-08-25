@@ -19,6 +19,8 @@ namespace iMedDrs.Droid
         string baseurl;
         string datapath;
         int scriptnum;
+        int samplerate;
+        int recordsize;
         string[] questionnaires;
         string[] languages;
         string[] scripts;
@@ -36,7 +38,7 @@ namespace iMedDrs.Droid
         Button previous;
         Button updatevoice;
         Button returns;
-        MediaRecorder recorder;
+        AudioRecord recorder;
         MediaPlayer player;
         AlertDialog alert;
         AlertDialog progress;
@@ -74,7 +76,9 @@ namespace iMedDrs.Droid
             previous = FindViewById<Button>(Resource.Id.previous);
             updatevoice = FindViewById<Button>(Resource.Id.updatevoice);
             returns = FindViewById<Button>(Resource.Id.returns);
-            recorder = new MediaRecorder();
+            samplerate = 44100;
+            recordsize = AudioRecord.GetMinBufferSize(samplerate, ChannelIn.Mono, Encoding.Mp3);
+            recorder = new AudioRecord(AudioSource.Mic, samplerate, ChannelIn.Mono, Encoding.Mp3, recordsize);
             player = new MediaPlayer();
             scriptnum = -1;
 
@@ -119,7 +123,6 @@ namespace iMedDrs.Droid
             {
                 record.Text = "Record";
                 recorder.Stop();
-                recorder.Reset();
             }
             recorder.Release();
             player.Release();
@@ -156,19 +159,22 @@ namespace iMedDrs.Droid
                     if (record.Text == "Record")
                     {
                         record.Text = "Stop";
-                        recorder.Reset();
-                        recorder.SetAudioSource(AudioSource.Mic);
-                        recorder.SetOutputFormat(OutputFormat.Mpeg4);
-                        recorder.SetAudioEncoder(AudioEncoder.Aac);
-                        recorder.SetOutputFile(Path.Combine(datapath, name.Text + ".mp3"));
-                        recorder.Prepare();
-                        recorder.Start();
+                        recorder.StartRecording();
                     }
                     else
                     {
+                        try
+                        {
+                            byte[] data = new byte[recordsize / 2];
+                            FileStream outputStream = new FileStream(Path.Combine(datapath, name.Text + ".mp3"), FileMode.Create);
+                            int read = recorder.Read(data, 0, data.Length);
+                            outputStream.Write(data, 0, read);
+                            outputStream.Flush();
+                            outputStream.Close();
+                        }
+                        catch { }
                         record.Text = "Record";
                         recorder.Stop();
-                        recorder.Reset();
                     }
                 }
             }
@@ -182,7 +188,6 @@ namespace iMedDrs.Droid
                 {
                     record.Text = "Record";
                     recorder.Stop();
-                    recorder.Reset();
                 }
                 if (File.Exists(Path.Combine(datapath, name.Text + ".mp3")))
                 {

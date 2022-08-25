@@ -152,7 +152,7 @@ namespace iMedDrs.Droid
                 intent.PutExtra("type", model.Type);
                 intent.PutExtra("answer", "");
                 intent.PutExtra("eresponse", model.EngResponses.ToArray());
-                intent.PutExtra("extension", "mp3");
+                intent.PutExtra("extension", ".mp3");
                 intent.PutExtra("instruction", model.Instructions.Replace("<br/>", "\r\n"));
                 intent.PutExtra("role", role);
                 intent.PutExtra("datapath", datapath);
@@ -169,20 +169,31 @@ namespace iMedDrs.Droid
         {
             string data = "";
             message = null;
+            string[] responses = new string[] { "" };
             if (role == "demo")
             {
                 data = ps.ReadFromFile(Path.Combine(datapath, questionnaire.SelectedItem.ToString().Replace(" ", "_") + ".txt"));
                 if (data != "")
-                    message = new string[] { "reports", userid, questionnaire.SelectedItem.ToString(), data.Replace("/", "~").Replace(",", "|"), "English" };
+                {
+                    responses = data.Split(',');
+                    message = new string[] { "reports", userid, questionnaire.SelectedItem.ToString(), "English" };
+                }
                 else
                     AlertMessage("No responses saved");
             }
             else
-                message = new string[] { "reports", userid, questionnaire.SelectedItem.ToString(), "*", "English" };
+                message = new string[] { "reports", userid, questionnaire.SelectedItem.ToString(), "English" };
             if (message != null)
             {
                 progress.Show();
-                await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                if (role == "demo")
+                {
+                    await Task.Run(() => result = ms.ProcessMessage(message, "POST", JsonConvert.SerializeObject(responses)));
+                }
+                else
+                {
+                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                }
                 progress.Dismiss();
                 if (result[0] == "ack")
                 {
@@ -196,7 +207,7 @@ namespace iMedDrs.Droid
                         intent.PutExtra("questionnaire", questionnaire.SelectedItem.ToString());
                         intent.PutExtra("last", model.MaxId);
                         intent.PutExtra("number", 0);
-                        intent.PutExtra("text", model.Reports[0].Text);
+                        intent.PutExtra("reportjson", result[1]);
                         intent.PutExtra("data", data);
                         intent.PutExtra("email", email);
                         intent.PutExtra("role", role);

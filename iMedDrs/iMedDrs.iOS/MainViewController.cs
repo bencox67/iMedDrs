@@ -12,7 +12,6 @@ namespace iMedDrs.iOS
     public partial class MainViewController : UIViewController
     {
         private string baseurl;
-        private string userid;
         private string datapath;
         private UserModel user;
         private List<string> questionnaires;
@@ -20,7 +19,6 @@ namespace iMedDrs.iOS
         private string[] result;
         private readonly UIAlertView alertView;
         private MServer ms;
-        private PServer ps;
 
         [Action("UnwindToMainViewController:")]
         public void UnwindToMainViewController(UIStoryboardSegue segue)
@@ -34,35 +32,9 @@ namespace iMedDrs.iOS
             alertView.AddButton("Ok");
         }
 
-        public async override void ViewDidLoad()
+        public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            versionLbl.Text = "Version " + NSBundle.MainBundle.InfoDictionary["CFBundleShortVersionString"].ToString();
-            baseurl = "https://imeddrs.com/api";
-            datapath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            ms = new MServer(baseurl);
-            ps = new PServer();
-            userid = ps.RememberMe(datapath, "", true);
-            if (!string.IsNullOrWhiteSpace(userid))
-            {
-                main1Lbl.Hidden = true;
-                main2Lbl.Hidden = true;
-                loginBtn.Hidden = true;
-            }
-
-            message = new string[] { "users", "demo", "1234" };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
-            if (result[0] == "ack")
-            {
-                user = JsonConvert.DeserializeObject<UserModel>(result[1]);
-                questionnaires = new List<string>();
-                foreach (var item in user.QuestionnaireList)
-                {
-                    questionnaires.Add(item.Name);
-                }
-            }
-            else
-                AlertMessage(result[1]);
         }
 
         public override void DidReceiveMemoryWarning()
@@ -73,12 +45,17 @@ namespace iMedDrs.iOS
 
         public override void ViewWillAppear(bool animated)
         {
+            versionLbl.Text = "Version " + NSBundle.MainBundle.InfoDictionary["CFBundleShortVersionString"].ToString();
+            baseurl = "https://imeddrs.com/api";
+            datapath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            ms = new MServer(baseurl);
             base.ViewWillAppear(animated);
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
         {
             base.PrepareForSegue(segue, sender);
+            GetUserData();
             if (user != null)
             {
                 if (segue.DestinationViewController.Class.Name == "ProcessViewController")
@@ -112,6 +89,23 @@ namespace iMedDrs.iOS
         {
             _ = sender;
             PerformSegue("StartSegue", this);
+        }
+
+        private void GetUserData()
+        {
+            message = new string[] { "users", "demo", "1234" };
+            Task.Run(() => result = ms.ProcessMessage(message, "GET", "")).Wait();
+            if (result[0] == "ack")
+            {
+                user = JsonConvert.DeserializeObject<UserModel>(result[1]);
+                questionnaires = new List<string>();
+                foreach (var item in user.QuestionnaireList)
+                {
+                    questionnaires.Add(item.Name);
+                }
+            }
+            else
+                AlertMessage(result[1]);
         }
 
         private void AlertMessage(string title)

@@ -138,11 +138,11 @@ namespace iMedDrs.Droid
             speech = SpeechRecognizer.CreateSpeechRecognizer(this);
             speech.SetRecognitionListener(this);
             voice = new Intent(RecognizerIntent.ActionRecognizeSpeech);
-            voice.PutExtra(RecognizerIntent.ExtraLanguageModel, RecognizerIntent.LanguageModelWebSearch);
+            voice.PutExtra(RecognizerIntent.ExtraLanguageModel, RecognizerIntent.LanguageModelFreeForm);
             voice.PutExtra(RecognizerIntent.ExtraCallingPackage, PackageName);
             voice.PutExtra(RecognizerIntent.ExtraSpeechInputCompleteSilenceLengthMillis, 3000);
             voice.PutExtra(RecognizerIntent.ExtraSpeechInputPossiblyCompleteSilenceLengthMillis, 3000);
-            voice.PutExtra(RecognizerIntent.ExtraSpeechInputMinimumLengthMillis, 15000);
+            voice.PutExtra(RecognizerIntent.ExtraSpeechInputMinimumLengthMillis, 3000);
             voice.PutExtra(RecognizerIntent.ExtraMaxResults, 1);
 
             // Clear response objects
@@ -287,8 +287,9 @@ namespace iMedDrs.Droid
                 {
                     responses[Convert.ToInt32(number) - 1] = ans;
                     progress.Show();
-                    message = new string[] { "questionnaires", questionnaireid, number, userid, "Next", String.Join('|', responses).Replace("/", "~"), language };
-                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                    string _responses = JsonConvert.SerializeObject(responses);
+                    message = new string[] { "questionnaires", questionnaireid, number, userid, "Next", language };
+                    await Task.Run(() => result = ms.ProcessMessage(message, "POST", _responses));
                     progress.Dismiss();
                     if (result[0] == "ack")
                     {
@@ -315,45 +316,39 @@ namespace iMedDrs.Droid
                 if (role != "demo")
                 {
                     progress.Show();
-                    message = new string[] { "questionnaires", "save", userid, questionnaireid, String.Join('|', responses).Replace("/", "~") };
-                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                    string _responses = JsonConvert.SerializeObject(responses);
+                    message = new string[] { "questionnaires", "save", userid, questionnaireid };
+                    await Task.Run(() => result = ms.ProcessMessage(message, "POST", _responses));
                     progress.Dismiss();
-                    if (result[0] == "ack")
-                    {
-                        if (!handsfree)
-                        {
-                            save.SetMessage(result[1]);
-                            save.Show();
-                        }
-                        else
-                            GetReport();
-                    }
-                    else
-                        AlertMessage(result[1]);
+                    if (!handsfree)
+                        save.SetMessage(result[1]);
                 }
                 else
                 {
                     if (ps.WriteToFile(Path.Combine(datapath, questionnaire.Replace(" ", "_") + ".txt"), String.Join(',', responses), true))
                     {
                         if (!handsfree)
-                        {
                             save.SetMessage("Questionnaire responses saved");
-                            save.Show();
-                        }
-                        else
-                            GetReport();
                     }
                     else
-                        AlertMessage("Not able to save resposnes");
+                    {
+                        if (!handsfree)
+                            save.SetMessage("Not able to save resposnes");
+                    }
                 }
+                if (!handsfree)
+                    save.Show();
+                else
+                    Finish();
             }
         }
 
         private async void PreviousQuestion()
         {
             progress.Show();
-            message = new string[] { "questionnaires", questionnaireid, number, userid, "Previous", String.Join('|', responses).Replace("/", "~"), language };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+            string _responses = JsonConvert.SerializeObject(responses);
+            message = new string[] { "questionnaires", questionnaireid, number, userid, "Previous", language };
+            await Task.Run(() => result = ms.ProcessMessage(message, "POST", _responses));
             progress.Dismiss();
             if (result[0] == "ack")
             {
@@ -375,42 +370,6 @@ namespace iMedDrs.Droid
                 AlertMessage(result[1]);
         }
 
-        private async void GetReport()
-        {
-            string data = "";
-            message = null;
-            if (role == "demo")
-            {
-                data = ps.ReadFromFile(Path.Combine(datapath, questionnaire.Replace(" ", "_") + ".txt"));
-                if (data != "")
-                    message = new string[] { "report", "load2", userid, questionnaire, "0", data };
-            }
-            else
-                message = new string[] { "report", "load", userid, questionnaire, "0" };
-            if (message != null)
-            {
-                progress.Show();
-                await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
-                progress.Dismiss();
-                if (result[0] == "ack")
-                {
-                    Intent intent = new Intent(this.ApplicationContext, typeof(ReportActivity));
-                    intent.PutExtra("baseurl", baseurl);
-                    intent.PutExtra("userid", userid);
-                    intent.PutExtra("username", username);
-                    intent.PutExtra("questionnaire", questionnaire);
-                    intent.PutExtra("last", Convert.ToInt32(result[2]));
-                    intent.PutExtra("number", Convert.ToInt32(result[3]));
-                    intent.PutExtra("text", result[4]);
-                    intent.PutExtra("data", data);
-                    intent.PutExtra("email", email);
-                    intent.PutExtra("role", role);
-                    intent.PutExtra("language", language);
-                    StartActivity(intent);
-                }
-            }
-            Finish();
-        }
         private void SetQuestion()
         {
             SetVoice();
@@ -461,6 +420,7 @@ namespace iMedDrs.Droid
             response3.Visibility = ViewStates.Gone;
             response4.Visibility = ViewStates.Gone;
             response5.Visibility = ViewStates.Gone;
+            answer ??= "";
             if (name != "End")
             {
                 if (response.Length == 0)
@@ -552,6 +512,7 @@ namespace iMedDrs.Droid
                             result = response2.Text;
                             break;
                     }
+                    HideSoftKeyboard(this);
                 }
                 else
                 {
@@ -576,6 +537,7 @@ namespace iMedDrs.Droid
         {
             qname.Text = name;
             player.Stop();
+            speech.StopListening();
             speech.Cancel();
         }
 
@@ -590,11 +552,15 @@ namespace iMedDrs.Droid
         public void OnEndOfSpeech()
         {
             qname.Text = name;
+            speech.StopListening();
+            speech.Cancel();
         }
 
         public void OnError([GeneratedEnum] SpeechRecognizerError error)
         {
             qname.Text = name;
+            speech.StopListening();
+            speech.Cancel();
         }
 
         public void OnEvent(int eventType, Bundle @params)
@@ -603,7 +569,17 @@ namespace iMedDrs.Droid
 
         public void OnPartialResults(Bundle partialResults)
         {
-            qname.Text = name;
+            var matches = partialResults.GetStringArrayList(SpeechRecognizer.ResultsRecognition);
+            if (matches != null)
+            {
+                if (matches.Count != 0)
+                {
+                    qname.Text = name;
+                    SpeechResults(matches[0]);
+                    speech.StopListening();
+                    speech.Cancel();
+                }
+            }
         }
 
         public void OnReadyForSpeech(Bundle @params)
@@ -613,12 +589,28 @@ namespace iMedDrs.Droid
 
         public void OnResults(Bundle results)
         {
-            qname.Text = name;
-            string resp = "";
             var matches = results.GetStringArrayList(SpeechRecognizer.ResultsRecognition);
-            if (matches.Count != 0)
+            if (matches != null)
             {
-                resp = matches[0];
+                if (matches.Count != 0)
+                {
+                    qname.Text = name;
+                    SpeechResults(matches[0]);
+                    speech.StopListening();
+                    speech.Cancel();
+                }
+            }
+        }
+
+        public void OnRmsChanged(float rmsdB)
+        {
+        }
+
+        public void SpeechResults(string result)
+        {
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                string resp = result;
                 if (resp.ToLower().Contains("mail") && name == "Gender")
                     resp = "male";
                 if (!resp.ToLower().Contains("previous") && !resp.ToLower().Contains("next") && !resp.ToLower().StartsWith("stop"))
@@ -685,29 +677,43 @@ namespace iMedDrs.Droid
                         }
                     }
                 }
-            }
-            if (handsfree)
-            {
-                switch (resp)
+                if (handsfree)
                 {
-                    case "previous":
-                        PreviousQuestion();
-                        break;
-                    case "next":
-                        NextQuestion();
-                        break;
-                    case "stop":
-                        Finish();
-                        break;
-                    default:
-                        SetVoice();
-                        break;
+                    switch (resp)
+                    {
+                        case "previous":
+                            PreviousQuestion();
+                            break;
+                        case "next":
+                            NextQuestion();
+                            break;
+                        case "stop":
+                            Finish();
+                            break;
+                        default:
+                            SetVoice();
+                            break;
+                    }
                 }
             }
         }
 
-        public void OnRmsChanged(float rmsdB)
+
+        public void ShowSoftKeyboard(Activity activity, View view)
         {
+            InputMethodManager inputMethodManager = (InputMethodManager)activity.GetSystemService(Context.InputMethodService);
+            view.RequestFocus();
+            inputMethodManager.ShowSoftInput(view, 0);
+        }
+
+        public void HideSoftKeyboard(Activity activity)
+        {
+            var currentFocus = activity.CurrentFocus;
+            if (currentFocus != null)
+            {
+                InputMethodManager inputMethodManager = (InputMethodManager)activity.GetSystemService(Context.InputMethodService);
+                inputMethodManager.HideSoftInputFromWindow(currentFocus.WindowToken, HideSoftInputFlags.None);
+            }
         }
 
         private void AlertMessage(string messagetext)

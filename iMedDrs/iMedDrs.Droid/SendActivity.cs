@@ -5,6 +5,7 @@ using Android.Content;
 using Android.OS;
 using Android.Views.InputMethods;
 using Android.Widget;
+using Newtonsoft.Json;
 
 namespace iMedDrs.Droid
 {
@@ -113,11 +114,15 @@ namespace iMedDrs.Droid
                     location = location[0..^1];
             }
             progress.Show();
+            string[] responses = new string[] { "" };
             if (role == "demo")
-                message = new string[] { "reports", userid, questionnaire, location, data.Replace("/", "~").Replace(",", "|"), language };
+            {
+                responses = data.Split(',');
+                message = new string[] { "reports", userid, questionnaire, location, language };
+            }
             else
-                message = new string[] { "reports", userid, questionnaire, location, "*", language };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                message = new string[] { "reports", userid, questionnaire, location, language };
+            await Task.Run(() => result = ms.ProcessMessage(message, "POST", JsonConvert.SerializeObject(responses)));
             progress.Dismiss();
             if (result[1] != "" && result[1] != "~")
                 AlertMessage(result[1]);

@@ -32,7 +32,7 @@ namespace iMedDrs.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIWebView reportWv { get; set; }
+        WebKit.WKWebView reportWv { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]

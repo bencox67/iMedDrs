@@ -107,7 +107,7 @@ namespace iMedDrs.iOS
                 viewController.Eresponse = questionnaire.EngResponses.ToArray();
                 viewController.Datapath = Datapath;
                 viewController.Language = Language;
-                viewController.Extension = "mp3";
+                viewController.Extension = ".mp3";
                 viewController.Instructions = questionnaire.Instructions.Replace("<br/>", "\r\n");
                 viewController.Role = Role;
                 viewController.Email = Email;
@@ -123,7 +123,7 @@ namespace iMedDrs.iOS
                 viewController.Questionnaire = SelectedLbl.Text;
                 viewController.Last = model.MaxId;
                 viewController.Number = 0;
-                viewController.Text = model.Reports[0].Text;
+                viewController.Reports = model.Reports;
                 viewController.Data = data;
                 viewController.Email = Email;
                 viewController.Role = Role;
@@ -187,20 +187,31 @@ namespace iMedDrs.iOS
         {
             report = false;
             message = null;
+            string[] responses = new string[1];
             if (Role == "demo")
             {
                 data = ps.ReadFromFile(Datapath + "/" + SelectedLbl.Text.Replace(" ", "_") + ".txt");
                 if (data != "")
-                    message = new string[] { "reports", Userid, SelectedLbl.Text, data.Replace("/", "~").Replace(",", "|"), "English" };
+                {
+                    responses = data.Split(',');
+                    message = new string[] { "reports", Userid, SelectedLbl.Text.Replace(" ", "%20"), "English" };
+                }
                 else
                     AlertMessage("No responses saved");
             }
             else
-                message = new string[] { "reports", Userid, SelectedLbl.Text, "*", "English" };
+                message = new string[] { "reports", Userid, SelectedLbl.Text.Replace(" ", "%20"), "English" };
             if (message != null)
             {
                 BTProgressHUD.Show("Processing...Please wait...");
-                await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                if (Role == "demo")
+                {
+                    await Task.Run(() => result = ms.ProcessMessage(message, "POST", JsonConvert.SerializeObject(responses)));
+                }
+                else
+                {
+                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                }
                 BTProgressHUD.Dismiss();
                 if (result[0] == "ack")
                 {

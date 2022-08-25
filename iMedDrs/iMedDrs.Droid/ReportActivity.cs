@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -16,23 +17,19 @@ namespace iMedDrs.Droid
         string userid;
         string username;
         string questionnaire;
-        string text;
+        string reportjson;
         string data;
         string email;
         string role;
         string language;
-        string[] message;
-        string[] result;
         int last;
         int number;
+        List<Report> reports;
         WebView report;
         Button next;
         Button previous;
         Button send;
         Button returns;
-        AlertDialog alert;
-        AlertDialog progress;
-        MServer ms;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -45,7 +42,7 @@ namespace iMedDrs.Droid
             questionnaire = Intent.GetStringExtra("questionnaire");
             last = Intent.GetIntExtra("last", 0);
             number = Intent.GetIntExtra("number", 0);
-            text = Intent.GetStringExtra("text");
+            reportjson = Intent.GetStringExtra("reportjson");
             data = Intent.GetStringExtra("data");
             email = Intent.GetStringExtra("email");
             role = Intent.GetStringExtra("role");
@@ -59,7 +56,9 @@ namespace iMedDrs.Droid
 
             // Initialize variables
             report = FindViewById<WebView>(Resource.Id.report);
-            report.LoadDataWithBaseURL(null, text, "text/html", "utf-8", null);
+            ReportModel model = JsonConvert.DeserializeObject<ReportModel>(reportjson);
+            reports = model.Reports;
+            report.LoadDataWithBaseURL(null, reports[number].Text, "text/html", "utf-8", null);
             next = FindViewById<Button>(Resource.Id.next);
             previous = FindViewById<Button>(Resource.Id.previous);
             send = FindViewById<Button>(Resource.Id.send);
@@ -70,22 +69,6 @@ namespace iMedDrs.Droid
             previous.Click += Previous_Click;
             send.Click += Send_Click;
             returns.Click += Returns_Click;
-
-            // Alert dialog for messages
-            AlertDialog.Builder alertbuilder1 = new AlertDialog.Builder(this);
-            alertbuilder1.SetPositiveButton("Ok", (EventHandler<DialogClickEventArgs>)null);
-            alert = alertbuilder1.Create();
-            alertbuilder1.Dispose();
-
-            // Progress dialog for messaging
-            AlertDialog.Builder alertbuilder2 = new AlertDialog.Builder(this);
-            alertbuilder2.SetView(LayoutInflater.Inflate(Resource.Layout.Progress, null));
-            progress = alertbuilder2.Create();
-            progress.SetCancelable(false);
-            alertbuilder2.Dispose();
-
-            // Initialize messaging
-            ms = new MServer(baseurl);
         }
 
         public override void OnBackPressed()
@@ -98,7 +81,7 @@ namespace iMedDrs.Droid
             number++;
             if (number == last)
                 number = 0;
-            ShowReport();
+            report.LoadDataWithBaseURL(null, reports[number].Text, "text/html", "utf-8", null);
         }
 
         private void Previous_Click(object sender, EventArgs e)
@@ -106,7 +89,7 @@ namespace iMedDrs.Droid
             number--;
             if (number < 0)
                 number = last - 1;
-            ShowReport();
+            report.LoadDataWithBaseURL(null, reports[number].Text, "text/html", "utf-8", null);
         }
 
         private void Send_Click(object sender, EventArgs e)
@@ -126,33 +109,6 @@ namespace iMedDrs.Droid
         private void Returns_Click(object sender, EventArgs e)
         {
             Finish();
-        }
-
-        private async void ShowReport()
-        {
-            progress.Show();
-            if (role == "demo")
-                message = new string[] { "reports", userid, questionnaire, data.Replace("/", "~").Replace(",", "|"), language };
-            else
-                message = new string[] { "reports", userid, questionnaire, "*", language };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
-            progress.Dismiss();
-            if (result[0] == "ack")
-            {
-                ReportModel model = JsonConvert.DeserializeObject<ReportModel>(result[1]);
-                report.LoadDataWithBaseURL(null, model.Reports[number].Text, "text/html", "utf-8", null);
-            }
-            else
-                AlertMessage(result[1]);
-        }
-
-        private void AlertMessage(string messagetext)
-        {
-            if (messagetext != "")
-            {
-                alert.SetMessage(messagetext);
-                alert.Show();
-            }
         }
     }
 }

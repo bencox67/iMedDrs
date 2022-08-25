@@ -96,8 +96,6 @@ namespace iMedDrs.iOS
                         });
                         recook = true;
                     }
-                    else
-                        speakBtn.Hidden = true;
                 });
             }
             else
@@ -112,9 +110,8 @@ namespace iMedDrs.iOS
                     });
                     recook = true;
                 }
-                else
-                    speakBtn.Hidden = true;
             }
+            if (!recook) speakBtn.Hidden = true;
             ms = new MServer(Baseurl);
         }
 
@@ -224,6 +221,7 @@ namespace iMedDrs.iOS
                                 {
                                     nameLbl.Text = "Speak now...";
                                 });
+                                StopVoiceReco();
                                 Recognize();
                             }
                         }
@@ -271,59 +269,51 @@ namespace iMedDrs.iOS
             recognitionTask = speechRecognizer.GetRecognitionTask(recognitionRequest, (SFSpeechRecognitionResult result, NSError err) => {
                 if (err == null)
                 {
-                    if (result.Final)
+                    string recresp = result.BestTranscription.FormattedString;
+                    if (!recresp.ToLower().Contains("previous") && !recresp.ToLower().Contains("next") && recresp.ToLower() != "stop")
                     {
-                        string recresp = result.BestTranscription.FormattedString;
-                        if (!recresp.ToLower().Contains("previous") && !recresp.ToLower().Contains("next") && recresp.ToLower() != "stop")
+                        if (recresp.ToLower().Contains("mail") && Name == "Gender")
+                            recresp = "male";
+                        if (Response.Length == 0)
                         {
-                            if (recresp.ToLower().Contains("mail") && Name == "Gender")
-                                recresp = "male";
-                            if (Response.Length == 1)
+                            if (Type == "number")
                             {
-                                if (Type == "number")
+                                try
                                 {
-                                    try
-                                    {
-                                        responseTxt.Text = Convert.ToInt32(recresp).ToString();
-                                        recresp = "next";
-                                    }
-                                    catch { responseTxt.Text = ""; }
-                                }
-                                else
-                                {
-                                    responseTxt.Text = recresp;
+                                    responseTxt.Text = Convert.ToInt32(recresp).ToString();
                                     recresp = "next";
                                 }
+                                catch { responseTxt.Text = ""; }
                             }
                             else
                             {
-                                for (int i = 0; i < Response.Length; i++)
+                                responseTxt.Text = recresp;
+                                recresp = "next";
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < Response.Length; i++)
+                            {
+                                if (recresp.ToLower().Contains(Response[i].ToLower().Trim()))
                                 {
-                                    if (recresp.ToLower().Contains(Response[i].ToLower().Trim()))
-                                    {
-                                        if (Response.Length < 4)
-                                            responseSmc.SelectedSegment = i;
-                                        else
-                                            responsePkr.Select(i, 0, false);
-                                        recresp = "next";
-                                        break;
-                                    }
+                                    if (Response.Length < 4)
+                                        responseSmc.SelectedSegment = i;
+                                    else
+                                        responsePkr.Select(i, 0, false);
+                                    recresp = "next";
+                                    break;
                                 }
                             }
                         }
-                        if (Handsfree)
-                        {
-                            if (recresp == "")
-                                recoLbl.Text = "error";
-                            else
-                                recoLbl.Text = recresp;
-                        }
                     }
-                }
-                else
-                {
                     if (Handsfree)
-                        recoLbl.Text = "error";
+                    {
+                        if (recresp == "")
+                            recoLbl.Text = "error";
+                        else
+                            recoLbl.Text = recresp;
+                    }
                 }
                 audioEngine.Stop();
                 recognitionRequest.EndAudio();
@@ -355,8 +345,9 @@ namespace iMedDrs.iOS
                 {
                     Responses[Convert.ToInt32(Number) - 1] = ans;
                     BTProgressHUD.Show("Processing...Please wait...");
-                    message = new string[] { "questionnaires", Questionnaireid, Number, Userid, "Next", String.Join('|', Responses).Replace("/", "~"), Language };
-                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                    string responses = JsonConvert.SerializeObject(Responses);
+                    message = new string[] { "questionnaires", Questionnaireid, Number, Userid, "Next", Language };
+                    await Task.Run(() => result = ms.ProcessMessage(message, "POST", responses));
                     BTProgressHUD.Dismiss();
                     if (result[0] == "ack")
                     {
@@ -370,7 +361,6 @@ namespace iMedDrs.iOS
                         Type = model.Type;
                         Answer = Responses[Convert.ToInt32(Number) - 1];
                         Eresponse = model.EngResponses.ToArray();
-                        Extension = "mp3";
                         Instructions = model.Instructions;
                         SetQuestion();
                         SetResponses();
@@ -384,8 +374,9 @@ namespace iMedDrs.iOS
                 if (Role != "demo")
                 {
                     BTProgressHUD.Show("Processing...Please wait...");
-                    message = new string[] { "questionnaires", "save", Userid, Questionnaireid, String.Join('|', Responses).Replace("/", "~") };
-                    await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+                    string responses = JsonConvert.SerializeObject(Responses);
+                    message = new string[] { "questionnaires", "save", Userid, Questionnaireid };
+                    await Task.Run(() => result = ms.ProcessMessage(message, "POST", responses));
                     BTProgressHUD.Dismiss();
                     if (!Handsfree)
                         AlertMessage(result[1]);
@@ -411,8 +402,9 @@ namespace iMedDrs.iOS
         private async void Previous()
         {
             BTProgressHUD.Show("Processing...Please wait...");
-            message = new string[] { "questionnaires", Questionnaireid, Number, Userid, "Previous", String.Join('|', Responses).Replace("/", "~"), Language };
-            await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
+            string responses = JsonConvert.SerializeObject(Responses);
+            message = new string[] { "questionnaires", Questionnaireid, Number, Userid, "Previous", Language };
+            await Task.Run(() => result = ms.ProcessMessage(message, "POST", responses));
             BTProgressHUD.Dismiss();
             if (result[0] == "ack")
             {
@@ -426,7 +418,6 @@ namespace iMedDrs.iOS
                 Type = model.Type;
                 Answer = Responses[Convert.ToInt32(Number) - 1];
                 Eresponse = model.EngResponses.ToArray();
-                Extension = "mp3";
                 Instructions = model.Instructions;
                 SetQuestion();
                 SetResponses();
@@ -450,6 +441,7 @@ namespace iMedDrs.iOS
             responseSmc.Hidden = true;
             responsePkr.Hidden = true;
             responseDpr.Hidden = true;
+            Answer ??= "";
             if (Name != "End")
             {
                 if (Response.Length == 0)

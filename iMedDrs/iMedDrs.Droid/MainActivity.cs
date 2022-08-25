@@ -13,20 +13,15 @@ namespace iMedDrs.Droid
     public class MainActivity : Activity
     {
         string baseurl;
-        string userid;
-        string password;
         string datapath;
         string languages;
         string[] message;
         string[] result;
-        TextView inst2;
-        TextView inst3;
         Button start;
         Button login;
         AlertDialog alert;
         AlertDialog progress;
         MServer ms;
-        PServer ps;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -42,8 +37,6 @@ namespace iMedDrs.Droid
             // Initialize variables
             baseurl = "https://imeddrs.com/api";
             datapath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
-            inst2 = FindViewById<TextView>(Resource.Id.textView2);
-            inst3 = FindViewById<TextView>(Resource.Id.textView3);
             start = FindViewById<Button>(Resource.Id.start);
             login = FindViewById<Button>(Resource.Id.login);
 
@@ -65,32 +58,12 @@ namespace iMedDrs.Droid
             // Initialize messaging
             ms = new MServer(baseurl);
 
-            // Check remembered user
-            ps = new PServer();
-            userid = ps.RememberMe(datapath, "", true);
-            if (userid.Contains("~"))
-            {
-                string[] up = userid.Split('~');
-                userid = up[0];
-                password = up[1];
-                inst2.Visibility = Android.Views.ViewStates.Gone;
-                inst3.Visibility = Android.Views.ViewStates.Gone;
-                login.Visibility = Android.Views.ViewStates.Gone;
-            }
-            else
-            {
-                userid = "demo";
-                password = "1234";
-            }
-
             GetLanguages();
         }
 
         protected override void OnResume()
         {
             base.OnResume();
-            if (userid != "demo")
-                Start();
         }
 
         private void Start_Click(object sender, EventArgs e)
@@ -111,7 +84,7 @@ namespace iMedDrs.Droid
         private async void Start()
         {
             progress.Show();
-            message = new string[] { "users", "demo", password };
+            message = new string[] { "users", "demo", "1234" };
             await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
             progress.Dismiss();
             if (result[0] == "ack")
