@@ -44,12 +44,11 @@
     <MtouchProfiling>true</MtouchProfiling>
     <IOSDebugOverWiFi>False</IOSDebugOverWiFi>
     <IOSDebuggerPort>10000</IOSDebuggerPort>
-    <CodesignKey>iPhone Developer</CodesignKey>
-    <CodesignProvision>Imeddrs Dev</CodesignProvision>
     <CodesignExtraArgs />
     <CodesignResourceRules />
     <CodesignEntitlements />
     <LangVersion>8.0</LangVersion>
+    <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>full</DebugType>
@@ -61,10 +60,10 @@
     </CodesignEntitlements>
     <MtouchArch>ARM64</MtouchArch>
     <ConsolePause>false</ConsolePause>
-    <CodesignKey>iPhone Distribution: Ben Cox (4WUT955KLS)</CodesignKey>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <BuildIpa>True</BuildIpa>
     <IpaIncludeArtwork>False</IpaIncludeArtwork>
-    <CodesignProvision>iMedDrs</CodesignProvision>
+    <CodesignProvision>VS: com.imeddrs.iMedDrs Development</CodesignProvision>
     <MtouchDebug>False</MtouchDebug>
     <MtouchSdkVersion>
     </MtouchSdkVersion>
@@ -79,10 +78,11 @@
     <OutputPath>bin\iPhoneSimulator\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <MtouchArch>i386</MtouchArch>
+    <MtouchArch>x86_64</MtouchArch>
     <ConsolePause>false</ConsolePause>
     <MtouchLink>None</MtouchLink>
     <LangVersion>8.0</LangVersion>
+    <CodesignKey>iPhone Distribution</CodesignKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -102,6 +102,8 @@
     <IOSDebuggerPort>10000</IOSDebuggerPort>
     <MtouchLink>None</MtouchLink>
     <LangVersion>8.0</LangVersion>
+    <CodesignProvision>
+    </CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
     <AppExtensionDebugBundleId />
@@ -262,4 +264,9 @@
   <Import Project="..\iMedDrs\iMedDrs.projitems" Label="Shared" Condition="Exists('..\Migs\Migs.projitems')" />
   <Import Project="..\iMedDrs\iMedDrs.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties XamarinHotReloadWrongLinkerErrorInfoBariMedDrsiOSHideInfoBar="True" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

@@ -24,10 +24,10 @@ namespace iMedDrs.iOS
         public List<string> Questionnaires { get; set; }
         public List<string> Languages { get; set; }
         public UILabel SelectedLbl;
-        private bool report;
         private string data;
         private string[] message;
         private string[] result;
+        private bool report;
         private QuestionnaireModel questionnaire;
         private ReportModel model;
         private readonly UIAlertView alertView;
@@ -37,7 +37,8 @@ namespace iMedDrs.iOS
         [Action("UnwindToProcessViewController:")]
         public void UnwindToProcessViewController(UIStoryboardSegue segue)
         {
-            _ = segue;
+            QuestionViewController controller = (QuestionViewController)segue.SourceViewController;
+            report = controller.Report;
         }
 
         public ProcessViewController (IntPtr handle) : base (handle)
@@ -46,12 +47,12 @@ namespace iMedDrs.iOS
             alertView.AddButton("Ok");
             SelectedLbl = new UILabel();
             ps = new PServer();
+            report = false;
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            report = false;
             usernameLbl.Text = Username;
             SelectedLbl.Text = Questionnaires[0];
             PickerModel model = new PickerModel(Questionnaires, SelectedLbl);
@@ -86,8 +87,6 @@ namespace iMedDrs.iOS
             base.PrepareForSegue(segue, sender);
             if (segue.DestinationViewController.Class.Name == "QuestionViewController")
             {
-                if (handsfreeSwh.On)
-                    report = true;
                 var viewController = (QuestionViewController)segue.DestinationViewController;
                 viewController.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 viewController.Baseurl = Baseurl;
@@ -185,7 +184,6 @@ namespace iMedDrs.iOS
 
         private async void Report()
         {
-            report = false;
             message = null;
             string[] responses = new string[1];
             if (Role == "demo")
@@ -213,6 +211,7 @@ namespace iMedDrs.iOS
                     await Task.Run(() => result = ms.ProcessMessage(message, "GET", ""));
                 }
                 BTProgressHUD.Dismiss();
+
                 if (result[0] == "ack")
                 {
                     model = JsonConvert.DeserializeObject<ReportModel>(result[1]);

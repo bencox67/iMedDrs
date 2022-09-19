@@ -73,7 +73,7 @@ namespace iMedDrs.iOS
         {
             _ = sender;
             Number++;
-            if (Number == Last)
+            if (Number > Last)
                 Number = 0;
             reportWv.LoadHtmlString(Reports[Number].Text, null);
         }
@@ -83,7 +83,7 @@ namespace iMedDrs.iOS
             _ = sender;
             Number--;
             if (Number < 0)
-                Number = Last - 1;
+                Number = Last;
             reportWv.LoadHtmlString(Reports[Number].Text, null);
         }
 

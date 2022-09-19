@@ -11,7 +11,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_marginTop="10dp" />
     <CheckBox
-        android:text="Hands Free Mode"
+        android:text="Auto Play Question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"

@@ -55,9 +55,9 @@
 	<key>UIRequiresFullScreen</key>
 	<true/>
 	<key>CFBundleShortVersionString</key>
-	<string>4.5</string>
+	<string>4.6</string>
 	<key>CFBundleVersion</key>
-	<string>4.5</string>
+	<string>4.6</string>
 	<key>XSAppIconAssets</key>
 	<string>Resources/Images.xcassets/AppIcons.appiconset</string>
 	<key>XSLaunchImageAssets</key>

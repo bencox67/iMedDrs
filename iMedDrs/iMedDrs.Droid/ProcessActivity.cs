@@ -165,7 +165,55 @@ namespace iMedDrs.Droid
                 AlertMessage(result[1]);
         }
 
-        private async void View_Click(object sender, EventArgs e)
+        private void View_Click(object sender, EventArgs e)
+        {
+            Report();
+        }
+
+        private void Update_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(this.ApplicationContext, typeof(UserActivity));
+            intent.PutExtra("baseurl", baseurl);
+            intent.PutExtra("userid", userid);
+            intent.PutExtra("username", username);
+            intent.PutExtra("gender", gender);
+            intent.PutExtra("birthdate", birthdate);
+            intent.PutExtra("language", language);
+            intent.PutExtra("email", email);
+            intent.PutExtra("role", role);
+            intent.PutExtra("languages", languages);
+            StartActivityForResult(intent, 1);
+        }
+
+        private void Maintain_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(this.ApplicationContext, typeof(MaintainActivity));
+            intent.PutExtra("baseurl", baseurl);
+            intent.PutExtra("userid", userid);
+            intent.PutExtra("questionnaires", Intent.GetStringExtra("questionnaires"));
+            intent.PutExtra("languages", "English|French|Spanish");
+            intent.PutExtra("role", role);
+            intent.PutExtra("datapath", datapath);
+            StartActivity(intent);
+        }
+
+        private void Logout_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(this.ApplicationContext, typeof(MainActivity));
+            StartActivity(intent);
+            Finish();
+        }
+
+        private void AlertMessage(string messagetext)
+        {
+            if (messagetext != "")
+            {
+                alert.SetMessage(messagetext);
+                alert.Show();
+            }
+        }
+
+        private async void Report()
         {
             string data = "";
             message = null;
@@ -219,49 +267,6 @@ namespace iMedDrs.Droid
                 }
                 else
                     AlertMessage(result[1]);
-            }
-        }
-
-        private void Update_Click(object sender, EventArgs e)
-        {
-            Intent intent = new Intent(this.ApplicationContext, typeof(UserActivity));
-            intent.PutExtra("baseurl", baseurl);
-            intent.PutExtra("userid", userid);
-            intent.PutExtra("username", username);
-            intent.PutExtra("gender", gender);
-            intent.PutExtra("birthdate", birthdate);
-            intent.PutExtra("language", language);
-            intent.PutExtra("email", email);
-            intent.PutExtra("role", role);
-            intent.PutExtra("languages", languages);
-            StartActivityForResult(intent, 1);
-        }
-
-        private void Maintain_Click(object sender, EventArgs e)
-        {
-            Intent intent = new Intent(this.ApplicationContext, typeof(MaintainActivity));
-            intent.PutExtra("baseurl", baseurl);
-            intent.PutExtra("userid", userid);
-            intent.PutExtra("questionnaires", Intent.GetStringExtra("questionnaires"));
-            intent.PutExtra("languages", "English|French|Spanish");
-            intent.PutExtra("role", role);
-            intent.PutExtra("datapath", datapath);
-            StartActivity(intent);
-        }
-
-        private void Logout_Click(object sender, EventArgs e)
-        {
-            Intent intent = new Intent(this.ApplicationContext, typeof(MainActivity));
-            StartActivity(intent);
-            Finish();
-        }
-
-        private void AlertMessage(string messagetext)
-        {
-            if (messagetext != "")
-            {
-                alert.SetMessage(messagetext);
-                alert.Show();
             }
         }
     }

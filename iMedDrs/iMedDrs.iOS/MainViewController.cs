@@ -93,8 +93,10 @@ namespace iMedDrs.iOS
 
         private void GetUserData()
         {
+            BTProgressHUD.Show("Processing...Please wait...");
             message = new string[] { "users", "demo", "1234" };
             Task.Run(() => result = ms.ProcessMessage(message, "GET", "")).Wait();
+            BTProgressHUD.Dismiss();
             if (result[0] == "ack")
             {
                 user = JsonConvert.DeserializeObject<UserModel>(result[1]);

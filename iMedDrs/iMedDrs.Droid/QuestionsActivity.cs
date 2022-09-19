@@ -33,7 +33,6 @@ namespace iMedDrs.Droid
         string language;
         string extension;
         string instruction;
-        string email;
         string role;
         string[] responses;
         string[] response;
@@ -44,7 +43,6 @@ namespace iMedDrs.Droid
         bool required;
         bool play;
         bool handsfree;
-        bool report;
         bool playing;
         TextView instructions;
         TextView qname;
@@ -95,7 +93,6 @@ namespace iMedDrs.Droid
             language = Intent.GetStringExtra("language");
             extension = Intent.GetStringExtra("extension");
             instruction = Intent.GetStringExtra("instruction");
-            email = Intent.GetStringExtra("email");
             handsfree = Convert.ToBoolean(Intent.GetStringExtra("handsfree"));
 
             // Set title
@@ -126,12 +123,11 @@ namespace iMedDrs.Droid
             player.Prepared += Player_Prepared;
             player.Completion += Player_Completion;
             init = true;
-            report = false;
             playing = false;
+            speak.Visibility = ViewStates.Invisible;
             if (handsfree)
             {
                 listen.Visibility = ViewStates.Invisible;
-                speak.Visibility = ViewStates.Invisible;
             }
 
             // Speech Recoginition
@@ -221,10 +217,10 @@ namespace iMedDrs.Droid
                 playing = false;
                 if (handsfree)
                 {
-                    if (!report && !init)
-                        GetVoice();
-                    else
-                        NextQuestion();
+                    //if (!report && !init)
+                    //    GetVoice();
+                    //else
+                    //    NextQuestion();
                 }
             }
         }
@@ -373,13 +369,9 @@ namespace iMedDrs.Droid
         private void SetQuestion()
         {
             SetVoice();
-            if (name == "End")
-                report = true;
             instructions.Text = instruction.Replace("~", "\r\n");
             qname.Text = name;
             question.Text = text;
-            if (name == "End")
-                report = true;
         }
 
         private void SetVoice()
@@ -610,7 +602,7 @@ namespace iMedDrs.Droid
         {
             if (!string.IsNullOrWhiteSpace(result))
             {
-                string resp = result;
+                string resp = result.Trim();
                 if (resp.ToLower().Contains("mail") && name == "Gender")
                     resp = "male";
                 if (!resp.ToLower().Contains("previous") && !resp.ToLower().Contains("next") && !resp.ToLower().StartsWith("stop"))
@@ -655,7 +647,7 @@ namespace iMedDrs.Droid
                         {
                             for (int i = 0; i < response.Length; i++)
                             {
-                                if (resp.ToLower().Contains(response[i].ToLower().Trim()))
+                                if (resp.ToLower() == response[i].ToLower().Trim())
                                 {
                                     rb[i].Checked = true;
                                     resp = "next";
@@ -667,7 +659,7 @@ namespace iMedDrs.Droid
                         {
                             for (int i = 0; i < response.Length; i++)
                             {
-                                if (resp.ToLower().Contains(response[i].ToLower().Trim()))
+                                if (resp.ToLower() == response[i].ToLower().Trim())
                                 {
                                     response4.SetSelection(i);
                                     resp = "next";

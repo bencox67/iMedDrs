@@ -79,7 +79,7 @@ namespace iMedDrs.Droid
         private void Next_Click(object sender, EventArgs e)
         {
             number++;
-            if (number == last)
+            if (number > last)
                 number = 0;
             report.LoadDataWithBaseURL(null, reports[number].Text, "text/html", "utf-8", null);
         }
@@ -88,7 +88,7 @@ namespace iMedDrs.Droid
         {
             number--;
             if (number < 0)
-                number = last - 1;
+                number = last;
             report.LoadDataWithBaseURL(null, reports[number].Text, "text/html", "utf-8", null);
         }
 

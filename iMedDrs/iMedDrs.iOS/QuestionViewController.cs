@@ -36,17 +36,17 @@ namespace iMedDrs.iOS
         public string Role { get; set; }
         public string Email { get; set; }
         public bool Handsfree { get; set; }
+        public bool Report { get; set; }
         public List<string> Presponses { get; set; }
         public UILabel SelectedLbl;
         private bool recook = false;
-        private bool report = false;
         private readonly string path;
         private string[] message;
         private string[] result;
         private readonly UIAlertView alertView;
         private readonly UIAlertView stopView;
         private AVPlayer player;
-        private SFSpeechAudioBufferRecognitionRequest recognitionRequest;
+        private readonly SFSpeechAudioBufferRecognitionRequest recognitionRequest;
         private SFSpeechRecognitionTask recognitionTask;
         private readonly AVAudioEngine audioEngine;
         private AVAudioSession audioSession;
@@ -70,6 +70,10 @@ namespace iMedDrs.iOS
             NSNotificationCenter.DefaultCenter.AddObserver(UIKeyboard.WillShowNotification, OnKeyboardNotification);
             audioEngine = new AVAudioEngine();
             speechRecognizer = new SFSpeechRecognizer(new NSLocale("en_US"));
+            recognitionRequest = new SFSpeechAudioBufferRecognitionRequest
+            {
+                ShouldReportPartialResults = true
+            };
         }
 
         public override void ViewDidLoad()
@@ -111,8 +115,10 @@ namespace iMedDrs.iOS
                     recook = true;
                 }
             }
+            recook = false;
             if (!recook) speakBtn.Hidden = true;
             ms = new MServer(Baseurl);
+            Report = false;
         }
 
         public override void DidReceiveMemoryWarning()
@@ -147,7 +153,6 @@ namespace iMedDrs.iOS
             _ = sender;
             if (recook)
             {
-                nameLbl.Text = "Speak now...";
                 Recognize();
             }
         }
@@ -174,9 +179,13 @@ namespace iMedDrs.iOS
             {
                 if (e.ButtonIndex == 1)
                 {
-                    StopVoiceReco();
                     Handsfree = false;
                     recook = false;
+                    StopVoiceReco();
+                    if (recognitionTask != null)
+                    {
+                        recognitionTask.Cancel();
+                    }
                     audioEngine.Dispose();
                     speechRecognizer.Dispose();
                     DismissModalViewController(false);
@@ -202,10 +211,7 @@ namespace iMedDrs.iOS
                 player.ActionAtItemEnd = AVPlayerActionAtItemEnd.None;
                 NSNotificationCenter.DefaultCenter.AddObserver(AVPlayerItem.DidPlayToEndTimeNotification, (notify) =>
                 {
-                    InvokeOnMainThread(() =>
-                    {
-                        recoLbl.Text = "complete";
-                    });
+                    InvokeOnMainThread(() => { recoLbl.Text = "complete"; });
                 });
                 if (Handsfree)
                 { 
@@ -213,20 +219,15 @@ namespace iMedDrs.iOS
                     if (recoLbl.Text != "")
                     {
                         recoLbl.Text = "";
-                        if (!report)
-                        {
-                            if (recook)
-                            {
-                                InvokeOnMainThread(() =>
-                                {
-                                    nameLbl.Text = "Speak now...";
-                                });
-                                StopVoiceReco();
-                                Recognize();
-                            }
-                        }
-                        else
-                            Next();
+                        //if (Name != "End")
+                        //{
+                        //    if (recook)
+                        //    {
+                        //        Recognize();
+                        //    }
+                        //}
+                        //else
+                        //    Next();
                     }
                 }
             }
@@ -235,90 +236,97 @@ namespace iMedDrs.iOS
         private async void Recognize()
         {
             recoLbl.Text = "";
-            GetRecognition();
-            if (Handsfree)
-                do { await Task.Delay(5); } while (recoLbl.Text == "");
-            switch (recoLbl.Text)
-            {
-                case "previous":
-                    Previous();
-                    break;
-                case "next":
-                    Next();
-                    break;
-                case "stop":
-                    Handsfree = false;
-                    recook = false;
-                    audioEngine.Stop();
-                    recognitionTask.Cancel();
-                    DismissModalViewController(false);
-                    break;
-                default:
-                    SetResponses();
-                    break;
-            }
-        }
-
-        private void GetRecognition()
-        {
-            recognitionRequest = new SFSpeechAudioBufferRecognitionRequest();
             audioEngine.Prepare();
             audioEngine.StartAndReturnError(out NSError error);
-            if (error != null)
-                return;
-            recognitionTask = speechRecognizer.GetRecognitionTask(recognitionRequest, (SFSpeechRecognitionResult result, NSError err) => {
-                if (err == null)
+            if (error == null)
+            {
+                InvokeOnMainThread(() => { nameLbl.Text = "Speak now..."; });
+                int count = 0;
+                recognitionTask = speechRecognizer.GetRecognitionTask(recognitionRequest, (SFSpeechRecognitionResult result, NSError err) => 
                 {
-                    string recresp = result.BestTranscription.FormattedString;
-                    if (!recresp.ToLower().Contains("previous") && !recresp.ToLower().Contains("next") && recresp.ToLower() != "stop")
+                    if (err == null)
                     {
-                        if (recresp.ToLower().Contains("mail") && Name == "Gender")
-                            recresp = "male";
-                        if (Response.Length == 0)
+                        string recresp = result.BestTranscription.FormattedString.Trim();
+                        if (++count > 2)
                         {
-                            if (Type == "number")
+                            if (!recresp.ToLower().Contains("previous") && !recresp.ToLower().Contains("next") && recresp.ToLower() != "stop")
                             {
-                                try
+                                if (recresp.ToLower().Contains("mail") && Name == "Gender")
+                                    recresp = "male";
+                                if (Response.Length == 0)
                                 {
-                                    responseTxt.Text = Convert.ToInt32(recresp).ToString();
-                                    recresp = "next";
+                                    if (Type == "number")
+                                    {
+                                        try
+                                        {
+                                            responseTxt.Text = Convert.ToInt32(recresp).ToString();
+                                            recresp = "next";
+                                        }
+                                        catch { responseTxt.Text = ""; }
+                                    }
+                                    else
+                                    {
+                                        responseTxt.Text = recresp;
+                                        recresp = "next";
+                                    }
                                 }
-                                catch { responseTxt.Text = ""; }
+                                else
+                                {
+                                    for (int i = 0; i < Response.Length; i++)
+                                    {
+                                        if (recresp.ToLower() == Response[i].ToLower().Trim())
+                                        {
+                                            if (Response.Length < 4)
+                                                responseSmc.SelectedSegment = i;
+                                            else
+                                                responsePkr.Select(i, 0, false);
+                                            recresp = "next";
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (Handsfree)
+                            {
+                                if (recresp == "")
+                                    recoLbl.Text = "error";
+                                else
+                                    recoLbl.Text = recresp;
                             }
                             else
                             {
-                                responseTxt.Text = recresp;
-                                recresp = "next";
+                                recoLbl.Text = "ok";
                             }
-                        }
-                        else
-                        {
-                            for (int i = 0; i < Response.Length; i++)
-                            {
-                                if (recresp.ToLower().Contains(Response[i].ToLower().Trim()))
-                                {
-                                    if (Response.Length < 4)
-                                        responseSmc.SelectedSegment = i;
-                                    else
-                                        responsePkr.Select(i, 0, false);
-                                    recresp = "next";
-                                    break;
-                                }
-                            }
+                            audioEngine.Stop();
+                            recognitionRequest.EndAudio();
+                            recognitionTask.Cancel();
                         }
                     }
-                    if (Handsfree)
+                    else
                     {
-                        if (recresp == "")
-                            recoLbl.Text = "error";
-                        else
-                            recoLbl.Text = recresp;
+                        recoLbl.Text = "error";
+                        audioEngine.Stop();
+                        recognitionRequest.EndAudio();
+                        recognitionTask.Cancel();
                     }
+                });
+                do { await Task.Delay(5); } while (recoLbl.Text == "");
+                switch (recoLbl.Text)
+                {
+                    case "previous":
+                        Previous();
+                        break;
+                    case "next":
+                        Next();
+                        break;
+                    case "stop":
+                        Handsfree = false;
+                        recook = false;
+                        DismissModalViewController(false);
+                        break;
                 }
-                audioEngine.Stop();
-                recognitionRequest.EndAudio();
-                nameLbl.Text = Name;
-            });
+            }
+            InvokeOnMainThread(() => { nameLbl.Text = Name; });
         }
 
         private void StopVoiceReco()
@@ -330,8 +338,7 @@ namespace iMedDrs.iOS
                 player = null;
             }
             audioEngine.Stop();
-            if (recognitionTask != null)
-                recognitionTask.Cancel();
+            recognitionRequest.EndAudio();
         }
 
         private async void Next()
@@ -340,7 +347,12 @@ namespace iMedDrs.iOS
             {
                 string ans = GetRepsonse();
                 if (Required && ans == "~")
-                    AlertMessage("A response is required");
+                {
+                    if (!Handsfree)
+                        AlertMessage("A response is required");
+                    else
+                        Play();
+                }
                 else
                 {
                     Responses[Convert.ToInt32(Number) - 1] = ans;
@@ -378,6 +390,7 @@ namespace iMedDrs.iOS
                     message = new string[] { "questionnaires", "save", Userid, Questionnaireid };
                     await Task.Run(() => result = ms.ProcessMessage(message, "POST", responses));
                     BTProgressHUD.Dismiss();
+                    Report = true;
                     if (!Handsfree)
                         AlertMessage(result[1]);
                 }
@@ -386,6 +399,7 @@ namespace iMedDrs.iOS
                     string file = path + Questionnaire.Replace(" ", "_") + ".txt";
                     if (ps.WriteToFile(file, String.Join(',', Responses), true))
                     {
+                        Report = true;
                         if (!Handsfree)
                             AlertMessage("Questionnaire responses saved");
                     }
@@ -431,8 +445,6 @@ namespace iMedDrs.iOS
             instructionsLbl.Text = Instructions.Replace("~", "\r\n");
             nameLbl.Text = Name;
             questionBtn.SetTitle(Text, UIControlState.Normal);
-            if (Name == "End")
-                report = true;
         }
 
         private void SetResponses()
