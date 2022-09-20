@@ -49,6 +49,7 @@
     <CodesignEntitlements />
     <LangVersion>8.0</LangVersion>
     <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignProvision>iMedDrs</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>full</DebugType>
@@ -60,10 +61,11 @@
     </CodesignEntitlements>
     <MtouchArch>ARM64</MtouchArch>
     <ConsolePause>false</ConsolePause>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>Apple Distribution: Ben Cox (4WUT955KLS)</CodesignKey>
     <BuildIpa>True</BuildIpa>
     <IpaIncludeArtwork>False</IpaIncludeArtwork>
-    <CodesignProvision>VS: com.imeddrs.iMedDrs Development</CodesignProvision>
+    <CodesignProvision>
+    </CodesignProvision>
     <MtouchDebug>False</MtouchDebug>
     <MtouchSdkVersion>
     </MtouchSdkVersion>
