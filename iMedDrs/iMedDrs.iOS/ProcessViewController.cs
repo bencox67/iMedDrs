@@ -37,8 +37,8 @@ namespace iMedDrs.iOS
         [Action("UnwindToProcessViewController:")]
         public void UnwindToProcessViewController(UIStoryboardSegue segue)
         {
-            QuestionViewController controller = (QuestionViewController)segue.SourceViewController;
-            report = controller.Report;
+            _ = segue;
+            report = false;
         }
 
         public ProcessViewController (IntPtr handle) : base (handle)

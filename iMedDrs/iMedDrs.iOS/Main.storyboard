@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment version="4352" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -262,15 +262,6 @@
                                     <segue destination="28" kind="unwind" unwindAction="UnwindToMainViewController:" id="934"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Auto Play Question:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6478">
-                                <rect key="frame" x="10" y="260" width="167" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="148" id="44569"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" systemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="45833">
                                 <rect key="frame" x="10" y="500" width="355" height="30"/>
                                 <color key="backgroundColor" white="0.66666666666666696" alpha="1" colorSpace="calibratedWhite"/>
@@ -282,8 +273,17 @@
                                     <segue destination="761" kind="presentation" identifier="MaintainSegue" animates="NO" id="80800"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Auto Play Question:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6478">
+                                <rect key="frame" x="10" y="260" width="210" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="160" id="44569"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" systemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="6485">
-                                <rect key="frame" x="170" y="255" width="51" height="31"/>
+                                <rect key="frame" x="188" y="255" width="51" height="31"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="49" id="44572"/>
                                 </constraints>
@@ -312,7 +312,7 @@
                             <constraint firstAttribute="leadingMargin" secondItem="6478" secondAttribute="leading" constant="6" id="44567"/>
                             <constraint firstItem="6478" firstAttribute="top" secondItem="26" secondAttribute="top" constant="260" id="44568"/>
                             <constraint firstItem="6485" firstAttribute="top" secondItem="26" secondAttribute="top" constant="255" id="44570"/>
-                            <constraint firstItem="6485" firstAttribute="leading" secondItem="26" secondAttribute="leadingMargin" constant="144" id="44571"/>
+                            <constraint firstItem="6485" firstAttribute="leading" secondItem="26" secondAttribute="leadingMargin" constant="165" id="44571"/>
                             <constraint firstItem="702" firstAttribute="top" secondItem="26" secondAttribute="top" constant="440" id="45830"/>
                             <constraint firstAttribute="leadingMargin" secondItem="702" secondAttribute="leading" constant="6" id="45831"/>
                             <constraint firstItem="702" firstAttribute="trailing" secondItem="26" secondAttribute="trailingMargin" constant="6" id="45832"/>
@@ -1899,7 +1899,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="142"/>
+        <segue reference="216"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Icon.png" width="256" height="256"/>

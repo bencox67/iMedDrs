@@ -52,12 +52,10 @@
 	<string>Allow you to answer questions</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow you to answer questions</string>
-	<key>UIRequiresFullScreen</key>
-	<true/>
 	<key>CFBundleShortVersionString</key>
-	<string>4.6</string>
+	<string>4.8</string>
 	<key>CFBundleVersion</key>
-	<string>4.6</string>
+	<string>4.8</string>
 	<key>XSAppIconAssets</key>
 	<string>Resources/Images.xcassets/AppIcons.appiconset</string>
 	<key>XSLaunchImageAssets</key>
